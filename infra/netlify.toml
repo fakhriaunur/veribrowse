@@ -1,3 +1,8 @@
+# Mirror of the repo-root `netlify.toml` (Netlify only reads the root file).
+# The root file additionally declares `[[plugins]] @netlify/plugin-nextjs`
+# (Next.js runtime for SSR/API routes). Keep the [build], [context.*], and
+# [[headers]] blocks below in sync with the root file — enforced by
+# `scripts/check_version_drift.sh`. Do not edit one without the other.
 [build]
   command = "pnpm build"
   publish = ".next"

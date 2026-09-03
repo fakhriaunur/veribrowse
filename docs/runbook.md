@@ -2,7 +2,7 @@
 
 ## Deployment
 
-Netlify deploys `main` via `infra/netlify.toml` (`pnpm build` publish `.next`, `NODE_VERSION 22.11.0`). All contexts `production`, `deploy-preview`, `branch-deploy` use `pnpm build`. Headers `cache-control: no-store` for `/api/*`.
+Netlify deploys `main` via the repo-root `netlify.toml` (the only config Netlify reads; `infra/netlify.toml` is a drift-gated mirror — see `docs/deployment.md`) with `[[plugins]] @netlify/plugin-nextjs` runtime for SSR/API routes (`pnpm build` publish `.next`, `NODE_VERSION 22.11.0`). All contexts `production`, `deploy-preview`, `branch-deploy` use `pnpm build`. Headers `cache-control: no-store` for `/api/*`.
 
 ### Deploy from main
 ```bash

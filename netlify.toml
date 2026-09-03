@@ -1,0 +1,34 @@
+# Netlify configuration — THIS FILE MUST LIVE AT THE REPO ROOT.
+# Netlify only reads `netlify.toml` from the repository root; `infra/netlify.toml`
+# is a tracked mirror used by local gates (`scripts/check_version_drift.sh`
+# asserts the two files stay in sync). Do not edit one without the other.
+#
+# Next.js 15 SSR + API routes (`/`, `/api/health`, `/api/score`, `/api/check`)
+# require the Next.js runtime (@netlify/plugin-nextjs v5). It is declared
+# explicitly below so a deploy never falls back to static-only serving
+# (which 404s every route). Netlify installs declared plugins automatically
+# at build time; no package.json change is needed.
+
+[build]
+  command = "pnpm build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22.11.0"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[context.production]
+  command = "pnpm build"
+
+[context.deploy-preview]
+  command = "pnpm build"
+
+[context.branch-deploy]
+  command = "pnpm build"
+
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    cache-control = "no-store"
