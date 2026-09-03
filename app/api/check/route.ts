@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkClaimSchema } from "@/lib/schemas";
 import { verifyClaimPure, type Evidence } from "@/lib/claim";
-import { logger } from "@/lib/logger";
+import { withRequestId } from "@/lib/logger";
 import { fetchWithRetry } from "@/lib/fetchWithRetry";
 import { inc } from "@/lib/metrics";
 
@@ -36,7 +36,24 @@ export async function GET(req: Request) {
     "X-Request-Id": requestId,
     "cache-control": "no-store",
   };
-  void traceparent;
+  // tracing stub: traceparent passthrough — accepted without error, logged if present
+  const log = withRequestId(requestId);
+
+  // 499 abort shape (VAL-API-029): {error:"aborted"} + warn log with durationMs/requestId
+  // NOTE: helper body must construct the response directly (never call abort()).
+  const abort = () => {
+    log.warn(
+      {
+        requestId,
+        traceparent,
+        hasKey,
+        durationMs: Math.max(1, Date.now() - start),
+        aborted: true,
+      },
+      "check aborted",
+    );
+    return NextResponse.json({ error: "aborted" }, { status: 499, headers });
+  };
 
   try {
     const { searchParams } = new URL(req.url);
@@ -48,12 +65,35 @@ export async function GET(req: Request) {
       if (claim) {
         const parsedFix = checkClaimSchema.safeParse({ claim, contextUrl });
         if (!parsedFix.success) {
+          log.warn(
+            {
+              requestId,
+              traceparent,
+              hasKey,
+              durationMs: Math.max(1, Date.now() - start),
+            },
+            "check 400 — invalid claim",
+          );
           return NextResponse.json(
-            { error: parsedFix.error.flatten() },
+            {
+              error:
+                "Invalid claim — must be 8-500 chars with optional valid contextUrl",
+              details: parsedFix.error.flatten(),
+              issues: parsedFix.error.issues,
+            },
             { status: 400, headers },
           );
         }
       } else if (!claim) {
+        log.warn(
+          {
+            requestId,
+            traceparent,
+            hasKey,
+            durationMs: Math.max(1, Date.now() - start),
+          },
+          "check 400 — missing claim",
+        );
         return NextResponse.json(
           { error: "Missing claim query param" },
           { status: 400, headers },
@@ -66,7 +106,7 @@ export async function GET(req: Request) {
             url: "https://example.com/evidence",
             quote: "Fixture evidence quote for deterministic replay",
             contentHash: hashBytes("fixture-evidence"),
-            retrievedAt: new Date().toISOString(),
+            retrievedAt: "2026-01-01T00:00:00.000Z",
           },
         ],
         {
@@ -76,14 +116,29 @@ export async function GET(req: Request) {
         },
       );
       inc("check_requests_total");
-      logger.info(
-        { requestId, claim, hasKey, durationMs: Date.now() - start },
+      log.info(
+        {
+          requestId,
+          traceparent,
+          claim,
+          hasKey,
+          durationMs: Math.max(1, Date.now() - start),
+        },
         "check fixture",
       );
       return NextResponse.json(result, { status: 200, headers });
     }
 
     if (!claim) {
+      log.warn(
+        {
+          requestId,
+          traceparent,
+          hasKey,
+          durationMs: Math.max(1, Date.now() - start),
+        },
+        "check 400 — missing claim",
+      );
       return NextResponse.json(
         { error: "Missing claim query param" },
         { status: 400, headers },
@@ -92,14 +147,28 @@ export async function GET(req: Request) {
 
     const parsed = checkClaimSchema.safeParse({ claim, contextUrl });
     if (!parsed.success) {
+      log.warn(
+        {
+          requestId,
+          traceparent,
+          hasKey,
+          durationMs: Math.max(1, Date.now() - start),
+        },
+        "check 400 — invalid claim",
+      );
       return NextResponse.json(
-        { error: parsed.error.flatten() },
+        {
+          error:
+            "Invalid claim — must be 8-500 chars with optional valid contextUrl",
+          details: parsed.error.flatten(),
+          issues: parsed.error.issues,
+        },
         { status: 400, headers },
       );
     }
 
     if (req.signal.aborted) {
-      return NextResponse.json({ error: "aborted" }, { status: 499, headers });
+      return abort();
     }
 
     const signal = req.signal;
@@ -111,11 +180,7 @@ export async function GET(req: Request) {
           signal,
           headers: { "user-agent": "VeriBrowse/0.1" },
         });
-        if (signal.aborted)
-          return NextResponse.json(
-            { error: "aborted" },
-            { status: 499, headers },
-          );
+        if (signal.aborted) return abort();
         const html = await res.text();
         const text = html
           .replace(/<[^>]+>/g, " ")
@@ -134,18 +199,14 @@ export async function GET(req: Request) {
           evidence = [];
         }
       } catch (e) {
-        if (isAbortError(e))
-          return NextResponse.json(
-            { error: "aborted" },
-            { status: 499, headers },
-          );
-        logger.warn(
+        if (isAbortError(e)) return abort();
+        log.warn(
           {
             requestId,
             contextUrl: parsed.data.contextUrl,
             err: String(e),
             hasKey,
-            durationMs: Date.now() - start,
+            durationMs: Math.max(1, Date.now() - start),
           },
           "evidence fetch failed",
         );
@@ -153,20 +214,19 @@ export async function GET(req: Request) {
       }
     } else {
       evidence = [];
-      logger.info(
+      log.info(
         {
           requestId,
           claim: parsed.data.claim,
           hasKey,
-          durationMs: Date.now() - start,
+          durationMs: Math.max(1, Date.now() - start),
           openai_skipped: "no_evidence",
         },
         "check fail-closed — no evidence",
       );
     }
 
-    if (signal.aborted)
-      return NextResponse.json({ error: "aborted" }, { status: 499, headers });
+    if (signal.aborted) return abort();
 
     // Fail-closed: empty evidence → unverified regardless of LLM
     let llm:
@@ -194,11 +254,7 @@ export async function GET(req: Request) {
             messages: [{ role: "user", content: prompt }],
           }),
         });
-        if (signal.aborted)
-          return NextResponse.json(
-            { error: "aborted" },
-            { status: 499, headers },
-          );
+        if (signal.aborted) return abort();
         if (res.ok) {
           const j = (await res.json()) as {
             choices?: { message?: { content?: string } }[];
@@ -218,63 +274,58 @@ export async function GET(req: Request) {
             confidence: Math.min(1, Math.max(0, p.confidence ?? 0.5)),
             reasoning: (p.reasoning ?? "").slice(0, 300),
           };
-          logger.info(
+          log.info(
             {
               requestId,
               claim: parsed.data.claim,
               llm,
               hasKey,
-              durationMs: Date.now() - start,
+              durationMs: Math.max(1, Date.now() - start),
             },
             "openai claim enrichment ok",
           );
         } else {
           const body = await res.text().catch(() => "");
           inc("openai_fallback_total");
-          logger.warn(
+          log.warn(
             {
               requestId,
               status: res.status,
               body,
               hasKey,
-              durationMs: Date.now() - start,
+              durationMs: Math.max(1, Date.now() - start),
               openai_fallback_total: 1,
             },
             "openai claim enrichment failed — fail-closed",
           );
         }
       } catch (e) {
-        if (isAbortError(e))
-          return NextResponse.json(
-            { error: "aborted" },
-            { status: 499, headers },
-          );
+        if (isAbortError(e)) return abort();
         inc("openai_fallback_total");
-        logger.warn(
+        log.warn(
           {
             requestId,
             err: String(e),
             hasKey,
-            durationMs: Date.now() - start,
+            durationMs: Math.max(1, Date.now() - start),
             openai_fallback_total: 1,
           },
           "openai claim call error — fail-closed",
         );
       }
     } else if (hasKey && (!evidence || evidence.length === 0)) {
-      logger.info(
+      log.info(
         {
           requestId,
           hasKey: true,
-          durationMs: Date.now() - start,
+          durationMs: Math.max(1, Date.now() - start),
           openai_skipped: "no_evidence",
         },
         "openai skipped — no evidence fail-closed",
       );
     }
 
-    if (signal.aborted)
-      return NextResponse.json({ error: "aborted" }, { status: 499, headers });
+    if (signal.aborted) return abort();
 
     const result = verifyClaimPure(
       { claim: parsed.data.claim, contextUrl: parsed.data.contextUrl },
@@ -282,22 +333,27 @@ export async function GET(req: Request) {
       llm,
     );
     inc("check_requests_total");
-    logger.info(
+    log.info(
       {
         requestId,
+        traceparent,
         claim: parsed.data.claim,
         verdict: result.verdict,
         hasKey,
-        durationMs: Date.now() - start,
+        durationMs: Math.max(1, Date.now() - start),
       },
       "check computed",
     );
     return NextResponse.json(result, { status: 200, headers });
   } catch (e) {
-    if (isAbortError(e))
-      return NextResponse.json({ error: "aborted" }, { status: 499, headers });
-    logger.error(
-      { requestId, err: String(e), hasKey, durationMs: Date.now() - start },
+    if (isAbortError(e)) return abort();
+    log.error(
+      {
+        requestId,
+        err: String(e),
+        hasKey,
+        durationMs: Math.max(1, Date.now() - start),
+      },
       "check unexpected error",
     );
     return NextResponse.json(

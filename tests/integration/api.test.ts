@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 
 // These are light integration tests that hit the in-memory fetch layer without starting a server.
 // They prove the Edge routes' contracts (zod + provenance + fail-closed) are wired.
-// Full browser + ephemeral server check is in scripts/qa_smoke.sh and playwright browser spec.
+// Full browser + ephemeral server check is in scripts/qa_smoke.sh and the agent-browser flow (no Playwright).
 
 describe("API integration (in-memory core)", () => {
   it("scoreWebsitePure + buildTrustScore covers safe/caution/risky levels", async () => {

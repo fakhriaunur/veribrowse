@@ -2,7 +2,7 @@
 
 ## Deployment
 
-Netlify deploys `main` via `infra/netlify.toml` (`pnpm build` publish `.next`, `NODE_VERSION 22.11.0`). All contexts `production`, `deploy-preview`, `branch-deploy` use `pnpm build`. Headers `cache-control: no-store` for `/api/*`.
+Netlify deploys `main` via the repo-root `netlify.toml` (the only config Netlify reads; `infra/netlify.toml` is a drift-gated mirror — see `docs/deployment.md`) with `[[plugins]] @netlify/plugin-nextjs` runtime for SSR/API routes (`pnpm build` publish `.next`, `NODE_VERSION 22.11.0`). All contexts `production`, `deploy-preview`, `branch-deploy` use `pnpm build`. Headers `cache-control: no-store` for `/api/*`.
 
 ### Deploy from main
 ```bash
@@ -137,6 +137,13 @@ Flowchart for triage when real OpenAI fails: `real failure -> mock verify (OPENA
 - `docs/deployment.md` — NETLIFY contexts, NODE_VERSION, headers, live URL + blocker.
 - `pitchfork.toml` — `web` port 3000 (`Ready in`), `mock` port 8787 (`mock listening`).
 
+### Error tracking (Sentry stub, disabled by default)
+
+`lib/sentry.ts` exports `captureException` as a no-op while `SENTRY_DSN` is empty (the default — `.env.example` has `SENTRY_DSN=` with no value). No Sentry SDK is initialized and no network call is made on any error path; API routes log errors via pino (`lib/logger.ts`) instead.
+
+- Verify disabled: `rg -n 'SENTRY|captureException' lib/` shows the stub, and `grep -E '^SENTRY_DSN=$' .env.example` confirms the empty default.
+- Enabling real error tracking requires human approval: set `SENTRY_DSN`, install a Sentry SDK, and wire `captureException` at the error log sites in `app/api/*/route.ts`. Until then, triage via `X-Request-Id` log correlation above.
+
 ## Alerting & Uptime
 
 Netlify deploy logs are primary signal; no Prometheus/Grafana required for this stateless deploy.
@@ -160,5 +167,7 @@ Tracing is stubbed for future OTel — no SDK is initialized by default.
 - `mise install` (Node 22.11.0, pitchfork 2.23.0), `cp .env.example .env`, `pnpm install --frozen-lockfile`.
 - `mise run lint && mise run type && mise run test && mise run replay && mise run build`.
 - `scripts/qa_smoke.sh --ephemeral` starts ephemeral server on 3000, curls health/score/check/page, checks `X-Request-Id` and `cache-control: no-store` headers, exits 0 only if all pass.
+- `mise run test` logs vitest duration; CI enforces `timeout-minutes: 10` and `vitest.config.mjs` sets `testTimeout` so no single test hangs.
+- Flaky policy: replay fixtures are deterministic (`retrievedAt`/`checkedAt` normalized). Rerun a failed replay/smoke once; record flakes in `infra/flaky.json` (max 1 rerun). No test uses real network or a real key in CI.
 - `pitchfork start --all` (web + mock), `pitchfork logs web`, `pitchfork stop --all`.
 - Do not use Playwright; `agent-browser` via `droid-control` is the only browser tool (fresh isolated profile).
