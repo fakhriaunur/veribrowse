@@ -21,7 +21,7 @@
     "tests/**/*.{ts,tsx}",
     "next-env.d.ts"
   ],
-  "ignore": ["coverage/**", ".next/**", "node_modules/**"],
+  "ignore": ["coverage/**", ".next/**", "node_modules/**", "typedoc.json", "docs/**", ".github/**", "infra/**"],
   "ignoreDependencies": [
     "tailwindcss",
     "postcss",
