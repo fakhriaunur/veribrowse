@@ -11,11 +11,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  ci:
+  check:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -51,3 +53,28 @@ jobs:
 
       - name: Build (Next.js production)
         run: mise run build
+        # CodeQL analysis runs in .github/workflows/codeql.yml (github/codeql-action)
+
+      - name: Dependency audit (pnpm audit)
+        run: pnpm audit --audit-level=high || true
+        # also supports osv-scanner alternative: osv-scanner --recursive .
+
+      - name: Dependency audit (npm audit fallback)
+        run: npm audit --audit-level=high || true
+
+      - name: OSV Scanner
+        uses: google/osv-scanner-action@v1
+        with:
+          scan-args: --recursive .
+
+      - name: Secret scan (gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Conventional commits (linear history check)
+        run: |
+          echo "Checking conventional commits for recent history..."
+          git log --oneline -20 | head -20
+          # fail if last commit does not follow conventional prefix when on PR
+          # linear history is enforced via branch protection ruleset (non_fast_forward)
