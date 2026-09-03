@@ -21,8 +21,8 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
+        # No `version:` pin here: the action reads package.json `packageManager`
+        # (pnpm@9.15.9). Pinning both errors with ERR_PNPM_BAD_PM_VERSION.
 
       - name: Setup Node.js 22.11.0
         uses: actions/setup-node@v4

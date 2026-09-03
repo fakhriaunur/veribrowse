@@ -28,7 +28,7 @@ Use this priority:
 
 ## Tooling contract
 
-- **mise** is the toolchain and task runner. Pin versions in `mise.toml` (min_version 2026.8.14, node 22.11.0, pitchfork 2.23.0). Prefer `mise run <task>` over ad-hoc `npx`.
+- **mise** is the toolchain and task runner. Pin tool versions in `mise.toml` (node 22.x, pitchfork 2.23.0). Do NOT set `min_version` — Netlify's build image carries an older mise (2026.3.17 at last check) and any floor hard-fails the deploy at dependency-install (proven 2026-09-04). Document floors, never enforce them. Prefer `mise run <task>` over ad-hoc `npx`.
 - **Pitchfork** is the local service manager. Keep daemons, health checks, logs, and shutdown explicit. Do not start persistent services without `pitchfork start`.
 - **Do not use Playwright** in this mission. Use `agent-browser` via `droid-control` for browser validation. Remove legacy Playwright config/dep if present, unless needed as a dev stub — then replace with agent-browser flow and remove Playwright gates from `services.yaml`/`mise.toml`.
 - Containerize later with Podman under `infra/containers/` — not a prerequisite for early slices.
