@@ -6,7 +6,7 @@ import { fetchWithRetry } from "@/lib/fetchWithRetry";
 import { inc } from "@/lib/metrics";
 
 export const runtime = "nodejs";
-// See score route — nodejs avoids Next 15.2.3 edge prerender bug; switchable to "edge"
+// nodejs avoids the legacy edge prerender bug; switchable to "edge"
 
 const OPENAI_BASE_URL_FALLBACK = "https://api.openai.com/v1";
 const OPENAI_MODEL_FALLBACK = "gpt-4o-mini";
