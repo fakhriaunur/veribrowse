@@ -137,6 +137,13 @@ Flowchart for triage when real OpenAI fails: `real failure -> mock verify (OPENA
 - `docs/deployment.md` — NETLIFY contexts, NODE_VERSION, headers, live URL + blocker.
 - `pitchfork.toml` — `web` port 3000 (`Ready in`), `mock` port 8787 (`mock listening`).
 
+### Error tracking (Sentry stub, disabled by default)
+
+`lib/sentry.ts` exports `captureException` as a no-op while `SENTRY_DSN` is empty (the default — `.env.example` has `SENTRY_DSN=` with no value). No Sentry SDK is initialized and no network call is made on any error path; API routes log errors via pino (`lib/logger.ts`) instead.
+
+- Verify disabled: `rg -n 'SENTRY|captureException' lib/` shows the stub, and `grep -E '^SENTRY_DSN=$' .env.example` confirms the empty default.
+- Enabling real error tracking requires human approval: set `SENTRY_DSN`, install a Sentry SDK, and wire `captureException` at the error log sites in `app/api/*/route.ts`. Until then, triage via `X-Request-Id` log correlation above.
+
 ## Alerting & Uptime
 
 Netlify deploy logs are primary signal; no Prometheus/Grafana required for this stateless deploy.

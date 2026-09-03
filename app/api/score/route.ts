@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { scoreWebsiteSchema } from "@/lib/schemas";
 import { buildTrustScore, type FetchMeta } from "@/lib/score";
-import { logger } from "@/lib/logger";
+import { withRequestId } from "@/lib/logger";
 import { fetchWithRetry } from "@/lib/fetchWithRetry";
 import { inc } from "@/lib/metrics";
 
@@ -36,7 +36,7 @@ export async function GET(req: Request) {
     "cache-control": "no-store",
   };
   // tracing stub: traceparent passthrough — accepted without error, logged if present
-  void traceparent;
+  const log = withRequestId(requestId);
 
   try {
     const { searchParams } = new URL(req.url);
@@ -45,6 +45,15 @@ export async function GET(req: Request) {
 
     if (fixture === "1") {
       if (!url) {
+        log.warn(
+          {
+            requestId,
+            traceparent,
+            hasKey,
+            durationMs: Math.max(1, Date.now() - start),
+          },
+          "score 400 — missing url",
+        );
         return NextResponse.json(
           { error: "Missing url query param" },
           { status: 400, headers },
@@ -52,6 +61,15 @@ export async function GET(req: Request) {
       }
       const parsedFix = scoreWebsiteSchema.safeParse({ url });
       if (!parsedFix.success) {
+        log.warn(
+          {
+            requestId,
+            traceparent,
+            hasKey,
+            durationMs: Math.max(1, Date.now() - start),
+          },
+          "score 400 — invalid url",
+        );
         return NextResponse.json(
           { error: parsedFix.error.flatten() },
           { status: 400, headers },
@@ -81,13 +99,15 @@ export async function GET(req: Request) {
         elderlySummary: `⚠️ Score 42/100 — CAUTION. Be careful. Double-check before sharing personal info or paying. Why: ${raw.why}`,
       };
       inc("score_requests_total");
-      logger.info(
+      log.info(
         {
           requestId,
+          traceparent,
           url: meta.url,
           trust: result.trust,
+          level: result.level,
           hasKey,
-          durationMs: Date.now() - start,
+          durationMs: Math.max(1, Date.now() - start),
         },
         "score fixture",
       );
@@ -95,6 +115,15 @@ export async function GET(req: Request) {
     }
 
     if (!url) {
+      log.warn(
+        {
+          requestId,
+          traceparent,
+          hasKey,
+          durationMs: Math.max(1, Date.now() - start),
+        },
+        "score 400 — missing url",
+      );
       return NextResponse.json(
         { error: "Missing url query param" },
         { status: 400, headers },
@@ -103,6 +132,15 @@ export async function GET(req: Request) {
 
     const parsed = scoreWebsiteSchema.safeParse({ url });
     if (!parsed.success) {
+      log.warn(
+        {
+          requestId,
+          traceparent,
+          hasKey,
+          durationMs: Math.max(1, Date.now() - start),
+        },
+        "score 400 — invalid url",
+      );
       return NextResponse.json(
         { error: parsed.error.flatten() },
         { status: 400, headers },
@@ -142,13 +180,13 @@ export async function GET(req: Request) {
           { status: 499, headers },
         );
       }
-      logger.warn(
+      log.warn(
         {
           requestId,
           url,
           err: String(e),
           hasKey,
-          durationMs: Date.now() - start,
+          durationMs: Math.max(1, Date.now() - start),
         },
         "fetch failed — using minimal meta",
       );
@@ -210,26 +248,26 @@ export async function GET(req: Request) {
               why: parsedLlm.why.slice(0, 200),
               bullets: (parsedLlm.bullets ?? [parsedLlm.why]).slice(0, 3),
             };
-          logger.info(
+          log.info(
             {
               requestId,
               url,
               llmWhy: llm?.why,
               hasKey,
-              durationMs: Date.now() - start,
+              durationMs: Math.max(1, Date.now() - start),
             },
             "openai enrichment ok",
           );
         } else {
           const body = await res.text().catch(() => "");
           inc("openai_fallback_total");
-          logger.warn(
+          log.warn(
             {
               requestId,
               status: res.status,
               body,
               hasKey,
-              durationMs: Date.now() - start,
+              durationMs: Math.max(1, Date.now() - start),
               openai_fallback_total: 1,
             },
             "openai enrichment failed — fallback to heuristic",
@@ -243,20 +281,25 @@ export async function GET(req: Request) {
           );
         }
         inc("openai_fallback_total");
-        logger.warn(
+        log.warn(
           {
             requestId,
             err: String(e),
             hasKey,
-            durationMs: Date.now() - start,
+            durationMs: Math.max(1, Date.now() - start),
             openai_fallback_total: 1,
           },
           "openai call error — fallback",
         );
       }
     } else {
-      logger.info(
-        { requestId, url, hasKey: false, durationMs: Date.now() - start },
+      log.info(
+        {
+          requestId,
+          url,
+          hasKey: false,
+          durationMs: Math.max(1, Date.now() - start),
+        },
         "score heuristic — no key",
       );
     }
@@ -267,14 +310,15 @@ export async function GET(req: Request) {
 
     const result = buildTrustScore(meta, llm);
     inc("score_requests_total");
-    logger.info(
+    log.info(
       {
         requestId,
+        traceparent,
         url,
         trust: result.trust,
         level: result.level,
         hasKey,
-        durationMs: Date.now() - start,
+        durationMs: Math.max(1, Date.now() - start),
         llmWhy: llm?.why,
       },
       "score computed",
@@ -284,8 +328,13 @@ export async function GET(req: Request) {
     if (isAbortError(e)) {
       return NextResponse.json({ error: "aborted" }, { status: 499, headers });
     }
-    logger.error(
-      { requestId, err: String(e), hasKey, durationMs: Date.now() - start },
+    log.error(
+      {
+        requestId,
+        err: String(e),
+        hasKey,
+        durationMs: Math.max(1, Date.now() - start),
+      },
       "score unexpected error — fallback to heuristic error shape",
     );
     return NextResponse.json(

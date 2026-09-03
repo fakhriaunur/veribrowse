@@ -19,7 +19,7 @@ export async function GET(req?: Request) {
   const base = { status: "ok", service: "veribrowse", version: "0.1.0" };
   const hasKey = !!process.env.OPENAI_API_KEY;
   const log = withRequestId(requestId);
-  const durationMs = () => Date.now() - start;
+  const durationMs = () => Math.max(1, Date.now() - start);
   if (verbose) {
     const body = {
       ...base,
