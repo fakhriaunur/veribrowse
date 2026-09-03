@@ -1,0 +1,18 @@
+{
+  "entryPoints": [
+    "lib/score.ts",
+    "lib/claim.ts",
+    "lib/schemas.ts",
+    "lib/logger.ts",
+    "lib/metrics.ts",
+    "lib/fetchWithRetry.ts"
+  ],
+  "out": "docs/api.tmp",
+  "plugin": ["typedoc-plugin-markdown"],
+  "theme": "markdown",
+  "readme": "none",
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "categorizeByGroup": true,
+  "hideGenerator": true
+}

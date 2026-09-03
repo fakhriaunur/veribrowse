@@ -85,6 +85,18 @@ run = "bash scripts/build_perf.sh"
 description = "All quality gates: lint + type + dead_code + duplicate + heavy_dep + unused_dep + version_drift + test coverage 35"
 depends = ["lint", "type", "dead_code", "duplicate", "heavy_dep", "unused_dep", "version_drift", "test"]
 
+[tasks.docs]
+description = "Generate docs/api.md from lib/ via typedoc (docs:generate fallback)"
+run = "node scripts/gen_docs.mjs"
+
+[tasks."docs:generate"]
+description = "Alias for docs generation (typedoc)"
+run = "node scripts/gen_docs.mjs"
+
+[tasks."docs:typedoc"]
+description = "Run typedoc directly (requires typedoc + plugin)"
+run = "npx typedoc"
+
 [tasks.devcontainer-verify]
 description = "Verify devcontainer contract without running docker"
 run = "bash scripts/check_large_files.sh && bash scripts/check_tech_debt.sh"
