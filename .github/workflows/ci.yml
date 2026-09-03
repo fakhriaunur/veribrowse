@@ -48,6 +48,26 @@ jobs:
         run: mise run test
         # coverage 35 lines 35 branches gate via vitest.config.mjs and mise.toml
 
+      - name: Test performance tracking (per-test timing + report)
+        run: |
+          mise run test_perf
+          echo "## Test Performance Tracking" >> $GITHUB_STEP_SUMMARY
+          node -e "const s=require('./infra/test-perf.json'); console.log(\`- totals: \${s.totals.testsPassed}/\${s.totals.tests} tests passed in \${s.totals.totalDurationMs}ms (slow-test-threshold \${s.slowTestThresholdMs}ms)\`) >> process.env.GITHUB_STEP_SUMMARY" 2>/dev/null || true
+          cat infra/test-perf.json
+        # per-test durations print in the log above via --reporter=verbose +
+        # --slow-test-threshold=100 (vitest 5 has no --durations flag; this is
+        # the native equivalent). infra/vitest-timing.json (full JSON report)
+        # + infra/test-perf.json (slowest-files summary) ship as artifacts.
+
+      - name: Upload test performance artifacts (artifacts)
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-perf
+          path: |
+            infra/test-perf.json
+            infra/vitest-timing.json
+          if-no-files-found: warn
+
       - name: Dead code gate (knip)
         run: mise run dead_code
 
@@ -100,6 +120,7 @@ jobs:
           echo "- version_drift: Node 22.23.2 aligned" >> $GITHUB_STEP_SUMMARY
           echo "- coverage: 35% lines/branches threshold via vitest.config.mjs" >> $GITHUB_STEP_SUMMARY
           echo "- build timing: recorded in infra/build-perf.json" >> $GITHUB_STEP_SUMMARY
+          echo "- test timing: per-test durations via mise run test_perf (infra/test-perf.json + infra/vitest-timing.json artifacts)" >> $GITHUB_STEP_SUMMARY
           cat $GITHUB_STEP_SUMMARY
 
       - name: Upload build performance artifact (artifacts)

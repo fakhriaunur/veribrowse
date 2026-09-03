@@ -84,6 +84,10 @@ run = "bash scripts/check_version_drift.sh"
 description = "Validate AGENTS.md tasks/paths still match code (readiness agents_md_validation)"
 run = "bash scripts/check_agents_md.sh"
 
+[tasks.test_perf]
+description = "Vitest with per-test timing: verbose durations + gitignored infra/test-perf.json summary and infra/vitest-timing.json report (CI artifact)"
+run = "bash scripts/test_perf.sh"
+
 [tasks.build-perf]
 description = "Build with timing artifact infra/build-perf.json"
 run = "bash scripts/build_perf.sh"

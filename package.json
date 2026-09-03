@@ -14,6 +14,8 @@
     "type": "tsc --noEmit",
     "test": "vitest run --coverage --coverage.thresholds.lines=35",
     "test:quick": "vitest run",
+    "test:timing": "vitest run --reporter=verbose --slow-test-threshold=100",
+    "test:perf": "bash scripts/test_perf.sh",
     "replay": "vitest run tests/replay -v",
     "docs": "node scripts/gen_docs.mjs",
     "docs:typedoc": "typedoc",

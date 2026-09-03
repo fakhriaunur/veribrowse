@@ -57,3 +57,5 @@ playwright-report/
 blob-report/
 docs/api.tmp/
 infra/build-perf.json
+infra/test-perf.json
+infra/vitest-timing.json
