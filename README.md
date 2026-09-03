@@ -80,7 +80,7 @@ User + Agent (ChatGPT / Chrome WebMCP)
 
 ## Built With (5 frozen + implicit)
 
-- `Next.js 15` / `React 19` / `TypeScript strict`
+- `Next.js 16` (Turbopack default) / `React 19.2` / `TypeScript strict`
 - `document.modelContext.registerTool` (WebMCP imperative API)
 - `Edge API` (`app/api/*` `runtime=edge`)
 - `OpenAI API` (compatible) — mock when `OPENAI_API_KEY` empty
@@ -107,7 +107,7 @@ pitchfork.toml      # local daemons (web + mock)
 ```bash
 mise install          # Node 22.23.2 + pitchfork 2.23.0 (or: npm i -g pnpm@9)
 cp .env.example .env  # leave OPENAI_API_KEY empty for mock mode
-pnpm install           # or npm install
+pnpm install --frozen-lockfile   # pnpm only — single lockfile (package-lock.json removed)
 ```
 
 ## Build, lint, type, test

@@ -1,7 +1,7 @@
 # Deployment — Netlify (VeriBrowse)
 
 ## Summary
-VeriBrowse deploys from `main` via Netlify on a Netlify-provided subdomain (no custom domain). Build is `pnpm build`, publish directory `.next`, Node `22.23.2` pinned. API responses carry `cache-control: no-store` and `X-Request-Id` for correlation.
+VeriBrowse deploys from `main` via Netlify on a Netlify-provided subdomain (no custom domain). Build is `pnpm build`, publish directory `.next`, Node `22.23.2` pinned. Runtime is Next.js `16.3.4` (Turbopack is the default bundler for dev and build — no `--turbopack` flag needed; the build log shows `▲ Next.js 16.3.4 (Turbopack)`). `pnpm-lock.yaml` is the single lockfile (`package-lock.json` removed — dual lockfiles confused Netlify installer detection). API responses carry `cache-control: no-store` and `X-Request-Id` for correlation.
 
 ## Build Configuration
 
@@ -26,6 +26,9 @@ in sync; edit both files together.
 
 - **Node version:** `22.23.2` — must align with `mise.toml` (`node = "22.23.2"`), `package.json` `engines.node >=22.23.2`, `.github/workflows/ci.yml` `node-version: "22.23.2"`. Verified by `grep 22.23.2 mise.toml infra/netlify.toml .github/workflows/ci.yml package.json`.
 - **Build command:** `pnpm build` (same as `mise run build` which runs `npx next build` with `NODE_ENV=production`).
+- **Runtime pins:** `next` + `eslint-config-next` `16.3.4`, `react`/`react-dom` `19.2.8`, `@types/react` `19.2.18`, `@types/react-dom` `19.2.7` (see `package.json`).
+- **Lockfile:** pnpm only — install with `pnpm install --frozen-lockfile` (Netlify detects pnpm from `pnpm-lock.yaml` + the `packageManager` field; the `ci.yml` `pnpm/action-setup` step intentionally carries no `version:` pin, it follows `package.json`).
+- **First build after the 15→16 upgrade:** delete the stale cache once (`rm -rf .next`) — the Next 15 cache breaks 16 page-data collection (`Failed to collect page data for /_not-found`). `tsconfig.json` `jsx: react-jsx` + the `.next/dev/types` include are build-managed; do not hand-revert them.
 - **Publish directory:** `.next` (Next.js).
 - `pnpm` version: `9` via `pnpm/action-setup@v4`.
 
