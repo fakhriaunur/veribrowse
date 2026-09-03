@@ -5,7 +5,16 @@
 [build.environment]
   NODE_VERSION = "22.11.0"
 
+[context.production]
+  command = "pnpm build"
+
+[context.deploy-preview]
+  command = "pnpm build"
+
+[context.branch-deploy]
+  command = "pnpm build"
+
 [[headers]]
-  for = "/*"
+  for = "/api/*"
   [headers.values]
-    cache-control = "public, max-age=0, must-revalidate"
+    cache-control = "no-store"
