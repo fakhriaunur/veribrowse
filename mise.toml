@@ -80,6 +80,10 @@ run = "npx depcheck --json | tee /tmp/depcheck.json && node -e \"const j=require
 description = "Version drift check Node 22.23.2 alignment"
 run = "bash scripts/check_version_drift.sh"
 
+[tasks.agents_md]
+description = "Validate AGENTS.md tasks/paths still match code (readiness agents_md_validation)"
+run = "bash scripts/check_agents_md.sh"
+
 [tasks.build-perf]
 description = "Build with timing artifact infra/build-perf.json"
 run = "bash scripts/build_perf.sh"

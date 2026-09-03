@@ -63,6 +63,9 @@ jobs:
       - name: Version drift gate (Node 22.23.2 alignment)
         run: mise run version_drift
 
+      - name: AGENTS.md consistency (tasks/paths)
+        run: mise run agents_md
+
       - name: Replay deterministic fixtures
         run: mise run replay
 
