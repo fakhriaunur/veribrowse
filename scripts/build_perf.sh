@@ -27,7 +27,7 @@ if date +%s%3N >/dev/null 2>&1; then
   true
 fi
 
-TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+TIMESTAMP=$(date -u +%FT%TZ)
 NODE_VER=$(node -v 2>/dev/null || echo "unknown")
 NEXT_VER=$(node -p "require('./package.json').dependencies.next" 2>/dev/null || echo "unknown")
 
