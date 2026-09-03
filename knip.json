@@ -1,5 +1,5 @@
 {
-  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "$schema": "https://unpkg.com/knip@6/schema.json",
   "entry": [
     "app/**/page.tsx",
     "app/api/**/route.ts",
@@ -9,7 +9,6 @@
     "next.config.mjs",
     "vitest.config.mjs",
     "eslint.config.mjs",
-    "tailwind.config.ts",
     "postcss.config.mjs",
     "scripts/**/*.mjs"
   ],
@@ -32,6 +31,7 @@
   ],
   "ignoreDependencies": [
     "tailwindcss",
+    "@tailwindcss/postcss",
     "postcss",
     "autoprefixer",
     "@vitest/coverage-v8",
