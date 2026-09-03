@@ -94,7 +94,7 @@ Test surfaces: ChatGPT in-app browser AND Chrome ≥149 `chrome://flags#webmcp`.
 app/                # pages + Edge routes (health/score/check)
 lib/                # score, claim, schemas, logger (pure core)
 components/         # TrustBadge, evidence view
-tests/              # unit, replay (deterministic fixtures), integration (Playwright)
+tests/              # unit, replay (deterministic fixtures), integration (agent-browser, no Playwright)
 scripts/            # qa_smoke.sh, mock_openai.mjs, check_*.sh
 infra/              # netlify.toml
 .devcontainer/      # Node 22 + mise + pitchfork

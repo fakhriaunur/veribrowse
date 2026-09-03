@@ -25,7 +25,12 @@ export function verifyClaimPure(
   evidence: Evidence[] | null,
   llm?: { verdict: Verdict; confidence: number; reasoning: string },
 ): ClaimResult {
-  const claimHash = simpleHash(input.claim).slice(0, 16);
+  // 16-hex claimHash (VAL-WEB-007): simpleHash yields 8 hex + length-hex,
+  // so concatenate a second domain-separated hash to reach full 16 chars.
+  // Prefix-stable with previous values; deterministic; no fixtures pin it.
+  const claimHash = (
+    simpleHash(input.claim) + simpleHash(`${input.claim}#2`)
+  ).slice(0, 16);
   const checkedAt = new Date().toISOString();
 
   if (!evidence || evidence.length === 0) {

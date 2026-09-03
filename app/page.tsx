@@ -73,6 +73,7 @@ export default function Home() {
             required: ["text"],
             additionalProperties: false,
           },
+          annotations: { readOnlyHint: true },
           execute: async (input: unknown) => {
             const t = (input as { text?: string })?.text ?? "";
             appendLog(`echoEcho called: ${t}`);
