@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "VeriBrowse — WebMCP site with scoreWebsite and checkClaim for elderly + nerd audit",
+  "packageManager": "pnpm@9.15.9",
   "license": "MIT",
   "scripts": {
     "dev": "next dev --port 3000",

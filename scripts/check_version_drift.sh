@@ -35,6 +35,18 @@ if [ -f "$ROOT/.nvmrc" ]; then
   check_file ".nvmrc" ".nvmrc"
 fi
 
+# Netlify's build image carries an older mise than local dev (2026.3.17 at last
+# check, 2026-09-04) and any `min_version` floor in mise.toml hard-fails the
+# deploy at dependency-install before anything installs. Never re-add the pin:
+# document version floors, never enforce them.
+if grep -qE '^[[:space:]]*min_version[[:space:]]*=' "$ROOT/mise.toml"; then
+  echo "❌ mise.toml contains a min_version pin — remove it (Netlify image mise is older and hard-errors on any floor)"
+  grep -nE '^[[:space:]]*min_version[[:space:]]*=' "$ROOT/mise.toml" || true
+  fail=1
+else
+  echo "✅ mise.toml has no min_version pin (Netlify image compatible)"
+fi
+
 if [ $fail -ne 0 ]; then
   echo "[version_drift] FAILED — version drift detected (expected $EXPECTED everywhere)"
   exit 1
