@@ -111,7 +111,9 @@ export async function GET(req: Request) {
   if (hasKey) {
     try {
       const prompt = `You are VeriBrowse scam analyst. Score trust for URL=${meta.url} title="${meta.title ?? ""}" desc="${meta.ogDescription ?? ""}" hasHttps=${meta.hasHttps}. Return JSON {"why": string concise 20 words, "bullets": string[2]} explaining risk. No hallucinated citations.`;
-      const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      const baseUrl =
+        process.env.OPENAI_BASE_URL ?? "https://api.openai.com/v1";
+      const res = await fetch(`${baseUrl}/chat/completions`, {
         method: "POST",
         signal,
         headers: {

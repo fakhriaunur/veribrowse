@@ -105,7 +105,9 @@ export async function GET(req: Request) {
   if (hasKey && evidence && evidence.length > 0) {
     try {
       const prompt = `Verify claim="${parsed.data.claim}" against evidence="${evidence[0].quote.slice(0, 400)}" url=${evidence[0].url}. Return JSON {"verdict":"supported"|"contradicted"|"unverified","confidence":0-1,"reasoning":string 30 words}. Never hallucinate citations.`;
-      const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      const baseUrl =
+        process.env.OPENAI_BASE_URL ?? "https://api.openai.com/v1";
+      const res = await fetch(`${baseUrl}/chat/completions`, {
         method: "POST",
         signal,
         headers: {
