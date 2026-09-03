@@ -1,0 +1,4 @@
+# CODEOWNERS — VeriBrowse critical paths require owner review
+* @fakhriaunur
+/lib/schemas.ts @fakhriaunur
+/app/api/* @fakhriaunur

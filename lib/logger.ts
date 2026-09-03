@@ -10,7 +10,9 @@ export const logger = pino({
   redact: {
     paths: [
       "OPENAI_API_KEY",
+      "authorization",
       "req.headers.authorization",
+      "headers.authorization",
       "*.apiKey",
       "*.token",
     ],

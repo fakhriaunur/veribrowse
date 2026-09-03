@@ -4,3 +4,5 @@ coverage
 .htmlcov
 triage
 docs
+pnpm-lock.yaml
+package-lock.json
