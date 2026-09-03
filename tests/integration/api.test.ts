@@ -22,7 +22,11 @@ describe("API integration (in-memory core)", () => {
     expect(safe.level).toBe("safe");
     expect(safe.provenance.contentHash).toBe("deadbeef");
 
-    const risky = buildTrustScore({ ...base, hasHttps: false, domainAgeDays: 2 });
+    const risky = buildTrustScore({
+      ...base,
+      hasHttps: false,
+      domainAgeDays: 2,
+    });
     expect(risky.level).toBe("risky");
   });
 
@@ -34,10 +38,17 @@ describe("API integration (in-memory core)", () => {
   });
 
   it("schemas reject invalid and accept valid", async () => {
-    const { scoreWebsiteSchema, checkClaimSchema } = await import("@/lib/schemas");
-    expect(scoreWebsiteSchema.safeParse({ url: "https://ok.example" }).success).toBe(true);
+    const { scoreWebsiteSchema, checkClaimSchema } = await import(
+      "@/lib/schemas"
+    );
+    expect(
+      scoreWebsiteSchema.safeParse({ url: "https://ok.example" }).success,
+    ).toBe(true);
     expect(scoreWebsiteSchema.safeParse({ url: "bad" }).success).toBe(false);
     expect(checkClaimSchema.safeParse({ claim: "short" }).success).toBe(false);
-    expect(checkClaimSchema.safeParse({ claim: "long enough claim for test" }).success).toBe(true);
+    expect(
+      checkClaimSchema.safeParse({ claim: "long enough claim for test" })
+        .success,
+    ).toBe(true);
   });
 });
