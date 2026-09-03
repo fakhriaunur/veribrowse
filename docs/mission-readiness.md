@@ -31,7 +31,7 @@ Generated 2026-09-03 UTC+07:00 — Factory 15-criteria ladder (AGENTS.md).
 - `mise run lint` ✅ (eslint + prettier with FlatCompat)
 - `mise run type` ✅ strict
 - `mise run test` ✅ 23 tests, 66% lines
-- `mise run build` ✅ (Next 15.2.3, 7 pages, 100kB shared)
+- `mise run build` ✅ (Next 16.3.4 Turbopack, 7 pages, 100kB shared)
 - `mise run qa` ✅ ephemeral smoke (health, score fixture, check fixture, page, tool strings)
 - `bash scripts/check_large_files.sh` ✅ (700 lines / 150KB)
 - `bash scripts/check_tech_debt.sh` ✅ (TODO(#123) tracking)

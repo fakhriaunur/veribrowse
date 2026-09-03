@@ -109,7 +109,7 @@ Use conventional commits. Never commit secrets or generated credentials. Review 
 
 **Tools:** `mise`, `pitchfork`, `gh` (repo/workflow), `pnpm` 9, `agent-browser` via `droid-control`, `curl`/`jq`.
 **Skills:** `agent-browser` skill (web validation), plus worker skills in `skills/` (infra-worker, quality-worker, observability-worker).
-**Dependencies:** Keep `next 15.5.25` (minimal CVE-2025-55182 hotfix floor is 15.3.3; full Next 16 upgrade is m9 scope), `react 19`, `zod`, `pino`, `vitest`, `tailwind` pinned; dev-time only additions: `knip`, `jscpd`, `depcheck`, `typedoc`, `gitleaks`.
+**Dependencies:** `next 16.3.4` + `eslint-config-next 16.3.4` (Turbopack default), `react`/`react-dom 19.2.8`, `openai 7.x`, `zod 4.x`, `pino 10.x`, latest compatible toolchain (`typescript 5.9.3`, `vitest 5`, `tailwind v4`, `eslint 9.39`, `jsdom 30`); Node stays on major 22 (`22.23.2`); pnpm 9 is the single package manager (`package-lock.json` removed). Dev-time only additions: `knip`, `jscpd`, `depcheck`, `typedoc`, `gitleaks`.
 **Other:** Large file gate is advisory/excluded; Playwright is forbidden; YAGNI list (feature flags, progressive rollout, monorepo, N+1, DB, analytics, SBOM, SLO) remains documented as excluded without implementation.
 
 ## Testing & Validation Guidance
