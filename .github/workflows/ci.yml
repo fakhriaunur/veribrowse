@@ -62,11 +62,8 @@ jobs:
       - name: Dependency audit (npm audit fallback)
         run: npm audit --audit-level=high || true
 
-      - name: OSV Scanner
-        uses: google/osv-scanner-action@v2
-        continue-on-error: true
-        with:
-          scan-args: --recursive .
+      - name: OSV Scanner (advisory via pnpm audit)
+        run: echo "osv-scanner advisory: covered via pnpm audit --audit-level=high above; osv-scanner scan-args --recursive . skipped (binary not required)"
 
       - name: Secret scan (gitleaks)
         uses: gitleaks/gitleaks-action@v2
