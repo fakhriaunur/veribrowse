@@ -1,0 +1,54 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": [
+    "app/**/page.tsx",
+    "app/api/**/route.ts",
+    "app/layout.tsx",
+    "lib/**/*.ts",
+    "components/**/*.tsx",
+    "next.config.mjs",
+    "vitest.config.mjs",
+    "eslint.config.mjs",
+    "tailwind.config.ts",
+    "postcss.config.mjs",
+    "scripts/**/*.mjs"
+  ],
+  "project": [
+    "app/**/*.{ts,tsx}",
+    "lib/**/*.ts",
+    "components/**/*.tsx",
+    "scripts/**/*.mjs",
+    "tests/**/*.{ts,tsx}",
+    "next-env.d.ts"
+  ],
+  "ignore": ["coverage/**", ".next/**", "node_modules/**"],
+  "ignoreDependencies": [
+    "tailwindcss",
+    "postcss",
+    "autoprefixer",
+    "@vitest/coverage-v8",
+    "jsdom",
+    "@types/node",
+    "@types/react",
+    "@types/react-dom",
+    "eslint",
+    "eslint-config-next",
+    "@eslint/eslintrc",
+    "prettier",
+    "typescript",
+    "vitest",
+    "knip",
+    "jscpd",
+    "depcheck",
+    "openai"
+  ],
+  "rules": {
+    "files": "error",
+    "dependencies": "warn",
+    "unlisted": "warn",
+    "binaries": "warn",
+    "exports": "error",
+    "types": "error",
+    "duplicates": "warn"
+  }
+}

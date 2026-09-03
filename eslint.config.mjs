@@ -14,6 +14,8 @@ export default [
   {
     rules: {
       "no-console": ["warn", { allow: ["warn", "error"] }],
+      complexity: ["error", 12],
+      "max-depth": ["error", 4],
     },
   },
 ];

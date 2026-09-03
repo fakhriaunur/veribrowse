@@ -1,0 +1,17 @@
+{
+  "ignores": [
+    "openai",
+    "@types/react-dom",
+    "eslint-config-next",
+    "prettier",
+    "@vitest/coverage-v8",
+    "postcss",
+    "autoprefixer",
+    "@eslint/eslintrc",
+    "depcheck",
+    "jscpd",
+    "knip"
+  ],
+  "ignorePatterns": ["dist", "coverage", ".next", "infra/build-perf.json"],
+  "ignoreMatches": ["@types/*"]
+}

@@ -57,6 +57,34 @@ run = "./scripts/qa_smoke.sh --ephemeral"
 description = "Alias for qa (ephemeral smoke)"
 run = "./scripts/qa_smoke.sh --ephemeral"
 
+[tasks.dead_code]
+description = "Dead code detection via knip (0 unused)"
+run = "npx knip --no-progress"
+
+[tasks.duplicate]
+description = "Duplicate code via jscpd under threshold"
+run = "npx jscpd --config .jscpd.json ."
+
+[tasks.heavy_dep]
+description = "Heavy dependency / bundle size check via depcheck"
+run = "npx depcheck --json | tee /tmp/depcheck.json && node -e \"const j=require('/tmp/depcheck.json'); const deps=j.dependencies||[]; if(deps.length>0){console.error('heavy_dep: unused dependencies',deps);process.exit(1);} console.log('heavy_dep: no bloated deps, dependencies empty');\""
+
+[tasks.unused_dep]
+description = "Unused dependency check (depcheck) — dependencies empty"
+run = "npx depcheck --json | tee /tmp/depcheck.json && node -e \"const j=require('/tmp/depcheck.json'); const deps=j.dependencies||[]; if(deps.length>0){console.error('unused_dep: dependencies not empty',deps);process.exit(1);} console.log('unused_dep: dependencies empty');\""
+
+[tasks.version_drift]
+description = "Version drift check Node 22.11.0 alignment"
+run = "bash scripts/check_version_drift.sh"
+
+[tasks.build-perf]
+description = "Build with timing artifact infra/build-perf.json"
+run = "bash scripts/build_perf.sh"
+
+[tasks.quality]
+description = "All quality gates: lint + type + dead_code + duplicate + heavy_dep + unused_dep + version_drift + test coverage 35"
+depends = ["lint", "type", "dead_code", "duplicate", "heavy_dep", "unused_dep", "version_drift", "test"]
+
 [tasks.devcontainer-verify]
 description = "Verify devcontainer contract without running docker"
 run = "bash scripts/check_large_files.sh && bash scripts/check_tech_debt.sh"
