@@ -1,0 +1,6 @@
+{
+  "flakyRuns": [],
+  "lastReplay": "2026-09-03T00:01:34Z replay 1 passed, 0 flaky, no rerun needed",
+  "policy": "Replay fixtures are deterministic: retrievedAt/checkedAt normalized before compare. A replay or smoke failure is rerun once; if the rerun passes the flake is recorded here with run, date, and reason. CI must not use real network or OPENAI_API_KEY.",
+  "rerunLimit": 1
+}

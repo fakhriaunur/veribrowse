@@ -1,13 +1,26 @@
 /**
  * Bounded fetch with timeout, retry, and circuit breaker.
- * Timeout 3s per attempt, 2 retries exponential, 30s breaker per host.
- * Signal propagation: caller's AbortSignal forwarded and combined with timeout.
+ *
+ * - Timeout 3s per attempt via AbortSignal.timeout(3000).
+ * - 2 retries (3 attempts total) with exponential backoff 200/400ms + jitter.
+ * - Retries network errors, 5xx, and 429. Other 4xx returns without retry.
+ * - In-memory circuit breaker: after a call exhausts all attempts the host
+ *   breaker opens for 30s; while open, calls short-circuit with
+ *   CircuitOpenError (no fetch). After 30s a half-open probe is allowed.
+ * - Caller's AbortSignal is forwarded and combined with the timeout signal;
+ *   aborts propagate immediately as AbortError with no retry.
  */
 
-const breaker = new Map<string, number>(); // host -> openUntil ms
-const BREAKER_MS = 30_000;
-const DEFAULT_TIMEOUT_MS = 3000;
-const DEFAULT_RETRIES = 2;
+import { logger } from "./logger";
+
+const breaker = new Map<string, number>(); // host -> openUntil ms epoch
+
+export const TIMEOUT_MS = 3000;
+export const MAX_RETRIES = 2;
+export const BREAKER_MS = 30_000;
+export const BACKOFF_BASE_MS = 200;
+const BACKOFF_JITTER_MS = 100;
+const BACKOFF_CAP_MS = 1000;
 
 function hostOf(url: string): string {
   try {
@@ -19,6 +32,13 @@ function hostOf(url: string): string {
 
 function isAbortError(e: unknown): boolean {
   return (e as Error)?.name === "AbortError";
+}
+
+/** Exponential backoff 200/400ms plus jitter, capped under 1s. */
+export function backoffMs(attempt: number): number {
+  const base = BACKOFF_BASE_MS * Math.pow(2, attempt);
+  const jitter = Math.floor(Math.random() * BACKOFF_JITTER_MS);
+  return Math.min(base + jitter, BACKOFF_CAP_MS);
 }
 
 function sleep(ms: number, signal?: AbortSignal): Promise<void> {
@@ -67,13 +87,17 @@ function combineSignals(
   return ctrl.signal;
 }
 
+function shouldRetryStatus(status: number): boolean {
+  return status >= 500 || status === 429;
+}
+
 export async function fetchWithRetry(
   url: string,
   init: RequestInit & { timeoutMs?: number; retries?: number } = {},
 ): Promise<Response> {
   const {
-    timeoutMs = DEFAULT_TIMEOUT_MS,
-    retries = DEFAULT_RETRIES,
+    timeoutMs = TIMEOUT_MS,
+    retries = MAX_RETRIES,
     signal: callerSignal,
     ...rest
   } = init;
@@ -81,10 +105,16 @@ export async function fetchWithRetry(
 
   const openUntil = breaker.get(host);
   if (openUntil && Date.now() < openUntil) {
+    logger.warn(
+      { breaker: "open", host, openUntil },
+      "breaker:open — short-circuit, no fetch",
+    );
     throw Object.assign(new Error(`circuit open for ${host}`), {
       name: "CircuitOpenError",
     });
   }
+  // Half-open probe: stale entry expired, allow one attempt through.
+  if (openUntil) breaker.delete(host);
 
   let lastError: unknown;
 
@@ -121,17 +151,34 @@ export async function fetchWithRetry(
     try {
       const res = await fetch(url, { ...rest, signal });
 
-      // retry on 5xx
-      if (res.status >= 500 && attempt < retries) {
+      // Retry on 5xx and 429 only; other 4xx/2xx return without retry.
+      if (shouldRetryStatus(res.status) && attempt < retries) {
         lastError = new Error(`retry on ${res.status}`);
-        await sleep(100 * Math.pow(2, attempt), callerSignal ?? undefined);
+        await res.arrayBuffer().catch(() => undefined);
+        await sleep(backoffMs(attempt), callerSignal ?? undefined);
         continue;
       }
 
-      // success (including 4xx/2xx) — clear breaker
+      // Exhausted retries on retryable status — open breaker and throw so
+      // callers map to heuristic/fail-closed fallback (never a fake 200).
+      if (shouldRetryStatus(res.status)) {
+        breaker.set(host, Date.now() + BREAKER_MS);
+        logger.warn(
+          { breaker: "open", host, status: res.status },
+          "breaker:open — retryable status exhausted",
+        );
+        await res.arrayBuffer().catch(() => undefined);
+        throw Object.assign(new Error(`retry on ${res.status} exhausted`), {
+          name: "RetryExhaustedError",
+        });
+      }
+
+      // success (including non-retryable 4xx/2xx) — clear breaker
       breaker.delete(host);
       return res;
     } catch (e) {
+      // Own exhaustion throw from the try block above — already logged + open.
+      if ((e as Error)?.name === "RetryExhaustedError") throw e;
       lastError = e;
       if (isAbortError(e)) {
         // do not retry on abort, propagate immediately
@@ -142,7 +189,7 @@ export async function fetchWithRetry(
 
       if (attempt < retries) {
         try {
-          await sleep(100 * Math.pow(2, attempt), callerSignal ?? undefined);
+          await sleep(backoffMs(attempt), callerSignal ?? undefined);
         } catch (sleepErr) {
           throw sleepErr;
         }
@@ -150,6 +197,10 @@ export async function fetchWithRetry(
       }
       // last attempt failed — open breaker
       breaker.set(host, Date.now() + BREAKER_MS);
+      logger.warn(
+        { breaker: "open", host, err: String(lastError) },
+        "breaker:open — attempts exhausted",
+      );
       throw lastError;
     } finally {
       if (timeoutCtrl) {

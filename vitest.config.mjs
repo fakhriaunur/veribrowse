@@ -5,6 +5,12 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     include: ["tests/**/*.test.ts", "tests/**/*.test.tsx"],
+    // Per-attempt ceiling: no single test may hang; slow external calls are
+    // bounded by lib/fetchWithRetry.ts (3s timeout) well under this limit.
+    testTimeout: 10000,
+    // Deterministic replay: tests/replay/* fixtures assert shape while
+    // normalizing dynamic timestamps (retrievedAt/checkedAt) — see
+    // `mise run replay`. Flaky reruns are recorded in infra/flaky.json.
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],

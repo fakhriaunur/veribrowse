@@ -167,5 +167,7 @@ Tracing is stubbed for future OTel — no SDK is initialized by default.
 - `mise install` (Node 22.11.0, pitchfork 2.23.0), `cp .env.example .env`, `pnpm install --frozen-lockfile`.
 - `mise run lint && mise run type && mise run test && mise run replay && mise run build`.
 - `scripts/qa_smoke.sh --ephemeral` starts ephemeral server on 3000, curls health/score/check/page, checks `X-Request-Id` and `cache-control: no-store` headers, exits 0 only if all pass.
+- `mise run test` logs vitest duration; CI enforces `timeout-minutes: 10` and `vitest.config.mjs` sets `testTimeout` so no single test hangs.
+- Flaky policy: replay fixtures are deterministic (`retrievedAt`/`checkedAt` normalized). Rerun a failed replay/smoke once; record flakes in `infra/flaky.json` (max 1 rerun). No test uses real network or a real key in CI.
 - `pitchfork start --all` (web + mock), `pitchfork logs web`, `pitchfork stop --all`.
 - Do not use Playwright; `agent-browser` via `droid-control` is the only browser tool (fresh isolated profile).
