@@ -1,0 +1,13 @@
+general.mise = true
+
+[daemons.web]
+run = "mise run dev"
+auto = ["start", "stop"]
+ready_output = "Ready in"
+port = 3000
+
+[daemons.mock]
+run = "node scripts/mock_openai.mjs"
+auto = ["start"]
+ready_output = "mock listening"
+port = 8787

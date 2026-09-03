@@ -1,0 +1,35 @@
+{
+  "name": "VeriBrowse — WebMCP",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22",
+      "installYarnUsingApt": false
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": { "version": "latest" }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "ms-playwright.playwright"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": { "source.fixAll.eslint": "explicit" }
+      }
+    }
+  },
+  "forwardPorts": [3000, 8787],
+  "portsAttributes": {
+    "3000": { "label": "Next.js (WebMCP)", "onAutoForward": "notify" },
+    "8787": { "label": "Mock OpenAI", "onAutoForward": "silent" }
+  },
+  "postCreateCommand": "npm install -g pnpm@9 && pnpm install && echo 'devcontainer ready — try: mise run check; mise run qa'",
+  "postStartCommand": "echo 'VeriBrowse devcontainer — mise install handled via pnpm; run: mise run dev'",
+  "remoteUser": "vscode",
+  "updateRemoteUserUID": true
+}

@@ -1,0 +1,62 @@
+min_version = "2026.8.14"
+
+[tools]
+node = "22.11.0"
+pitchfork = "2.23.0"
+
+[env]
+# NODE_ENV left to Next.js defaults (development for dev, production for build)
+# explicitly set only where needed via task env
+
+[tasks.dev]
+description = "Next.js dev server (auto-reload) for interactive QA"
+run = "npx next dev --port 3000"
+
+[tasks.build]
+description = "Production build"
+run = "npx next build"
+env = { NODE_ENV = "production" }
+
+[tasks.lint]
+description = "ESLint + Prettier check (complexity via eslint if needed)"
+run = "npx eslint . && npx prettier --check ."
+
+[tasks.lint-fix]
+description = "Auto-fix lint and format"
+run = "npx eslint . --fix && npx prettier --write ."
+
+[tasks.type]
+description = "TypeScript strict type check"
+run = "npx tsc --noEmit"
+
+[tasks.test]
+description = "Vitest with coverage gate 35%"
+run = "npx vitest run --coverage --coverage.thresholds.lines=35 --coverage.thresholds.branches=35"
+
+[tasks.test-quick]
+description = "Fast Vitest without coverage"
+run = "npx vitest run"
+
+[tasks.check]
+description = "Run lint, type, and test"
+depends = ["lint", "type", "test"]
+
+[tasks.coverage]
+description = "Coverage report"
+run = "npx vitest run --coverage"
+
+[tasks.replay]
+description = "Deterministic fixture replay (score + claim golden files)"
+run = "npx vitest run tests/replay -v"
+
+[tasks.qa]
+description = "Interactive QA: starts ephemeral server and curls every endpoint"
+run = "./scripts/qa_smoke.sh --ephemeral"
+
+[tasks.smoke]
+description = "Alias for qa (ephemeral smoke)"
+run = "./scripts/qa_smoke.sh --ephemeral"
+
+[tasks.devcontainer-verify]
+description = "Verify devcontainer contract without running docker"
+run = "bash scripts/check_large_files.sh && bash scripts/check_tech_debt.sh"
