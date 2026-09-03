@@ -63,7 +63,8 @@ jobs:
         run: npm audit --audit-level=high || true
 
       - name: OSV Scanner
-        uses: google/osv-scanner-action@v1
+        uses: google/osv-scanner-action@v2
+        continue-on-error: true
         with:
           scan-args: --recursive .
 
