@@ -7,6 +7,10 @@ pitchfork = "2.23.0"
 # NODE_ENV left to Next.js defaults (development for dev, production for build)
 # explicitly set only where needed via task env
 
+[tasks.setup]
+description = "One-command fresh-clone setup: seed .env (never overwrite), enable corepack, install pnpm deps (idempotent)"
+run = "bash -c '\nset -euo pipefail\nif [ ! -f .env ]; then\n  cp .env.example .env\n  echo \"setup: created .env from .env.example (leave OPENAI_API_KEY empty for mock mode)\"\nelse\n  echo \"setup: .env exists, leaving untouched\"\nfi\ncorepack enable\npnpm install --frozen-lockfile\nnode --version && pnpm --version\n'"
+
 [tasks.dev]
 description = "Next.js dev server (auto-reload) for interactive QA"
 run = "npx next dev --port 3000"

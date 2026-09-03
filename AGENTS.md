@@ -72,7 +72,7 @@ Two bounded capabilities: **Scoring** (`scoreWebsite`) and **Verification** (`ch
 
 No auth gate, no external OpenAI key required — mock mode fail-closed:
 
-**Deps & services:** `mise install` (Node 22.23.2, pitchfork 2.23.0, pnpm 9), `cp .env.example .env` (leave `OPENAI_API_KEY` empty), `pnpm install`.
+**Deps & services (fresh clone to running dev):** `mise install && mise run setup && mise run dev` — `mise run setup` is the idempotent one-command setup (seeds `.env` only if missing, enables Corepack, `pnpm install --frozen-lockfile`). Manual equivalent: `mise install` (Node 22.23.2, pitchfork 2.23.0, pnpm 9), `cp .env.example .env` (leave `OPENAI_API_KEY` empty), `pnpm install`.
 
 **Launch:**
 
