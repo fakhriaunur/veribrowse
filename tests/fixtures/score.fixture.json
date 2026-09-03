@@ -1,0 +1,24 @@
+{
+  "trust": 42,
+  "level": "caution",
+  "elderlySummary": "⚠️ Score 42/100 — CAUTION. Be careful. Double-check before sharing personal info or paying. Why: Fixture — deterministic",
+  "bullets": ["Fixture — use for replay"],
+  "why": "Fixture — deterministic",
+  "provenance": {
+    "url": "https://example.com",
+    "contentHash": "0341d5a6",
+    "retrievedAt": "2026-01-01T00:00:00.000Z"
+  },
+  "citations": [{ "url": "https://example.com", "snippet": "Example Domain" }],
+  "raw": {
+    "url": "https://example.com",
+    "title": "Example Domain",
+    "ogDescription": "Fixture description for deterministic replay",
+    "finalUrl": "https://example.com",
+    "status": 200,
+    "contentHash": "0341d5a6",
+    "retrievedAt": "2026-01-01T00:00:00.000Z",
+    "domainAgeDays": 400,
+    "hasHttps": true
+  }
+}

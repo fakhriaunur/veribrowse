@@ -140,6 +140,21 @@ echo "$METRICS_BODY" | grep -q "score_requests_total [1-9]" || fail "metrics sco
 echo "$METRICS_BODY" | grep -q "check_requests_total [1-9]" || fail "metrics check_requests_total not incremented"
 pass "metrics"
 
+echo "[qa] golden diff vs tests/fixtures ignoring retrievedAt/checkedAt (VAL-CROSS-005,006,007)"
+command -v jq >/dev/null 2>&1 || fail "jq required for golden diff"
+curl -sf "http://127.0.0.1:$PORT/api/score?url=https://example.com&fixture=1" -o /tmp/qa-score-golden.json || fail "score golden curl failed"
+jq -S 'del(.provenance.retrievedAt) | del(.raw.retrievedAt)' /tmp/qa-score-golden.json > /tmp/qa-score-norm.json
+jq -S 'del(.provenance.retrievedAt) | del(.raw.retrievedAt)' "$ROOT/tests/fixtures/score.fixture.json" > /tmp/qa-score-golden-norm.json
+diff -u /tmp/qa-score-golden-norm.json /tmp/qa-score-norm.json || fail "score golden diff non-empty"
+grep -q '"trust": 42' /tmp/qa-score-norm.json || fail "score golden trust != 42"
+pass "score fixture matches golden (trust 42, retrievedAt normalized)"
+curl -sf "http://127.0.0.1:$PORT/api/check?claim=hello%20world%20fixture&fixture=1" -o /tmp/qa-check-golden.json || fail "check golden curl failed"
+jq -S 'del(.provenance.checkedAt) | del(.evidence[].retrievedAt)' /tmp/qa-check-golden.json > /tmp/qa-check-norm.json
+jq -S 'del(.provenance.checkedAt) | del(.evidence[].retrievedAt)' "$ROOT/tests/fixtures/check.fixture.json" > /tmp/qa-check-golden-norm.json
+diff -u /tmp/qa-check-golden-norm.json /tmp/qa-check-norm.json || fail "check golden diff non-empty"
+grep -q '"confidence": 0.82' /tmp/qa-check-norm.json || fail "check golden confidence != 0.82"
+pass "check fixture matches golden (supported 0.82, checkedAt normalized)"
+
 echo ""
 pass "qa smoke complete — replay: try: mise run replay && mise run test"
 echo "[qa] health:"; cat /tmp/qa-health.json; echo

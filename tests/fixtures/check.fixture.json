@@ -1,0 +1,19 @@
+{
+  "verdict": "supported",
+  "confidence": 0.82,
+  "elderlySummary": "✅ Claim looks supported (82%). Source matches claim.",
+  "reasoning": "Fixture reasoning — deterministic",
+  "evidence": [
+    {
+      "url": "https://example.com/evidence",
+      "quote": "Fixture evidence quote for deterministic replay",
+      "contentHash": "084f619b",
+      "retrievedAt": "2026-01-01T00:00:00.000Z"
+    }
+  ],
+  "provenance": {
+    "claim": "hello world fixture",
+    "claimHash": "3bcd8b53137e97fe",
+    "checkedAt": "2026-09-03T17:20:14.754Z"
+  }
+}
