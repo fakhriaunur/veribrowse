@@ -30,11 +30,13 @@ export async function GET(req: Request) {
     req.headers.get("x-request-id") ??
     req.headers.get("X-Request-Id") ??
     crypto.randomUUID().slice(0, 8);
+  const traceparent = req.headers.get("traceparent") ?? undefined;
   const hasKey = !!process.env.OPENAI_API_KEY;
   const headers = {
     "X-Request-Id": requestId,
     "cache-control": "no-store",
   };
+  void traceparent;
 
   try {
     const { searchParams } = new URL(req.url);

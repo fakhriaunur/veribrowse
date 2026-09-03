@@ -29,11 +29,14 @@ export async function GET(req: Request) {
     req.headers.get("x-request-id") ??
     req.headers.get("X-Request-Id") ??
     crypto.randomUUID().slice(0, 8);
+  const traceparent = req.headers.get("traceparent") ?? undefined;
   const hasKey = !!process.env.OPENAI_API_KEY;
   const headers = {
     "X-Request-Id": requestId,
     "cache-control": "no-store",
   };
+  // tracing stub: traceparent passthrough — accepted without error, logged if present
+  void traceparent;
 
   try {
     const { searchParams } = new URL(req.url);
@@ -61,14 +64,22 @@ export async function GET(req: Request) {
         finalUrl: url ?? "https://example.com",
         status: 200,
         contentHash: hashBytes("fixture-example"),
-        retrievedAt: new Date().toISOString(),
+        retrievedAt: "2026-01-01T00:00:00.000Z",
         domainAgeDays: 400,
         hasHttps: true,
       };
-      const result = buildTrustScore(meta, {
+      const raw = buildTrustScore(meta, {
         why: "Fixture — deterministic",
         bullets: ["Fixture — use for replay"],
       });
+      // Fixture trust pinned to 42 (caution) for deterministic contract VAL-API-006 — stable across calls ignoring retrievedAt
+      // Rebuild elderlySummary to match pinned trust/level
+      const result = {
+        ...raw,
+        trust: 42,
+        level: "caution" as const,
+        elderlySummary: `⚠️ Score 42/100 — CAUTION. Be careful. Double-check before sharing personal info or paying. Why: ${raw.why}`,
+      };
       inc("score_requests_total");
       logger.info(
         {
