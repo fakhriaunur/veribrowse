@@ -38,6 +38,22 @@ export async function GET(req: Request) {
   // tracing stub: traceparent passthrough — accepted without error, logged if present
   const log = withRequestId(requestId);
 
+  // 499 abort shape (VAL-API-029): {error:"aborted"} + warn log with durationMs/requestId
+  // NOTE: helper body must construct the response directly (never call abort()).
+  const abort = () => {
+    log.warn(
+      {
+        requestId,
+        traceparent,
+        hasKey,
+        durationMs: Math.max(1, Date.now() - start),
+        aborted: true,
+      },
+      "score aborted",
+    );
+    return NextResponse.json({ error: "aborted" }, { status: 499, headers });
+  };
+
   try {
     const { searchParams } = new URL(req.url);
     const url = searchParams.get("url");
@@ -71,7 +87,11 @@ export async function GET(req: Request) {
           "score 400 — invalid url",
         );
         return NextResponse.json(
-          { error: parsedFix.error.flatten() },
+          {
+            error: "Invalid url — must be a valid http(s) URL",
+            details: parsedFix.error.flatten(),
+            issues: parsedFix.error.issues,
+          },
           { status: 400, headers },
         );
       }
@@ -142,13 +162,17 @@ export async function GET(req: Request) {
         "score 400 — invalid url",
       );
       return NextResponse.json(
-        { error: parsed.error.flatten() },
+        {
+          error: "Invalid url — must be a valid http(s) URL",
+          details: parsed.error.flatten(),
+          issues: parsed.error.issues,
+        },
         { status: 400, headers },
       );
     }
 
     if (req.signal.aborted) {
-      return NextResponse.json({ error: "aborted" }, { status: 499, headers });
+      return abort();
     }
 
     const signal = req.signal;
@@ -175,10 +199,7 @@ export async function GET(req: Request) {
       if (og) ogDesc = og[1].trim().slice(0, 200);
     } catch (e) {
       if (isAbortError(e) || signal.aborted || /abort/i.test(String(e))) {
-        return NextResponse.json(
-          { error: "aborted" },
-          { status: 499, headers },
-        );
+        return abort();
       }
       log.warn(
         {
@@ -193,7 +214,7 @@ export async function GET(req: Request) {
     }
 
     if (signal.aborted) {
-      return NextResponse.json({ error: "aborted" }, { status: 499, headers });
+      return abort();
     }
 
     const raw = `${url}|${title ?? ""}`;
@@ -229,10 +250,7 @@ export async function GET(req: Request) {
           }),
         });
         if (signal.aborted) {
-          return NextResponse.json(
-            { error: "aborted" },
-            { status: 499, headers },
-          );
+          return abort();
         }
         if (res.ok) {
           const j = (await res.json()) as {
@@ -275,10 +293,7 @@ export async function GET(req: Request) {
         }
       } catch (e) {
         if (isAbortError(e) || signal.aborted) {
-          return NextResponse.json(
-            { error: "aborted" },
-            { status: 499, headers },
-          );
+          return abort();
         }
         inc("openai_fallback_total");
         log.warn(
@@ -305,7 +320,7 @@ export async function GET(req: Request) {
     }
 
     if (signal.aborted) {
-      return NextResponse.json({ error: "aborted" }, { status: 499, headers });
+      return abort();
     }
 
     const result = buildTrustScore(meta, llm);
@@ -326,7 +341,7 @@ export async function GET(req: Request) {
     return NextResponse.json(result, { status: 200, headers });
   } catch (e) {
     if (isAbortError(e)) {
-      return NextResponse.json({ error: "aborted" }, { status: 499, headers });
+      return abort();
     }
     log.error(
       {

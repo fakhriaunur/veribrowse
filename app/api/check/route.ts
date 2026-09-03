@@ -39,6 +39,22 @@ export async function GET(req: Request) {
   // tracing stub: traceparent passthrough — accepted without error, logged if present
   const log = withRequestId(requestId);
 
+  // 499 abort shape (VAL-API-029): {error:"aborted"} + warn log with durationMs/requestId
+  // NOTE: helper body must construct the response directly (never call abort()).
+  const abort = () => {
+    log.warn(
+      {
+        requestId,
+        traceparent,
+        hasKey,
+        durationMs: Math.max(1, Date.now() - start),
+        aborted: true,
+      },
+      "check aborted",
+    );
+    return NextResponse.json({ error: "aborted" }, { status: 499, headers });
+  };
+
   try {
     const { searchParams } = new URL(req.url);
     const claim = searchParams.get("claim");
@@ -59,7 +75,12 @@ export async function GET(req: Request) {
             "check 400 — invalid claim",
           );
           return NextResponse.json(
-            { error: parsedFix.error.flatten() },
+            {
+              error:
+                "Invalid claim — must be 8-500 chars with optional valid contextUrl",
+              details: parsedFix.error.flatten(),
+              issues: parsedFix.error.issues,
+            },
             { status: 400, headers },
           );
         }
@@ -85,7 +106,7 @@ export async function GET(req: Request) {
             url: "https://example.com/evidence",
             quote: "Fixture evidence quote for deterministic replay",
             contentHash: hashBytes("fixture-evidence"),
-            retrievedAt: new Date().toISOString(),
+            retrievedAt: "2026-01-01T00:00:00.000Z",
           },
         ],
         {
@@ -136,13 +157,18 @@ export async function GET(req: Request) {
         "check 400 — invalid claim",
       );
       return NextResponse.json(
-        { error: parsed.error.flatten() },
+        {
+          error:
+            "Invalid claim — must be 8-500 chars with optional valid contextUrl",
+          details: parsed.error.flatten(),
+          issues: parsed.error.issues,
+        },
         { status: 400, headers },
       );
     }
 
     if (req.signal.aborted) {
-      return NextResponse.json({ error: "aborted" }, { status: 499, headers });
+      return abort();
     }
 
     const signal = req.signal;
@@ -154,11 +180,7 @@ export async function GET(req: Request) {
           signal,
           headers: { "user-agent": "VeriBrowse/0.1" },
         });
-        if (signal.aborted)
-          return NextResponse.json(
-            { error: "aborted" },
-            { status: 499, headers },
-          );
+        if (signal.aborted) return abort();
         const html = await res.text();
         const text = html
           .replace(/<[^>]+>/g, " ")
@@ -177,11 +199,7 @@ export async function GET(req: Request) {
           evidence = [];
         }
       } catch (e) {
-        if (isAbortError(e))
-          return NextResponse.json(
-            { error: "aborted" },
-            { status: 499, headers },
-          );
+        if (isAbortError(e)) return abort();
         log.warn(
           {
             requestId,
@@ -208,8 +226,7 @@ export async function GET(req: Request) {
       );
     }
 
-    if (signal.aborted)
-      return NextResponse.json({ error: "aborted" }, { status: 499, headers });
+    if (signal.aborted) return abort();
 
     // Fail-closed: empty evidence → unverified regardless of LLM
     let llm:
@@ -237,11 +254,7 @@ export async function GET(req: Request) {
             messages: [{ role: "user", content: prompt }],
           }),
         });
-        if (signal.aborted)
-          return NextResponse.json(
-            { error: "aborted" },
-            { status: 499, headers },
-          );
+        if (signal.aborted) return abort();
         if (res.ok) {
           const j = (await res.json()) as {
             choices?: { message?: { content?: string } }[];
@@ -287,11 +300,7 @@ export async function GET(req: Request) {
           );
         }
       } catch (e) {
-        if (isAbortError(e))
-          return NextResponse.json(
-            { error: "aborted" },
-            { status: 499, headers },
-          );
+        if (isAbortError(e)) return abort();
         inc("openai_fallback_total");
         log.warn(
           {
@@ -316,8 +325,7 @@ export async function GET(req: Request) {
       );
     }
 
-    if (signal.aborted)
-      return NextResponse.json({ error: "aborted" }, { status: 499, headers });
+    if (signal.aborted) return abort();
 
     const result = verifyClaimPure(
       { claim: parsed.data.claim, contextUrl: parsed.data.contextUrl },
@@ -338,8 +346,7 @@ export async function GET(req: Request) {
     );
     return NextResponse.json(result, { status: 200, headers });
   } catch (e) {
-    if (isAbortError(e))
-      return NextResponse.json({ error: "aborted" }, { status: 499, headers });
+    if (isAbortError(e)) return abort();
     log.error(
       {
         requestId,

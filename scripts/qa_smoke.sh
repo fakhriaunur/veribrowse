@@ -87,6 +87,48 @@ pass "score provenance"
 echo "$CHECK_BODY" | grep -q '"checkedAt"' || fail "check missing checkedAt"
 pass "check provenance"
 
+echo "[qa] 400 contract shapes (VAL-API-010,011,018,019,028)"
+assert400() {
+  desc="$1"; url="$2"; frag="$3"; kind="$4"  # kind: zod|plain
+  code=$(curl -s -D /tmp/qa-400-hdrs.txt -o /tmp/qa-400-body.json -w "%{http_code}" "$url") || fail "$desc curl failed"
+  [ "$code" = "400" ] || fail "$desc expected 400 got $code"
+  grep -q '"error"' /tmp/qa-400-body.json || fail "$desc missing error field"
+  grep -qi "X-Request-Id" /tmp/qa-400-hdrs.txt || fail "$desc missing X-Request-Id"
+  grep -q "application/json" /tmp/qa-400-hdrs.txt || fail "$desc wrong content-type"
+  grep -q "$frag" /tmp/qa-400-body.json || fail "$desc body missing fragment $frag"
+  if [ "$kind" = "zod" ]; then
+    grep -q '"issues"' /tmp/qa-400-body.json || fail "$desc missing issues array"
+    grep -q '"details"' /tmp/qa-400-body.json || fail "$desc missing details"
+  fi
+  pass "$desc"
+}
+assert400 "score missing url" "http://127.0.0.1:$PORT/api/score" "Missing url" "plain"
+assert400 "score fixture without url" "http://127.0.0.1:$PORT/api/score?fixture=1" "Missing url" "plain"
+assert400 "score invalid url" "http://127.0.0.1:$PORT/api/score?url=not-a-url" "Invalid url" "zod"
+assert400 "score invalid url with fixture" "http://127.0.0.1:$PORT/api/score?url=not-a-url&fixture=1" "Invalid url" "zod"
+assert400 "check missing claim" "http://127.0.0.1:$PORT/api/check" "Missing claim" "plain"
+assert400 "check short claim" "http://127.0.0.1:$PORT/api/check?claim=hi" "Invalid claim" "zod"
+
+echo "[qa] 8-char claim passes validation then fail-closed (VAL-API-019)"
+CODE8=$(curl -s -o /tmp/qa-8char.json -w "%{http_code}" "http://127.0.0.1:$PORT/api/check?claim=12345678") || fail "8char curl failed"
+[ "$CODE8" = "200" ] || fail "8char expected 200 got $CODE8"
+grep -q '"unverified"' /tmp/qa-8char.json || fail "8char expected unverified"
+pass "8-char claim fail-closed unverified"
+
+echo "[qa] X-Request-Id echo-test-999 on score/check/400 (VAL-API-024)"
+curl -sD /tmp/qa-hdrs-score-echo.txt -H "X-Request-Id: echo-test-999" "http://127.0.0.1:$PORT/api/score?url=https://example.com&fixture=1" -o /dev/null
+grep -q "echo-test-999" /tmp/qa-hdrs-score-echo.txt || fail "score X-Request-Id echo failed"
+curl -sD /tmp/qa-hdrs-check-echo.txt -H "X-Request-Id: echo-test-999" "http://127.0.0.1:$PORT/api/check?claim=hello%20world%20claim%20text&fixture=1" -o /dev/null
+grep -q "echo-test-999" /tmp/qa-hdrs-check-echo.txt || fail "check X-Request-Id echo failed"
+curl -sD /tmp/qa-hdrs-400-echo.txt -H "X-Request-Id: echo-test-999" "http://127.0.0.1:$PORT/api/score" -o /dev/null
+grep -q "echo-test-999" /tmp/qa-hdrs-400-echo.txt || fail "400 X-Request-Id echo failed"
+pass "X-Request-Id echo on score/check/400"
+
+echo "[qa] no sk- leakage in JSON responses (VAL-API-026)"
+cat /tmp/qa-health.json /tmp/qa-score.json /tmp/qa-check.json /tmp/qa-8char.json /tmp/qa-400-body.json > /tmp/qa-all-json.txt
+if grep -q "sk-" /tmp/qa-all-json.txt; then fail "secret leaked in JSON"; fi
+pass "no sk- in JSON"
+
 echo "[qa] curl /api/metrics (Prometheus text/plain)"
 METRICS_BODY=$(curl -sf "http://127.0.0.1:$PORT/api/metrics") || fail "metrics failed"
 curl -sD /tmp/qa-hdrs-metrics.txt "http://127.0.0.1:$PORT/api/metrics" -o /dev/null
