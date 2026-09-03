@@ -38,9 +38,8 @@ describe("API integration (in-memory core)", () => {
   });
 
   it("schemas reject invalid and accept valid", async () => {
-    const { scoreWebsiteSchema, checkClaimSchema } = await import(
-      "@/lib/schemas"
-    );
+    const { scoreWebsiteSchema, checkClaimSchema } =
+      await import("@/lib/schemas");
     expect(
       scoreWebsiteSchema.safeParse({ url: "https://ok.example" }).success,
     ).toBe(true);

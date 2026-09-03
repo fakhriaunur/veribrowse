@@ -1,6 +1,10 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-safe: #16a34a;
+  --color-caution: #ca8a04;
+  --color-risky: #dc2626;
+}
 
 :root {
   --safe: #16a34a;
