@@ -91,7 +91,7 @@ grep -r "sk-" . --exclude-dir=node_modules --exclude="*.md" | wc -l  # expect 0
 - `.env.example` has `OPENAI_API_KEY=` empty (not real key) and `.env` is gitignored; pre-commit `.pre-commit-config.yaml` has `gitleaks` hook scanning for `sk-`.
 - `OPENAI_BASE_URL` default remains `https://api.openai.com/v1`, `OPENAI_MODEL` `gpt-4o-mini` (see `.env.example`).
 
-Cross-link: `docs/branch-protection.md` (CODEOWNERS requires review for `lib/schemas.ts` / `app/api/*`), `docs/deployment.md` (env var list).
+Cross-link: `docs/branch-protection.md` (CODEOWNERS documents ownership of `lib/schemas.ts` / `app/api/*`, advisory only — `require_code_owner_review: false`, 0 required approvals per solo-maintainer policy), `docs/deployment.md` (env var list).
 
 ## Mock fallback
 
