@@ -23,13 +23,13 @@
     "next": "15.5.25",
     "openai": "4.52.7",
     "pino": "9.3.2",
-    "react": "19.1.0",
+    "react": "19.2.8",
     "react-dom": "19.1.0",
     "zod": "3.23.8"
   },
   "devDependencies": {
     "@types/node": "22.10.1",
-    "@types/react": "19.0.6",
+    "@types/react": "19.2.18",
     "@types/react-dom": "19.0.3",
     "@vitest/coverage-v8": "3.0.5",
     "autoprefixer": "10.4.20",
