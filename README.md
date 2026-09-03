@@ -26,6 +26,14 @@ rm -rf .next
 
 ## Quick start
 
+From a fresh clone to a running dev server:
+
+```bash
+mise install && mise run setup && mise run dev  # dev server on :3000
+```
+
+`mise run setup` is idempotent and non-interactive: it copies `.env.example` to `.env` only if `.env` is missing (never overwrites), enables Corepack for the pinned pnpm, and runs `pnpm install --frozen-lockfile`. Equivalent manual steps:
+
 ```bash
 mise install                    # Node 22.23.2 + pitchfork 2.23.0 + pnpm 9.15.9 shims
 cp .env.example .env            # leave OPENAI_API_KEY empty for deterministic mock mode

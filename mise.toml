@@ -7,6 +7,10 @@ pitchfork = "2.23.0"
 # NODE_ENV left to Next.js defaults (development for dev, production for build)
 # explicitly set only where needed via task env
 
+[tasks.setup]
+description = "One-command fresh-clone setup: seed .env (never overwrite), enable corepack, install pnpm deps (idempotent)"
+run = "bash -c '\nset -euo pipefail\nif [ ! -f .env ]; then\n  cp .env.example .env\n  echo \"setup: created .env from .env.example (leave OPENAI_API_KEY empty for mock mode)\"\nelse\n  echo \"setup: .env exists, leaving untouched\"\nfi\ncorepack enable\npnpm install --frozen-lockfile\nnode --version && pnpm --version\n'"
+
 [tasks.dev]
 description = "Next.js dev server (auto-reload) for interactive QA"
 run = "npx next dev --port 3000"
@@ -75,6 +79,14 @@ run = "npx depcheck --json | tee /tmp/depcheck.json && node -e \"const j=require
 [tasks.version_drift]
 description = "Version drift check Node 22.23.2 alignment"
 run = "bash scripts/check_version_drift.sh"
+
+[tasks.agents_md]
+description = "Validate AGENTS.md tasks/paths still match code (readiness agents_md_validation)"
+run = "bash scripts/check_agents_md.sh"
+
+[tasks.test_perf]
+description = "Vitest with per-test timing: verbose durations + gitignored infra/test-perf.json summary and infra/vitest-timing.json report (CI artifact)"
+run = "bash scripts/test_perf.sh"
 
 [tasks.build-perf]
 description = "Build with timing artifact infra/build-perf.json"

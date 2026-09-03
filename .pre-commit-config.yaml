@@ -23,3 +23,11 @@ repos:
     rev: v8.18.4
     hooks:
       - id: gitleaks
+  - repo: local
+    hooks:
+      - id: check-agents-md
+        name: Validate AGENTS.md references
+        entry: bash scripts/check_agents_md.sh
+        language: system
+        files: ^(AGENTS\.md|mise\.toml|pitchfork\.toml)$
+        pass_filenames: false
