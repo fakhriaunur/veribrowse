@@ -1,91 +1,129 @@
-# VeriBrowse — WebMCP Challenge Project Guide
+# VeriBrowse — Production Hardening Project Guide
 
 ## Mission
 
-VeriBrowse is a 2-tool WebMCP site (`scoreWebsite`, `checkClaim`) for elderly/non-power-users and nerd auditors. Provide scam trust scoring + claim-vs-evidence verification via WebMCP `document.modelContext.registerTool`, Edge API, and OpenAI. Dual UX: plain elderly summary + verbose audit with citations. Fail-closed on unknown, preserve provenance.
+VeriBrowse is a 2-tool WebMCP site (`scoreWebsite`, `checkClaim`) plus tracers (`ping`, `echoEcho`). This Transform mission hardens the M0-M5 tracer (38/84 L3) to production ready L5 (68/84, with `large_file_detection` explicitly excluded as advisory → 68/83). Keep WebMCP contract frozen, add only supporting hardening where justifiable (YAGNI otherwise). Browser validation uses the installed `agent-browser` executable via the bundled `droid-control` plugin — Playwright is forbidden.
 
 ## Repository layout
 
-- `app/`: Next.js App Router pages, layouts, and Edge API routes.
-- `lib/`: functional core — schemas, scoring, claim verification, provenance, logger.
-- `components/`: React UI — elderly toggle, trust badge, evidence view.
-- `tests/`: unit, integration (WebMCP), replay (deterministic fixtures).
-- `scripts/`: `qa_smoke.sh`, `check_*.sh` quality gates.
-- `infra/`: Netlify config, Edge runtime manifests.
-- `docs/`: architecture, authority, readiness.
-- `triage/`: event worksheet and execution record.
-- `.devcontainer/`: reproducible dev environment (Node 22, mise, pitchfork).
+- `app/` — Next.js App Router pages, layouts, Edge/Node API routes (`health`, `score`, `check`, optional `metrics`)
+- `lib/` — functional core: `score`, `claim`, `schemas`, `logger`, `metrics` (stub), `fetchWithRetry`
+- `components/` — React UI: `TrustBadge`, evidence view
+- `tests/` — unit, replay (committed fixtures), integration (via vitest), agent-browser E2E (via droid-control)
+- `scripts/` — `qa_smoke.sh`, `mock_openai.mjs`, `check_*.sh`, `gen_docs.mjs`
+- `infra/` — `netlify.toml`, build perf artifacts
+- `docs/` — `architecture.md`, `runbook.md`, `api.md`, `branch-protection.md`, `deployment.md`
+- `.github/` — `workflows/ci.yml`, `CODEOWNERS`, `dependabot.yml`, issue/PR templates
+- `.devcontainer/` — Node 22 + mise + pitchfork + gh-cli
+- `pitchfork.toml` + `mise.toml` — toolchain and local services
 
 ## File editing
 
-Use this file-editing priority:
+Use this priority:
 
-1. ApplyPatch.
-2. Edit, MultiEdit, or Create if ApplyPatch fails or cannot safely express the change.
-3. Bounded Node/Python/shell scripts only as a final fallback.
-
-Review each change and preserve user work.
+1. ApplyPatch
+2. Edit, MultiEdit, or Create if ApplyPatch cannot safely express the change
+3. Bounded Node/shell scripts only as final fallback
+   Review each change, preserve user work, never commit secrets.
 
 ## Tooling contract
 
-Use **mise** as project toolchain and task runner. Pin runtime and dependency versions in `mise.toml`; prefer `mise run <task>` over ad-hoc `npm`/`npx`.
-
-Use **Pitchfork** as local service manager. Keep service definitions, health checks, logs, and shutdown explicit. Do not start persistent services without `pitchfork start`.
-
-Containerize later with **Podman** under `infra/containers/` — not a prerequisite for the first slice.
+- **mise** is the toolchain and task runner. Pin versions in `mise.toml` (min_version 2026.8.14, node 22.11.0, pitchfork 2.23.0). Prefer `mise run <task>` over ad-hoc `npx`.
+- **Pitchfork** is the local service manager. Keep daemons, health checks, logs, and shutdown explicit. Do not start persistent services without `pitchfork start`.
+- **Do not use Playwright** in this mission. Use `agent-browser` via `droid-control` for browser validation. Remove legacy Playwright config/dep if present, unless needed as a dev stub — then replace with agent-browser flow and remove Playwright gates from `services.yaml`/`mise.toml`.
+- Containerize later with Podman under `infra/containers/` — not a prerequisite for early slices.
 
 ## Required checks
 
-Before commit, run the narrowest relevant `mise` tasks for formatting, linting, type checking, tests, replay, and security. Record failed or skipped checks. Keep fast checks separate from full checks.
+Before commit, run the narrowest relevant `mise` tasks, then the full gate before handoff:
 
 ```bash
-mise run lint    # eslint + prettier --check
+mise run lint    # eslint + prettier --check (includes complexity 12)
 mise run type    # tsc --noEmit strict
-mise run test    # vitest --coverage 35% gate
+mise run test    # vitest --coverage --threshold 35 (keep 35 floor)
+mise run replay  # deterministic fixture replay (ignore retrievedAt)
 mise run check   # lint + type + test
+./scripts/qa_smoke.sh --ephemeral  # one-shot curl smoke
+# agent-browser flow via droid-control for web surface where supported
 ```
+
+## Service Boundaries (NEVER VIOLATE)
+
+- Web: `3000` (Next.js, `mise run dev` / `pitchfork web`). Health: `GET /api/health` → `{"status":"ok"}` + `X-Request-Id`.
+- Mock OpenAI: `8787` (node `scripts/mock_openai.mjs`, `MOCK_PORT`/`OPENAI_BASE_URL`). Health: `GET /` → `{"ok":true}`.
+- No DB/Redis: `DATABASE_URL` is optional stretch (Neon/Netlify DB). Tracer is stateless; do not add Postgres/Redis without ADR.
+- Off-limits ports (shared oracle host): `22`/`53`/`111`/`631`/`904`/`9000`/`3389`/`34115`/`33519` and `54620-54630` (Factory Droid MCP) — never bind or probe destructively.
+- Always `lsof -i -P -n | grep LISTEN` + `ss -tlnp` before binding a new port. Prefer `pitchfork start` over manual `npx`.
+- `OPENAI_API_KEY` never committed; never printed in logs or artifacts; `.env` is ignored; `OPENAI_BASE_URL` defaults to `https://api.openai.com/v1`.
 
 ## Authority and safety
 
-- WebMCP tool schemas are the agent contract — zod schemas are single source of truth for both `inputSchema` and Edge validation.
-- OpenAI output is a proposal, never canonical truth — every claim verdict carries evidence citations + provenance (`url`, `contentHash`, `retrievedAt`).
-- Fail-closed: unknown claim → `verdict: unverified` with empty evidence, never hallucinated citations.
-- Do not expose secrets, commit `.env`, or bypass `AbortSignal` handling.
-- Human reviews prompt changes, WebMCP registrations, and public claims.
+- WebMCP tool schemas are the agent contract — `lib/schemas.ts` zod is single source for both `inputSchema` and Edge validation. Tool names/order (`ping`, `echoEcho`, `scoreWebsite`, `checkClaim`) are frozen.
+- OpenAI output is a proposal, never canonical truth — every claim verdict carries evidence citations + provenance (`url`, `contentHash`, `retrievedAt`/`checkedAt`). Fail-closed: unknown claim → `verdict: unverified` with empty evidence, never hallucinated citations.
+- Empty `OPENAI_API_KEY` means deterministic heuristic/fail-closed — still returns `contentHash` + `retrievedAt`. This is the CI/QA contract.
+- `OPENAI_BASE_URL` override allows `http://127.0.0.1:8787` + dummy key to exercise the OpenAI JSON-parse branch without a real secret.
+- Do not expose secrets, commit `.env`, or bypass `AbortSignal` handling. Large file detection is advisory only (excluded from L5 denominator); deep modules retain headroom.
 
 ## Agent operating model
 
-Two bounded capabilities: **Scoring** (`scoreWebsite`) and **Verification** (`checkClaim`). Keep fetch, heuristic, LLM, and provenance logic deterministic and pure. WebMCP `registerTool` is a thin imperative shell. Agents produce reviewable changes and evidence.
+Two bounded capabilities: **Scoring** (`scoreWebsite`) and **Verification** (`checkClaim`). Keep fetch, heuristic, LLM, and provenance logic deterministic and pure. WebMCP `registerTool` is a thin imperative shell. Agents produce reviewable changes and evidence. Human owns Netlify secret entry, branch-protection approval, deployment linking, and real-key tests.
 
-## Interactive QA — Agent-Followable Path
+## Interactive QA — Agent-Followable Path (agent-browser via droid-control)
 
-Concrete end-to-end QA for an agent (no auth gate, no external OpenAI key required — mock mode fail-closed):
+No auth gate, no external OpenAI key required — mock mode fail-closed:
 
-**Deps & services:** `mise install` (Node 22.11.0, pitchfork 2.23.0), `cp .env.example .env` (leave `OPENAI_API_KEY` empty for mock), `pnpm install`.
-
-**Auth:** None. API is public for QA (`/api/health`, `/api/score?fixture=1` require no credentials). Without key, routes return deterministic fixtures.
+**Deps & services:** `mise install` (Node 22.11.0, pitchfork 2.23.0, pnpm 9), `cp .env.example .env` (leave `OPENAI_API_KEY` empty), `pnpm install`.
 
 **Launch:**
 
 ```bash
-mise run dev        # next dev --port 3000
-# or: mise run qa  # one-shot smoke that starts ephemeral server and curls every endpoint
+mise run dev        # next dev --port 3000 on pitchfork or directly
+# or: pitchfork start --all (web + mock) then pitchfork logs web
 ```
 
-**Drive (meaningful interactions):**
+**Drive (curl):**
 
 ```bash
 curl -s http://127.0.0.1:3000/api/health | jq
 curl -s "http://127.0.0.1:3000/api/score?url=https://example.com&fixture=1" | jq .trust
-curl -s "http://127.0.0.1:3000/api/check?claim=hello%20world&fixture=1" | jq .verdict
-curl -s http://127.0.0.1:3000/ | head -20
-# Browser (agent-browser): await document.modelContext.getTools()
-./scripts/qa_smoke.sh --ephemeral  # full smoke: health, score, check, WebMCP discovery via Playwright
-mise run replay  # fixture replay: score + claim golden files
+curl -s "http://127.0.0.1:3000/api/check?claim=hello%20world%20claim%20text&fixture=1" | jq .verdict
+curl -is http://127.0.0.1:3000/api/score?url=https://example.com | grep -i X-Request-Id
 ```
 
-Expected: `/api/health` → `{"status":"ok"}`, `/api/score?fixture=1` → `{"trust":42,...}`, without key returns mock. `document.modelContext.getTools()` → `[{name:"scoreWebsite"}, {name:"checkClaim"}]` when WebMCP flag enabled. See `README.md#interactive-qa` and `scripts/qa_smoke.sh`.
+**Drive (browser via agent-browser + droid-control):**
+Fresh isolated profile, `agent-browser open http://127.0.0.1:3000`, wait for `document.modelContext.getTools()` → 4 tools, screenshot, check console-errors 0, click Score/Verify, verify `TrustBadge`, `X-Request-Id` header in network, elderly vs nerd toggle.
+
+**Full smoke:**
+
+```bash
+./scripts/qa_smoke.sh --ephemeral
+mise run replay
+# with mock OpenAI branch: OPENAI_BASE_URL=http://127.0.0.1:8787 OPENAI_API_KEY=dummy npm run dev then curl score/check
+```
 
 ## Git workflow
 
-Use conventional commits. Never commit secrets or generated credentials. Review staged diff before committing. Do not push without explicit authorization.
+Use conventional commits. Never commit secrets or generated credentials. Review staged diff before committing. Do not push without explicit authorization. Do not rewrite published history.
+
+## Mission Directives
+
+**Tools:** `mise`, `pitchfork`, `gh` (repo/workflow), `pnpm` 9, `agent-browser` via `droid-control`, `curl`/`jq`.
+**Skills:** `agent-browser` skill (web validation), plus worker skills in `skills/` (infra-worker, quality-worker, observability-worker).
+**Dependencies:** Keep `next 15.2.3`, `react 19`, `zod`, `pino`, `vitest`, `tailwind` pinned; dev-time only additions: `knip`, `jscpd`, `depcheck`, `typedoc`, `gitleaks`.
+**Other:** Large file gate is advisory/excluded; Playwright is forbidden; YAGNI list (feature flags, progressive rollout, monorepo, N+1, DB, analytics, SBOM, SLO) remains documented as excluded without implementation.
+
+## Testing & Validation Guidance
+
+Validators treat this section as authoritative.
+
+- No Playwright — use `agent-browser` skill via `droid-control`.
+- Coverage gate 35% lines/branches must not be lowered.
+- Replay fixtures compare ignoring `retrievedAt`/`checkedAt`.
+- Mock OpenAI flow uses `OPENAI_BASE_URL=http://127.0.0.1:8787` + dummy key, not a real secret.
+- Real OpenAI path is only exercised when the user has populated `.env` with a real key; never assert it passed in CI without that.
+- Resource headroom: lightweight Next ~300MB per validator + 200MB dev server, max 5 concurrent when sharing server; use 70% headroom rule.
+
+## Known Pre-Existing Issues (Do Not Fix)
+
+- `large_file_detection` intentionally excluded from L5 denominator to allow deep modules >700 lines. `scripts/check_large_files.sh` exists as advisory.
+- Playwright 1.52.0 does not support Ubuntu 26.04 (Resolute) in this host — its `chromium` install fails; mission replaces it with `agent-browser`. Validators should note but not fix Playwright install.

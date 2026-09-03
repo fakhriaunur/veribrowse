@@ -142,9 +142,18 @@ Flowchart for triage when real OpenAI fails: `real failure -> mock verify (OPENA
 Netlify deploy logs are primary signal; no Prometheus/Grafana required for this stateless deploy.
 
 - **Netlify logs:** Site -> Deploys -> Build log and Function log are the primary alert source. Search for `level:error` in Netlify dashboard or local pino JSON (`jq 'select(.level==50)'`).
-- **External uptime check (optional):** Point UptimeRobot/Checkly/Upptime at `GET /api/health` and `GET /api/health?verbose=1` (expects `{"status":"ok","service":"veribrowse","version":"0.1.0"}` + `X-Request-Id` + `uptime` when verbose). Poll every 5m; alert on non-200 or missing `X-Request-Id` or `cache-control: no-store` mismatch.
+- **External uptime check (optional):** Point UptimeRobot/Checkly/Upptime at `GET /api/health` and `GET /api/health?verbose=1` (expects `{"status":"ok","service":"veribrowse","version":"0.1.0"}` + `X-Request-Id` + `uptime` when verbose). Poll every 5m; alert on non-200 or missing `X-Request-Id` or `cache-control: no-store` mismatch. Example: `curl -is http://127.0.0.1:3000/api/health | grep -i X-Request-Id` and `curl -s http://127.0.0.1:3000/api/health?verbose=1 | jq`.
 - **Health verbose:** `curl -s http://127.0.0.1:3000/api/health?verbose=1 | jq '{status, service, version, uptime}'`.
 - Log search: `pitchfork logs web 2>&1 | jq 'select(.level >= 40)'` for warn/error; `durationMs` bounded >0 per `lib/logger.ts`.
+- **Metrics:** `curl -s http://127.0.0.1:3000/api/metrics | grep -E "score_requests_total|openai_fallback_total"` shows Prometheus text/plain counters (`# HELP score_requests_total`).
+
+### Tracing stub
+
+Tracing is stubbed for future OTel — no SDK is initialized by default.
+
+- Every response carries `X-Request-Id` (echo if caller sends `X-Request-Id: my-id`, else `crypto.randomUUID().slice(0,8)`). Use `withRequestId(requestId)` child logger (`lib/logger.ts`) to correlate logs: `pitchfork logs web 2>&1 | jq 'select(.requestId=="my-id")'`.
+- `traceparent` (W3C) passthrough stub: if request includes `traceparent: 00-<trace>-<parent>-01`, server accepts it without error, logs it as `traceparent` field when present, and still generates/echoes `X-Request-Id`. No full OTel collector required. Example: `curl -is -H "traceparent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01" http://127.0.0.1:3000/api/health` → 200 + `X-Request-Id` preserved.
+- Future OTel: when `OTEL_EXPORTER_OTLP_ENDPOINT` is set, replace stub with `@opentelemetry/sdk-node` initialization; keep `X-Request-Id` as primary correlation until then. See `lib/logger.ts` comment and `docs/architecture.md` Observability section.
 
 ## QA & Tooling
 

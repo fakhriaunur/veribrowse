@@ -1,0 +1,35 @@
+# Labels — VeriBrowse triage (Keep-a-Changelog + milestones)
+# Managed via `gh label list` / `.github/labels.yml` sync. Colors chosen for GitHub UI.
+# Usage: bug/enhancement for type, hardening for prod-hardening, m7/m8 for milestone backlog.
+
+- name: bug
+  color: "d73a4a"
+  description: "Bug — reproduction + fix: branch expected. Conventional prefix fix:"
+
+- name: enhancement
+  color: "a2eeef"
+  description: "Enhancement — new capability or improvement. Prefix feat: (hardening/docs only beyond 2-tool scope)"
+
+- name: hardening
+  color: "0e8a16"
+  description: "Hardening — prod hardening (CI, security, observability, resilience) without new user-facing scope"
+
+- name: m7
+  color: "1d76db"
+  description: "Milestone m7 — quality gates + documentation (knip/jscpd/complexity, docs/api.md, templates)"
+
+- name: m8
+  color: "5319e7"
+  description: "Milestone m8 — observability, resilience, production verification (logger, metrics, fetchWithRetry)"
+
+- name: docs
+  color: "0075ca"
+  description: "Documentation — README, docs/, CHANGELOG, API reference"
+
+- name: good first issue
+  color: "7057ff"
+  description: "Good first issue — small, well-scoped, verified via mise run qa"
+
+- name: triage
+  color: "ededed"
+  description: "Needs triage — awaiting CODEOWNERS review (* @fakhriaunur)"

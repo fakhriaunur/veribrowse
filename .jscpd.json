@@ -1,0 +1,16 @@
+{
+  "threshold": 10,
+  "reporters": ["console"],
+  "ignore": [
+    "coverage/**",
+    ".next/**",
+    "node_modules/**",
+    "pnpm-lock.yaml",
+    "package-lock.json",
+    "infra/build-perf.json"
+  ],
+  "absolute": false,
+  "format": ["typescript", "javascript"],
+  "minLines": 5,
+  "minTokens": 50
+}

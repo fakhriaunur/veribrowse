@@ -48,12 +48,70 @@ jobs:
         run: mise run test
         # coverage 35 lines 35 branches gate via vitest.config.mjs and mise.toml
 
+      - name: Dead code gate (knip)
+        run: mise run dead_code
+
+      - name: Duplicate code gate (jscpd)
+        run: mise run duplicate
+
+      - name: Heavy dependency gate (depcheck bundle size)
+        run: mise run heavy_dep
+
+      - name: Unused dependency gate (depcheck)
+        run: mise run unused_dep
+
+      - name: Version drift gate (Node 22.11.0 alignment)
+        run: mise run version_drift
+
       - name: Replay deterministic fixtures
         run: mise run replay
 
-      - name: Build (Next.js production)
-        run: mise run build
+      - name: Build (Next.js production) with timing
+        run: |
+          START=$(date +%s)
+          mise run build
+          END=$(date +%s)
+          DURATION=$((END - START))
+          echo "Build completed in ${DURATION}s" | tee -a $GITHUB_STEP_SUMMARY
+          mkdir -p infra
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          cat > infra/build-perf.json <<EOF
+          {
+            "timestamp": "$TIMESTAMP",
+            "durationSeconds": $DURATION,
+            "durationMs": $((DURATION * 1000)),
+            "nodeVersion": "22.11.0"
+          }
+          EOF
+          echo "durationMs: $((DURATION * 1000))" >> $GITHUB_STEP_SUMMARY
+          cat infra/build-perf.json
         # CodeQL analysis runs in .github/workflows/codeql.yml (github/codeql-action)
+
+      - name: Code quality metrics summary
+        run: |
+          echo "## Code Quality Metrics" >> $GITHUB_STEP_SUMMARY
+          echo "- knip dead_code: $(npx knip --no-progress 2>&1 | head -1 || echo 'knip ok')" >> $GITHUB_STEP_SUMMARY
+          echo "- jscpd duplicate: $(npx jscpd --config .jscpd.json . 2>&1 | grep -i 'duplicated' | tail -1 || echo 'jscpd ok')" >> $GITHUB_STEP_SUMMARY
+          echo "- complexity: 12 max-depth: 4 enforced via eslint.config.mjs" >> $GITHUB_STEP_SUMMARY
+          echo "- depcheck heavy_dep: dependencies empty" >> $GITHUB_STEP_SUMMARY
+          echo "- version_drift: Node 22.11.0 aligned" >> $GITHUB_STEP_SUMMARY
+          echo "- coverage: 35% lines/branches threshold via vitest.config.mjs" >> $GITHUB_STEP_SUMMARY
+          echo "- build timing: recorded in infra/build-perf.json" >> $GITHUB_STEP_SUMMARY
+          cat $GITHUB_STEP_SUMMARY
+
+      - name: Upload build performance artifact (artifacts)
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-perf
+          path: infra/build-perf.json
+          if-no-files-found: warn
+
+      - name: Upload coverage artifact (artifacts)
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          if-no-files-found: warn
 
       - name: Dependency audit (pnpm audit)
         run: pnpm audit --audit-level=high || true

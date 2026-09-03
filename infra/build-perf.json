@@ -1,0 +1,8 @@
+{
+  "timestamp": "2026-09-03T15:28:57Z",
+  "durationSeconds": 13,
+  "durationMs": 13000,
+  "nodeVersion": "v22.11.0",
+  "nextVersion": "15.2.3",
+  "expectedNode": "22.11.0"
+}
