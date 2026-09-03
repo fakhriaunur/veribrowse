@@ -2,7 +2,7 @@
 
 ## Deployment
 
-Netlify deploys `main` via the repo-root `netlify.toml` (the only config Netlify reads; `infra/netlify.toml` is a drift-gated mirror — see `docs/deployment.md`) with `[[plugins]] @netlify/plugin-nextjs` runtime for SSR/API routes (`pnpm build` publish `.next`, `NODE_VERSION 22.11.0`). All contexts `production`, `deploy-preview`, `branch-deploy` use `pnpm build`. Headers `cache-control: no-store` for `/api/*`.
+Netlify deploys `main` via the repo-root `netlify.toml` (the only config Netlify reads; `infra/netlify.toml` is a drift-gated mirror — see `docs/deployment.md`) with `[[plugins]] @netlify/plugin-nextjs` runtime for SSR/API routes (`pnpm build` publish `.next`, `NODE_VERSION 22.23.2`). All contexts `production`, `deploy-preview`, `branch-deploy` use `pnpm build`. Headers `cache-control: no-store` for `/api/*`.
 
 ### Deploy from main
 ```bash
@@ -31,7 +31,7 @@ pitchfork logs web 2>&1 | jq 'select(.requestId)'
 ### Build provenance
 - `infra/netlify.toml` contexts all `pnpm build` — `cat infra/netlify.toml` shows 4 occurrences.
 - Build logs retained in Netlify dashboard under Deploys; local `mise run build` time captured as `Build completed in Xs` (see CI log).
-- Verify Node parity: `grep 22.11.0 mise.toml infra/netlify.toml .github/workflows/ci.yml package.json`.
+- Verify Node parity: `grep 22.23.2 mise.toml infra/netlify.toml .github/workflows/ci.yml package.json`.
 - No secrets in build logs: Netlify build does not print `OPENAI_API_KEY`; pino redact guarantees `lib/logger.ts` `redact: ["OPENAI_API_KEY","authorization"]` and CI gitleaks job blocks `sk-` commits.
 
 ### Verification after deploy
@@ -60,7 +60,7 @@ git push origin main  # Netlify auto-deploys previous-good
 
 ### When build fails (deploy failure)
 1. Read Netlify deploy log: Deploys -> failed deploy -> "View deploy log" (look for `pnpm build` error, `NODE_VERSION` drift, or `cache-control` syntax).
-2. Repro locally: `mise run build` (or `pnpm build`) with same `NODE_VERSION=22.11.0`. Fix lint/type: `mise run lint && mise run type`.
+2. Repro locally: `mise run build` (or `pnpm build`) with same `NODE_VERSION=22.23.2`. Fix lint/type: `mise run lint && mise run type`.
 3. Check `infra/netlify.toml` headers and contexts: `cat infra/netlify.toml`.
 4. Rollback via `git revert <sha> && git push` as above; no data migration (stateless app).
 
@@ -164,7 +164,7 @@ Tracing is stubbed for future OTel — no SDK is initialized by default.
 
 ## QA & Tooling
 
-- `mise install` (Node 22.11.0, pitchfork 2.23.0), `cp .env.example .env`, `pnpm install --frozen-lockfile`.
+- `mise install` (Node 22.23.2, pitchfork 2.23.0), `cp .env.example .env`, `pnpm install --frozen-lockfile`.
 - `mise run lint && mise run type && mise run test && mise run replay && mise run build`.
 - `scripts/qa_smoke.sh --ephemeral` starts ephemeral server on 3000, curls health/score/check/page, checks `X-Request-Id` and `cache-control: no-store` headers, exits 0 only if all pass.
 - `mise run test` logs vitest duration; CI enforces `timeout-minutes: 10` and `vitest.config.mjs` sets `testTimeout` so no single test hangs.

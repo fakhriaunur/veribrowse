@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# Version drift gate: Node 22.11.0 alignment across mise.toml, netlify.toml, ci.yml, package.json
+# Version drift gate: Node 22.23.2 alignment across mise.toml, netlify.toml, ci.yml, package.json
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-EXPECTED="22.11.0"
+EXPECTED="22.23.2"
 fail=0
 
 echo "[version_drift] checking Node $EXPECTED alignment..."

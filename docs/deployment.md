@@ -1,7 +1,7 @@
 # Deployment — Netlify (VeriBrowse)
 
 ## Summary
-VeriBrowse deploys from `main` via Netlify on a Netlify-provided subdomain (no custom domain). Build is `pnpm build`, publish directory `.next`, Node `22.11.0` pinned. API responses carry `cache-control: no-store` and `X-Request-Id` for correlation.
+VeriBrowse deploys from `main` via Netlify on a Netlify-provided subdomain (no custom domain). Build is `pnpm build`, publish directory `.next`, Node `22.23.2` pinned. API responses carry `cache-control: no-store` and `X-Request-Id` for correlation.
 
 ## Build Configuration
 
@@ -18,13 +18,13 @@ in sync; edit both files together.
   publish = ".next"
 
 [build.environment]
-  NODE_VERSION = "22.11.0"
+  NODE_VERSION = "22.23.2"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 ```
 
-- **Node version:** `22.11.0` — must align with `mise.toml` (`node = "22.11.0"`), `package.json` `engines.node >=22.11.0`, `.github/workflows/ci.yml` `node-version: "22.11.0"`. Verified by `grep 22.11.0 mise.toml infra/netlify.toml .github/workflows/ci.yml package.json`.
+- **Node version:** `22.23.2` — must align with `mise.toml` (`node = "22.23.2"`), `package.json` `engines.node >=22.23.2`, `.github/workflows/ci.yml` `node-version: "22.23.2"`. Verified by `grep 22.23.2 mise.toml infra/netlify.toml .github/workflows/ci.yml package.json`.
 - **Build command:** `pnpm build` (same as `mise run build` which runs `npx next build` with `NODE_ENV=production`).
 - **Publish directory:** `.next` (Next.js).
 - `pnpm` version: `9` via `pnpm/action-setup@v4`.
@@ -80,6 +80,8 @@ curl -is http://127.0.0.1:3000/api/health | grep -i cache-control
 
 - **Repo-side cause fixed (2026-09-04):** the repo kept its Netlify config at `infra/netlify.toml`, which Netlify ignores — it only reads the repo-root `netlify.toml`. With no root config, the linked site had no usable build settings and no Next.js runtime wiring, so nothing was served. Fix committed here: new repo-root `netlify.toml` (`pnpm build`, publish `.next`, `NODE_VERSION 22.11.0`, `[[plugins]] @netlify/plugin-nextjs` for SSR/API routes, `cache-control: no-store` for `/api/*`), with `infra/netlify.toml` kept as a drift-gated mirror. The next production deploy from `main` picks this up automatically.
 
+- **Corepack hotfix (2026-09-04):** past the mise gate, Netlify failed at `Installing npm packages using pnpm version` with Corepack `Cannot find matching keyid` — the Corepack bundled with Node 22.11.0 has stale signing keys and cannot verify pnpm 9.15.9 (fixed in Corepack >=0.31.0, shipped in Node >=22.14.0). Fix: Node `22.11.0` → `22.23.2` (latest 22.x LTS verified against nodejs.org release index on 2026-09-04; the prescribed `22.23.3` does not exist upstream) in every pin site (`mise.toml`, `.github/workflows/ci.yml`, root + mirror `netlify.toml`, `package.json` engines, `scripts/check_version_drift.sh`, docs/templates). pnpm stays `9.15.9`. Never set `COREPACK_INTEGRITY_KEYS=0` (security bypass).
+
 - **Dashboard-side observations for the user (not guessable from the repo):** the site-wide 404 (even `/`) means no successful deploy is published yet. In the Netlify dashboard for `veribrowse`: (1) Deploys tab — confirm the site is linked to this repo's `main` branch with auto-publish on, and trigger **Trigger deploy → Deploy site** (or push `main`) so a build runs with the new root `netlify.toml`; (2) check the deploy log for `pnpm build` success and the `@netlify/plugin-nextjs` runtime install line; (3) Site settings → Environment variables — confirm `NEXT_PUBLIC_SITE_URL=https://veribrowse.netlify.app` (leave `OPENAI_API_KEY` empty for deterministic fixture mode, or fill it for real enrichment); (4) if 404 persists after a **successful** deploy, share the deploy log — that points at a dashboard/build-image issue, not the repo.
 
 - **Smoke after link:**
@@ -112,7 +114,7 @@ Do not commit secrets. Verify no `sk-` in logs: `grep -r "sk-" . --exclude-dir=n
 
 ## Verification Checklist
 
-- [ ] `cat netlify.toml` (repo root — the file Netlify reads) shows `NODE_VERSION = "22.11.0"`, `publish = ".next"`, `command = "pnpm build"`, all three contexts, and `[[plugins]] @netlify/plugin-nextjs`.
+- [ ] `cat netlify.toml` (repo root — the file Netlify reads) shows `NODE_VERSION = "22.23.2"`, `publish = ".next"`, `command = "pnpm build"`, all three contexts, and `[[plugins]] @netlify/plugin-nextjs`.
 - [ ] `bash scripts/check_version_drift.sh` passes (Node parity + root/mirror sync).
 - [ ] `cat infra/netlify.toml` mirror matches the root file's `[build]`/`[context.*]`/`[[headers]]` blocks.
 - [ ] `cat infra/netlify.toml | grep -A5 headers` shows `/api/*` `cache-control = "no-store"`.

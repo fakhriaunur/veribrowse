@@ -61,7 +61,7 @@ Fallback when `document.modelContext` is absent: banner `WebMCP: not detected (e
 ### Prerequisites
 
 ```bash
-mise install          # Node 22.11.0, pitchfork 2.23.0
+mise install          # Node 22.23.2, pitchfork 2.23.0
 cp .env.example .env  # leave OPENAI_API_KEY empty for mock
 pnpm install
 mise run dev          # port 3000, health /api/health → {"status":"ok"}

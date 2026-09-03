@@ -6,7 +6,14 @@ set -euo pipefail
 
 EPHEMERAL=false
 PORT=3000
-for arg in "$@"; do case $arg in --ephemeral) EPHEMERAL=true;; --port) shift;; esac; done
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --ephemeral) EPHEMERAL=true; shift;;
+    --port) PORT="${2:?--port requires a value}"; shift 2;;
+    --port=*) PORT="${1#--port=}"; shift;;
+    *) echo "[qa] unknown arg: $1" >&2; exit 2;;
+  esac
+done
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
@@ -16,12 +23,14 @@ fail() { echo "❌ $*"; exit 1; }
 
 start_ephemeral() {
   echo "[qa] starting ephemeral next dev on $PORT..."
-  # Prefer pnpm if available else npm
-  if command -v pnpm >/dev/null 2>&1; then
-    pnpm dev > /tmp/veribrowse-qa.log 2>&1 & echo $! > /tmp/veribrowse-qa.pid
-  else
-    npm run dev > /tmp/veribrowse-qa.log 2>&1 & echo $! > /tmp/veribrowse-qa.pid
+  # Invoke next directly with the honored --port (package.json `dev` pins 3000).
+  # Never kill anything already on the port — fail fast instead; the caller
+  # picks another free port via --port.
+  if curl -sf "http://127.0.0.1:$PORT/api/health" >/dev/null 2>&1; then
+    echo "[qa] port $PORT already in use — refusing to kill it; rerun with --port <free>"
+    return 1
   fi
+  npx next dev --port "$PORT" > "/tmp/veribrowse-qa-$PORT.log" 2>&1 & echo $! > "/tmp/veribrowse-qa-$PORT.pid"
   # wait for health
   for i in $(seq 1 60); do
     if curl -sf "http://127.0.0.1:$PORT/api/health" >/dev/null 2>&1; then
@@ -31,17 +40,18 @@ start_ephemeral() {
     sleep 1
   done
   echo "[qa] server failed to start — log:"
-  cat /tmp/veribrowse-qa.log || true
+  cat "/tmp/veribrowse-qa-$PORT.log" || true
   return 1
 }
 
 stop_ephemeral() {
-  if [ -f /tmp/veribrowse-qa.pid ]; then
-    pid=$(cat /tmp/veribrowse-qa.pid)
+  pidfile="/tmp/veribrowse-qa-$PORT.pid"
+  if [ -f "$pidfile" ]; then
+    pid=$(cat "$pidfile")
     kill "$pid" 2>/dev/null || true
     wait "$pid" 2>/dev/null || true
-    rm -f /tmp/veribrowse-qa.pid
-    echo "[qa] stopped ephemeral $pid"
+    rm -f "$pidfile"
+    echo "[qa] stopped ephemeral $pid (port $PORT)"
   fi
 }
 

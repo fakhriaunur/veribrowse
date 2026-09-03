@@ -24,10 +24,10 @@ jobs:
         # No `version:` pin here: the action reads package.json `packageManager`
         # (pnpm@9.15.9). Pinning both errors with ERR_PNPM_BAD_PM_VERSION.
 
-      - name: Setup Node.js 22.11.0
+      - name: Setup Node.js 22.23.2
         uses: actions/setup-node@v4
         with:
-          node-version: "22.11.0"
+          node-version: "22.23.2"
           cache: "pnpm"
 
       - name: Setup mise
@@ -60,7 +60,7 @@ jobs:
       - name: Unused dependency gate (depcheck)
         run: mise run unused_dep
 
-      - name: Version drift gate (Node 22.11.0 alignment)
+      - name: Version drift gate (Node 22.23.2 alignment)
         run: mise run version_drift
 
       - name: Replay deterministic fixtures
@@ -80,7 +80,7 @@ jobs:
             "timestamp": "$TIMESTAMP",
             "durationSeconds": $DURATION,
             "durationMs": $((DURATION * 1000)),
-            "nodeVersion": "22.11.0"
+            "nodeVersion": "22.23.2"
           }
           EOF
           echo "durationMs: $((DURATION * 1000))" >> $GITHUB_STEP_SUMMARY
@@ -94,7 +94,7 @@ jobs:
           echo "- jscpd duplicate: $(npx jscpd --config .jscpd.json . 2>&1 | grep -i 'duplicated' | tail -1 || echo 'jscpd ok')" >> $GITHUB_STEP_SUMMARY
           echo "- complexity: 12 max-depth: 4 enforced via eslint.config.mjs" >> $GITHUB_STEP_SUMMARY
           echo "- depcheck heavy_dep: dependencies empty" >> $GITHUB_STEP_SUMMARY
-          echo "- version_drift: Node 22.11.0 aligned" >> $GITHUB_STEP_SUMMARY
+          echo "- version_drift: Node 22.23.2 aligned" >> $GITHUB_STEP_SUMMARY
           echo "- coverage: 35% lines/branches threshold via vitest.config.mjs" >> $GITHUB_STEP_SUMMARY
           echo "- build timing: recorded in infra/build-perf.json" >> $GITHUB_STEP_SUMMARY
           cat $GITHUB_STEP_SUMMARY
