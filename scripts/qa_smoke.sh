@@ -55,7 +55,10 @@ stop_ephemeral() {
   fi
 }
 
-if $EPHEMERAL; then trap stop_ephemeral EXIT; start_ephemeral; fi
+# Explicit || exit 1: an ephemeral start whose healthcheck never passes MUST fail
+# the run (set -e propagates it today, but the explicit guard keeps the
+# invariant obvious and immune to errexit subtleties in future refactors).
+if $EPHEMERAL; then trap stop_ephemeral EXIT; start_ephemeral || exit 1; fi
 
 echo "[qa] curl /api/health"
 curl -sf "http://127.0.0.1:$PORT/api/health" | tee /tmp/qa-health.json | grep -q '"status":"ok"' || fail "health failed"
