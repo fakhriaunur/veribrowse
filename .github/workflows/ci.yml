@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js 22.11.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.11.0"
+          cache: "pnpm"
+
+      - name: Setup mise
+        uses: jdx/mise-action@v2
+        with:
+          version: 2026.8.14
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: mise run lint
+
+      - name: Type check (tsc --noEmit strict)
+        run: mise run type
+
+      - name: Test with coverage 35% (lines/branches)
+        run: mise run test
+        # coverage 35 lines 35 branches gate via vitest.config.mjs and mise.toml
+
+      - name: Replay deterministic fixtures
+        run: mise run replay
+
+      - name: Build (Next.js production)
+        run: mise run build
