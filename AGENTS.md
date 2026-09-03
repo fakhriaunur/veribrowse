@@ -109,7 +109,7 @@ Use conventional commits. Never commit secrets or generated credentials. Review 
 
 **Tools:** `mise`, `pitchfork`, `gh` (repo/workflow), `pnpm` 9, `agent-browser` via `droid-control`, `curl`/`jq`.
 **Skills:** `agent-browser` skill (web validation), plus worker skills in `skills/` (infra-worker, quality-worker, observability-worker).
-**Dependencies:** Keep `next 15.2.3`, `react 19`, `zod`, `pino`, `vitest`, `tailwind` pinned; dev-time only additions: `knip`, `jscpd`, `depcheck`, `typedoc`, `gitleaks`.
+**Dependencies:** Keep `next 15.5.25` (minimal CVE-2025-55182 hotfix floor is 15.3.3; full Next 16 upgrade is m9 scope), `react 19`, `zod`, `pino`, `vitest`, `tailwind` pinned; dev-time only additions: `knip`, `jscpd`, `depcheck`, `typedoc`, `gitleaks`.
 **Other:** Large file gate is advisory/excluded; Playwright is forbidden; YAGNI list (feature flags, progressive rollout, monorepo, N+1, DB, analytics, SBOM, SLO) remains documented as excluded without implementation.
 
 ## Testing & Validation Guidance

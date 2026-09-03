@@ -20,7 +20,7 @@
     "docs:generate": "node scripts/gen_docs.mjs"
   },
   "dependencies": {
-    "next": "15.2.3",
+    "next": "15.5.25",
     "openai": "4.52.7",
     "pino": "9.3.2",
     "react": "19.1.0",
@@ -35,7 +35,7 @@
     "autoprefixer": "10.4.20",
     "depcheck": "^1.4.7",
     "eslint": "9.18.0",
-    "eslint-config-next": "15.2.3",
+    "eslint-config-next": "15.5.25",
     "jscpd": "^5.1.2",
     "jsdom": "25.0.1",
     "knip": "^5.50.1",
