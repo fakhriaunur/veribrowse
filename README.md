@@ -105,7 +105,7 @@ pitchfork.toml      # local daemons (web + mock)
 ## Quick start (3 commands, agent-followable)
 
 ```bash
-mise install          # Node 22.11.0 + pitchfork 2.23.0 (or: npm i -g pnpm@9)
+mise install          # Node 22.23.2 + pitchfork 2.23.0 (or: npm i -g pnpm@9)
 cp .env.example .env  # leave OPENAI_API_KEY empty for mock mode
 pnpm install           # or npm install
 ```

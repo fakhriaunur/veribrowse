@@ -38,7 +38,7 @@ cat > "$OUTPUT" <<EOF
   "durationMs": $((DURATION * 1000)),
   "nodeVersion": "$NODE_VER",
   "nextVersion": "$NEXT_VER",
-  "expectedNode": "22.11.0"
+  "expectedNode": "22.23.2"
 }
 EOF
 

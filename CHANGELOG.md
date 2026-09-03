@@ -2,6 +2,14 @@
 
 All notable changes to VeriBrowse are documented in this file. Format follows Keep a Changelog and Conventional Commits. Version aligns with `package.json` and `GET /api/health` `version: "0.1.0"`.
 
+## [Unreleased]
+
+### Fixed
+
+- Netlify Corepack hotfix: Node `22.11.0` → `22.23.2` (latest 22.x LTS verified against the nodejs.org release index on 2026-09-04; `22.23.3` does not exist upstream) in every pin site — `mise.toml`, `.github/workflows/ci.yml`, root + mirror `netlify.toml`, `package.json` engines, `scripts/check_version_drift.sh`, `scripts/build_perf.sh`, `AGENTS.md`, `README.md`, `docs/runbook.md`, `docs/deployment.md`, `docs/skills.md`, issue/PR templates. The Corepack bundled with Node 22.11.0 has stale signing keys (`Cannot find matching keyid` for pnpm 9.15.9); Node ≥22.14.0 ships Corepack ≥0.31.0 with the fix. pnpm stays `9.15.9`; `COREPACK_INTEGRITY_KEYS=0` stays forbidden. (VAL-CROSS-015/016/017 deploy path, VAL-OBS-021/022)
+- Double-`/v1` OpenAI URL bug: `app/api/score` and `app/api/check` appended `/v1/chat/completions` onto the default base `https://api.openai.com/v1`, hitting `/v1/v1/chat/completions` (OpenAI 404 → silent fallback, so real-key enrichment could never fire). Both routes now normalize the configured base (strip trailing `/` + one trailing `/v1`) in one place before appending the path; the mock base `http://127.0.0.1:8787` is unchanged. (VAL-CROSS-009/010/012/013)
+- `scripts/qa_smoke.sh` now honors `--port N` / `--port=N` (previously parsed but ignored) and refuses to kill an occupant port instead of stomping it; pid/log files are port-scoped. (VAL-CROSS-008)
+
 ## [0.1.0] - 2026-09-03
 
 ### Added

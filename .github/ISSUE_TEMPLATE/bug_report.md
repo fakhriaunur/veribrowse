@@ -33,7 +33,7 @@ assignees: []
 
 ## Env
 
-- Node `mise exec -- node -v` → `v22.11.0`
+- Node `mise exec -- node -v` → `v22.23.2`
 - `OPENAI_API_KEY` empty / `dummy` + `OPENAI_BASE_URL=http://127.0.0.1:8787` / real (redacted, never paste `sk-`)
 - `LOG_LEVEL`:
 - OS / browser + WebMCP flag (`chrome://flags#webmcp` or ChatGPT in-app):

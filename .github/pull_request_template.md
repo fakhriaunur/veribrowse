@@ -40,7 +40,7 @@ mise run qa --ephemeral  # or ./scripts/qa_smoke.sh --ephemeral → health/score
 - [ ] `mise run type` green
 - [ ] `mise run test` green (coverage 35% lines+branches)
 - [ ] `mise run replay` green (no diff ignoring timestamps)
-- [ ] `mise run build` green (`NODE_VERSION 22.11.0` parity)
+- [ ] `mise run build` green (`NODE_VERSION 22.23.2` parity)
 - [ ] `pnpm audit` / `gitleaks` clean (or noted)
 
 ## Docs & Provenance

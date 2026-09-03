@@ -10,6 +10,15 @@ export const runtime = "nodejs";
 const OPENAI_BASE_URL_FALLBACK = "https://api.openai.com/v1";
 const OPENAI_MODEL_FALLBACK = "gpt-4o-mini";
 
+// Normalize the configured OpenAI base before appending the chat path: the
+// default base already ends in /v1, so naive `${base}/v1/chat/completions`
+// would hit /v1/v1/chat/completions (OpenAI 404 → silent fallback). Strip
+// trailing slashes and one trailing /v1 segment first. A bare mock base
+// (http://127.0.0.1:8787) is unaffected.
+function openaiChatCompletionsUrl(base: string): string {
+  return `${base.replace(/\/+$/, "").replace(/\/v1$/, "")}/v1/chat/completions`;
+}
+
 function hashBytes(s: string): string {
   let h = 0;
   for (let i = 0; i < s.length; i++)
@@ -235,7 +244,7 @@ export async function GET(req: Request) {
       try {
         const prompt = `You are VeriBrowse scam analyst. Score trust for URL=${meta.url} title="${meta.title ?? ""}" desc="${meta.ogDescription ?? ""}" hasHttps=${meta.hasHttps}. Return JSON {"why": string concise 20 words, "bullets": string[2]} explaining risk. No hallucinated citations.`;
         const baseUrl = process.env.OPENAI_BASE_URL ?? OPENAI_BASE_URL_FALLBACK;
-        const res = await fetchWithRetry(`${baseUrl}/v1/chat/completions`, {
+        const res = await fetchWithRetry(openaiChatCompletionsUrl(baseUrl), {
           method: "POST",
           signal,
           headers: {

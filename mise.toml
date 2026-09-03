@@ -1,5 +1,5 @@
 [tools]
-node = "22.11.0"
+node = "22.23.2"
 pitchfork = "2.23.0"
 
 [env]
@@ -72,7 +72,7 @@ description = "Unused dependency check (depcheck) — dependencies empty"
 run = "npx depcheck --json | tee /tmp/depcheck.json && node -e \"const j=require('/tmp/depcheck.json'); const deps=j.dependencies||[]; if(deps.length>0){console.error('unused_dep: dependencies not empty',deps);process.exit(1);} console.log('unused_dep: dependencies empty');\""
 
 [tasks.version_drift]
-description = "Version drift check Node 22.11.0 alignment"
+description = "Version drift check Node 22.23.2 alignment"
 run = "bash scripts/check_version_drift.sh"
 
 [tasks.build-perf]
