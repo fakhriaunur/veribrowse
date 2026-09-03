@@ -59,10 +59,11 @@ git push origin main  # Netlify auto-deploys previous-good
 ```
 
 ### When build fails (deploy failure)
-1. Read Netlify deploy log: Deploys -> failed deploy -> "View deploy log" (look for `pnpm build` error, `NODE_VERSION` drift, or `cache-control` syntax).
-2. Repro locally: `mise run build` (or `pnpm build`) with same `NODE_VERSION=22.23.2`. Fix lint/type: `mise run lint && mise run type`.
-3. Check `infra/netlify.toml` headers and contexts: `cat infra/netlify.toml`.
-4. Rollback via `git revert <sha> && git push` as above; no data migration (stateless app).
+1. Drop stale build cache: `rm -rf .next` and rebuild (required once after the Next 15→16 upgrade — stale cache fails page-data collection with `Failed to collect page data for /_not-found`; `.next` is gitignored build output, safe to delete).
+2. Read Netlify deploy log: Deploys -> failed deploy -> "View deploy log" (look for `pnpm build` error, `NODE_VERSION` drift, or `cache-control` syntax).
+3. Repro locally: `mise run build` (or `pnpm build`) with same `NODE_VERSION=22.23.2`. Fix lint/type: `mise run lint && mise run type`.
+4. Check `infra/netlify.toml` headers and contexts: `cat infra/netlify.toml`.
+5. Rollback via `git revert <sha> && git push` as above; no data migration (stateless app).
 
 ## Key rotation
 

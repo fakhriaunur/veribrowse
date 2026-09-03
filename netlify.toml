@@ -3,7 +3,7 @@
 # is a tracked mirror used by local gates (`scripts/check_version_drift.sh`
 # asserts the two files stay in sync). Do not edit one without the other.
 #
-# Next.js 15 SSR + API routes (`/`, `/api/health`, `/api/score`, `/api/check`)
+# Next.js 16 SSR + API routes (`/`, `/api/health`, `/api/score`, `/api/check`)
 # require the Next.js runtime (@netlify/plugin-nextjs v5). It is declared
 # explicitly below so a deploy never falls back to static-only serving
 # (which 404s every route). Netlify installs declared plugins automatically
