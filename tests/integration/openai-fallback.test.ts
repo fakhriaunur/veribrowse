@@ -4,11 +4,15 @@ import { GET as checkGet } from "@/app/api/check/route";
 import { getCounters, resetForTest as resetMetrics } from "@/lib/metrics";
 import { _resetBreakerForTest } from "@/lib/fetchWithRetry";
 
-// VAL-CROSS-011: mock OpenAI parse/slice/clamp branches exercised through the
-// real route handlers with a stubbed fetch layer (no network, no real key).
-// Cases: malformed JSON -> heuristic fallback, oversized bullets -> sliced to
-// cap, out-of-range confidence -> clamped, non-200 -> openai_fallback_total
-// incremented with provenance preserved, no-evidence -> no OpenAI call.
+// VAL-CROSS-011 (amended M11): mock OpenAI parse/slice/clamp branches
+// exercised through the real route handlers with a stubbed fetch layer (no
+// network, no real key). The stub serves BOTH chain paths — /v1/responses
+// (Responses envelope with the output_text walk shape) and
+// /v1/chat/completions — with the same injected content/status, so the
+// Responses-first chain parses on the first step. Cases: malformed JSON ->
+// contracted fallback, oversized bullets -> sliced to cap, out-of-range
+// confidence -> clamped, non-200 -> openai_fallback_total incremented with
+// provenance preserved, no-evidence -> no OpenAI call on either path.
 
 type StubSpec = {
   openaiContent?: string;
@@ -17,17 +21,42 @@ type StubSpec = {
   scoreHtml?: string;
 };
 
+function responsesEnvelope(content: string) {
+  // Mirrors scripts/mock_openai.mjs: reasoning item first (walk must skip
+  // it), message with output_text JSON payload, trailing non-text part.
+  return {
+    status: "completed",
+    output: [
+      { type: "reasoning", id: "rs_stub" },
+      {
+        type: "message",
+        content: [
+          { type: "output_text", text: content },
+          { type: "refusal", refusal: "never-picked" },
+        ],
+      },
+    ],
+  };
+}
+
+function chatEnvelope(content: string) {
+  return { choices: [{ message: { content } }] };
+}
+
 function makeStub(spec: StubSpec, calls: { openai: number }) {
   return vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
     const u = String(url);
-    if (u.includes("/v1/chat/completions")) {
+    if (u.includes("/v1/responses") || u.includes("/v1/chat/completions")) {
       calls.openai += 1;
       const status = spec.openaiStatus ?? 200;
       const content = spec.openaiContent ?? "{}";
-      // Mirror the real OpenAI chat-completions envelope: the route reads
-      // choices[0].message.content (a JSON string) and JSON.parses it, so
-      // malformed content exercises the route's parse-fallback branch.
-      const envelope = { choices: [{ message: { content } }] };
+      // Mirror the real envelopes per path: the route hand-rolls the
+      // output_text walk on Responses and choices[0].message.content on
+      // Chat, JSON.parsing each — so malformed content exercises the
+      // chain's parse-fallback branch on BOTH paths.
+      const envelope = u.includes("/v1/responses")
+        ? responsesEnvelope(content)
+        : chatEnvelope(content);
       return {
         ok: status >= 200 && status < 300,
         status,
