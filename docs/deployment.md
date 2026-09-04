@@ -131,3 +131,22 @@ Do not commit secrets. Verify no `sk-` in logs: `grep -r "sk-" . --exclude-dir=n
 - `docs/runbook.md#Deployment` — deploy logs, rollback, X-Request-Id correlation, no `sk-` guarantee.
 - `docs/branch-protection.md` — `main` ruleset requires `check` job.
 - `infra/netlify.toml` — canonical Netlify config.
+
+## Devcontainer validation (2026-09-04)
+
+`.devcontainer/devcontainer.json` (`mcr.microsoft.com/devcontainers/base:ubuntu` +
+`node:22` + `github-cli` features) was validated end to end: `devcontainer
+build` succeeds and the container runs the app. In-container proof (Debian
+bookworm base, `node v22.23.2`, `pnpm 9.15.9`): `pnpm install
+--frozen-lockfile` exit 0, `eslint` + `prettier --check` exit 0 (0 errors),
+`tsc --noEmit` exit 0, `vitest run` 24 files / 180 tests passed with the 35%
+coverage gate, and `next dev` on a container-local port serves `/api/health`
+200 `{"status":"ok","service":"veribrowse","version":"0.1.0"}` with
+`X-Request-Id` plus the score fixture (`trust 42`). No host ports were bound
+and no sibling services were disturbed. Two backend notes: the stock
+`postCreateCommand` assumes a `docker` executable (a `docker`-shimmed podman
+backend works for the build), and the bind mount is unreadable by the
+remapped `vscode` user under rootless podman (`EACCES`, Docker-only quirk —
+checks were run from a container-local copy), so `mise` (not installed in the
+image; `mise run` hints in `postCreateCommand` assume a local mise) was
+replaced by its documented `npx` equivalents from `mise.toml`.
