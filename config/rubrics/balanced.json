@@ -1,0 +1,22 @@
+{
+  "$schema": "./schema.json",
+  "name": "balanced",
+  "version": 1,
+  "description": "Default preset. Byte-identical to the frozen lib/score.ts heuristic weights (base 50; HTTPS +10/-20; aged domain over 365 days +15; new domain under 30 days -20; title longer than 5 chars +5; og:description present +5; safe >= 70, caution >= 40). Sealed behavior — regression-pinned by tests/unit/rubric.test.ts.",
+  "weights": {
+    "base": 50,
+    "httpsBonus": 10,
+    "noHttpsPenalty": -20,
+    "oldDomainBonus": 15,
+    "oldDomainDays": 365,
+    "newDomainPenalty": -20,
+    "newDomainDays": 30,
+    "titleBonus": 5,
+    "titleMinLength": 5,
+    "ogBonus": 5
+  },
+  "thresholds": {
+    "safe": 70,
+    "caution": 40
+  }
+}

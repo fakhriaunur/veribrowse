@@ -1,0 +1,22 @@
+{
+  "$schema": "./schema.json",
+  "name": "lenient",
+  "version": 1,
+  "description": "Bulk-triage opt-in. Higher base (60) with softer missing-HTTPS (-10) and new-domain (-10) penalties and lower bars (safe >= 65, caution >= 35) to cut false positives when triaging many URLs. Deliberate behavior change vs balanced — choose explicitly via SCORING_PRESET=lenient.",
+  "weights": {
+    "base": 60,
+    "httpsBonus": 5,
+    "noHttpsPenalty": -10,
+    "oldDomainBonus": 10,
+    "oldDomainDays": 365,
+    "newDomainPenalty": -10,
+    "newDomainDays": 30,
+    "titleBonus": 5,
+    "titleMinLength": 5,
+    "ogBonus": 5
+  },
+  "thresholds": {
+    "safe": 65,
+    "caution": 35
+  }
+}
