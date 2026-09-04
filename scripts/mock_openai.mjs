@@ -124,15 +124,14 @@ function sendJson(res, status, obj) {
 // Upper bound for injected step delays (CodeQL js/resource-exhaustion):
 // delayMs arrives via /__mock/inject, so the timer duration is clamped
 // into [0, MAX_DELAY_MS] — never an unbounded user-controlled timeout.
+// The clamp lives inline at the setTimeout sink (not in a helper) so the
+// bound is visible to static analysis.
 const MAX_DELAY_MS = 30000;
 
-function clampDelay(value) {
-  const n = Number(value);
-  if (!Number.isFinite(n) || n <= 0) return 0;
-  return Math.min(MAX_DELAY_MS, n);
-}
-
-function sleep(ms, req, res) {
+function sleep(rawMs, req, res) {
+  const n = Number(rawMs);
+  const ms =
+    !Number.isFinite(n) || n <= 0 ? 0 : Math.min(MAX_DELAY_MS, Math.floor(n));
   return new Promise((resolve) => {
     if (ms <= 0) {
       resolve(false);
@@ -227,7 +226,7 @@ async function handleLlm(kind, req, res, rawBody) {
     parsed = null;
   }
   const override = overrides[kind];
-  const aborted = await sleep(clampDelay(override?.delayMs), req, res);
+  const aborted = await sleep(override?.delayMs, req, res);
   if (aborted) return;
   // NOTE: req.destroyed is true once the request body is fully read (normal
   // in modern Node) — it must NOT gate the response. Only res.destroyed
