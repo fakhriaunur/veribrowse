@@ -40,6 +40,24 @@ VeriBrowse answers with a two-step triage anyone can follow: **score** the site 
 
 The result is clamped to `0–100` and mapped to a level: **safe ≥ 70**, **caution ≥ 40**, **risky < 40**. Heuristic reasons surface as `preWhy` (`"Standard signals"` when nothing fires); unknown claims always fail closed to `unverified` with empty evidence.
 
+Tunable variants live in `config/rubrics/` (`balanced` default, byte-identical to the table above; `strict` elder-protection; `lenient` bulk-triage) — see `docs/scoring-best-practices.md` for the SOTA survey and per-preset rationale with full citations.
+
+## What WebMCP Do / Don't (scope)
+
+VeriBrowse exposes exactly two agent capabilities — `scoreWebsite(url)` and `checkClaim(claim, contextUrl)` — plus the tracer stubs `ping` and `echoEcho`. Tool names, order, and schemas are frozen (`lib/schemas.ts` is the single source).
+
+**Do:**
+
+- Score a website (`safe` / `caution` / `risky` + plain-language summary + citations + provenance).
+- Verify a claim against fetched evidence, failing closed to `unverified` with empty evidence when no evidence exists.
+- Enrich results with an optional LLM `why`/`bullets` proposal (never canonical truth; numbers and verdicts never change).
+
+**Don't:**
+
+- No new signals: sentiment analysis and other SOTA techniques are surveyed docs-only (`docs/scoring-best-practices.md`) and never feed the score; no new tools or API routes.
+- No persistence: the server is stateless (`cache-control: no-store`); per-request fetch memo evaporates with the request.
+- No tracking: theme choice and recent result summaries live only in the browser's `localStorage` (bounded, user-clearable, never secrets or page HTML).
+
 ## Stack (final, verified)
 
 | Layer           | Pin                                                                                                                                                                                                                                                                                                                    |
@@ -132,16 +150,19 @@ Expect `200 {"status":"ok","service":"veribrowse","version":"0.1.0"}` + `X-Reque
 
 `.env` is gitignored — never commit it. Copy `.env.example` and fill locally; the user owns real-key entry (local `.env` and the Netlify dashboard).
 
-| Var                    | Default                     | Notes                                                                                                              |
-| ---------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `OPENAI_API_KEY`       | _(empty)_                   | Empty = deterministic heuristic/fail-closed (CI/QA contract). Filled = real enrichment. Never logged (pino redact) |
-| `OPENAI_BASE_URL`      | `https://api.openai.com/v1` | `http://127.0.0.1:8787` + dummy key exercises the mock branch                                                      |
-| `OPENAI_MODEL`         | `gpt-4o-mini`               | Chat-completions model for enrichment/verification proposals                                                       |
-| `LOG_LEVEL`            | `info`                      | pino level                                                                                                         |
-| `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000`     | Production: `https://veribrowse.netlify.app`                                                                       |
-| `EDGE_ORIGIN`          | `http://localhost:3000`     | Edge/site origin override                                                                                          |
-| `SENTRY_DSN`           | _(empty)_                   | Disabled by default (`lib/sentry.ts` is a no-op stub until set + SDK installed, human-approved)                    |
-| `DATABASE_URL`         | _(empty)_                   | Optional stretch only — the app is stateless; no DB without an ADR                                                 |
+| Var                    | Default                     | Notes                                                                                                                                      |
+| ---------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `OPENAI_API_KEY`       | _(empty)_                   | Empty = deterministic heuristic/fail-closed (CI/QA contract). Filled = real enrichment. Never logged (pino redact)                         |
+| `OPENAI_BASE_URL`      | `https://api.openai.com/v1` | `http://127.0.0.1:8787` + dummy key exercises the mock branch                                                                              |
+| `OPENAI_BASE_URL_ALT`  | _(empty)_                   | Failover endpoint for the LLM chain (Responses → Chat on primary, then alt). Empty = inert single-endpoint mode                            |
+| `OPENAI_MODEL`         | `gpt-4o-mini`               | Chat-completions model for enrichment/verification proposals                                                                               |
+| `SCORING_PRESET`       | `balanced`                  | `balanced` (default, frozen weights) \| `strict` (elder-protection) \| `lenient` (bulk-triage). Unknown values fail loudly                 |
+| `SCORING_RUBRIC_PATH`  | _(empty)_                   | Absolute path to a custom rubric JSON (validated against `config/rubrics/schema.json`). Empty = shipped preset; wins over `SCORING_PRESET` |
+| `LOG_LEVEL`            | `info`                      | pino level                                                                                                                                 |
+| `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000`     | Production: `https://veribrowse.netlify.app`                                                                                               |
+| `EDGE_ORIGIN`          | `http://localhost:3000`     | Edge/site origin override                                                                                                                  |
+| `SENTRY_DSN`           | _(empty)_                   | Disabled by default (`lib/sentry.ts` is a no-op stub until set + SDK installed, human-approved)                                            |
+| `DATABASE_URL`         | _(empty)_                   | Optional stretch only — the app is stateless; no DB without an ADR                                                                         |
 
 ## Branch policy (solo maintainer)
 
