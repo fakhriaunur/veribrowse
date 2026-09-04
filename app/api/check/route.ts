@@ -7,24 +7,20 @@ import {
 } from "@/lib/claim";
 import { scoreWebsitePure, type FetchMeta } from "@/lib/score";
 import { withRequestId } from "@/lib/logger";
-import { fetchWithRetry, isTimeoutError } from "@/lib/fetchWithRetry";
+import { isTimeoutError } from "@/lib/fetchWithRetry";
+import {
+  runLlmChain,
+  parseTimeoutParam,
+  resolveStepTimeout,
+  type ChainOk,
+} from "@/lib/llm";
 import { createFetchMemo } from "@/lib/fetchMemo";
 import { inc } from "@/lib/metrics";
 
 export const runtime = "nodejs";
 // nodejs avoids the legacy edge prerender bug; switchable to "edge"
 
-const OPENAI_BASE_URL_FALLBACK = "https://api.openai.com/v1";
 const OPENAI_MODEL_FALLBACK = "gpt-4o-mini";
-
-// Normalize the configured OpenAI base before appending the chat path: the
-// default base already ends in /v1, so naive `${base}/v1/chat/completions`
-// would hit /v1/v1/chat/completions (OpenAI 404 → silent fallback). Strip
-// trailing slashes and one trailing /v1 segment first. A bare mock base
-// (http://127.0.0.1:8787) is unaffected.
-function openaiChatCompletionsUrl(base: string): string {
-  return `${base.replace(/\/+$/, "").replace(/\/v1$/, "")}/v1/chat/completions`;
-}
 
 function hashBytes(s: string): string {
   let h = 0;
@@ -128,6 +124,11 @@ export async function GET(req: Request) {
     const claim = searchParams.get("claim");
     const contextUrl = searchParams.get("contextUrl") ?? undefined;
     const fixture = searchParams.get("fixture");
+    // Nerd-view LLM step-timeout control: client value clamped into config
+    // range, default 10s when untouched.
+    const stepTimeoutMs = resolveStepTimeout(
+      parseTimeoutParam(searchParams.get("llmTimeoutMs")),
+    );
 
     if (fixture === "1") {
       if (claim) {
@@ -358,44 +359,36 @@ export async function GET(req: Request) {
           reasoning: string;
         }
       | undefined;
+    let llmStep: ChainOk["step"] | undefined;
     if (hasKey && evidence && evidence.length > 0) {
       try {
         spanInFlight = "gateway-call";
         const gatewayStart = Date.now();
         const prompt = `Verify claim="${parsed.data.claim}" against evidence="${evidence[0].quote.slice(0, 400)}" url=${evidence[0].url}. Return JSON {"verdict":"supported"|"contradicted"|"unverified","confidence":0-1,"reasoning":string 30 words}. Never hallucinate citations.`;
-        const baseUrl = process.env.OPENAI_BASE_URL ?? OPENAI_BASE_URL_FALLBACK;
-        const res = await fetchWithRetry(openaiChatCompletionsUrl(baseUrl), {
-          method: "POST",
+        // M11 chain: Responses(primary)->Chat(primary)->Responses(alt)->
+        // Chat(alt) on ANY failure; first success wins, then existing
+        // shaping below; all-steps-fail -> contracted fail-closed.
+        const chain = await runLlmChain({
+          prompt,
+          model: process.env.OPENAI_MODEL ?? OPENAI_MODEL_FALLBACK,
+          temperature: 0.1,
           signal,
-          headers: {
-            "content-type": "application/json",
-            authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-          },
-          body: JSON.stringify({
-            model: process.env.OPENAI_MODEL ?? OPENAI_MODEL_FALLBACK,
-            temperature: 0.1,
-            response_format: { type: "json_object" },
-            messages: [{ role: "user", content: prompt }],
-          }),
+          timeoutMs: stepTimeoutMs,
         });
         log.debug(
           {
             requestId,
             span: "gateway-call",
             spanMs: Date.now() - gatewayStart,
-            ok: res.ok,
-            status: res.status,
+            ok: chain.ok,
+            llmStep: chain.ok ? chain.step : undefined,
           },
           "check gateway-call span done",
         );
         spanInFlight = "idle";
         if (signal.aborted) return abort();
-        if (res.ok) {
-          const j = (await res.json()) as {
-            choices?: { message?: { content?: string } }[];
-          };
-          const content = j.choices?.[0]?.message?.content ?? "{}";
-          const p = JSON.parse(content) as {
+        if (chain.ok) {
+          const p = chain.payload as {
             verdict?: string;
             confidence?: number;
             reasoning?: string;
@@ -409,24 +402,23 @@ export async function GET(req: Request) {
             confidence: Math.min(1, Math.max(0, p.confidence ?? 0.5)),
             reasoning: (p.reasoning ?? "").slice(0, 300),
           };
+          llmStep = chain.step;
           log.info(
             {
               requestId,
               claim: parsed.data.claim,
               llm,
+              llmStep,
               hasKey,
               durationMs: Math.max(1, Date.now() - start),
             },
             "openai claim enrichment ok",
           );
         } else {
-          const body = await res.text().catch(() => "");
           inc("openai_fallback_total");
           log.warn(
             {
               requestId,
-              status: res.status,
-              body,
               hasKey,
               durationMs: Math.max(1, Date.now() - start),
               openai_fallback_total: 1,
@@ -473,11 +465,18 @@ export async function GET(req: Request) {
 
     if (signal.aborted) return abort();
 
-    const result = verifyClaimPure(
+    // First-success-wins provenance: note which chain step succeeded.
+    const verified = verifyClaimPure(
       { claim: parsed.data.claim, contextUrl: parsed.data.contextUrl },
       evidence,
       llm,
     );
+    const result = llmStep
+      ? {
+          ...verified,
+          provenance: { ...verified.provenance, llmStep },
+        }
+      : verified;
     inc("check_requests_total");
     log.info(
       {
@@ -485,6 +484,7 @@ export async function GET(req: Request) {
         traceparent,
         claim: parsed.data.claim,
         verdict: result.verdict,
+        llmStep,
         hasKey,
         durationMs: Math.max(1, Date.now() - start),
       },

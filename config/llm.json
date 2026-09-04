@@ -1,0 +1,4 @@
+{
+  "_comment": "Per-LLM-step timeout budget for the lib/llm.ts failover chain (VAL-CROSS-031). Page/evidence fetches keep the separate 3s fetchWithRetry policy; backoff between chain steps lives in lib/llm.ts. All values in milliseconds.",
+  "timeoutMs": { "min": 1000, "max": 30000, "default": 10000 }
+}

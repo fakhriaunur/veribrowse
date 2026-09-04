@@ -3,22 +3,18 @@ import { scoreWebsiteSchema } from "@/lib/schemas";
 import { buildTrustScore, type FetchMeta } from "@/lib/score";
 import { withRequestId } from "@/lib/logger";
 import { fetchWithRetry, isTimeoutError } from "@/lib/fetchWithRetry";
+import {
+  runLlmChain,
+  parseTimeoutParam,
+  resolveStepTimeout,
+  type ChainOk,
+} from "@/lib/llm";
 import { createFetchMemo } from "@/lib/fetchMemo";
 import { inc } from "@/lib/metrics";
 
 export const runtime = "nodejs";
 
-const OPENAI_BASE_URL_FALLBACK = "https://api.openai.com/v1";
 const OPENAI_MODEL_FALLBACK = "gpt-4o-mini";
-
-// Normalize the configured OpenAI base before appending the chat path: the
-// default base already ends in /v1, so naive `${base}/v1/chat/completions`
-// would hit /v1/v1/chat/completions (OpenAI 404 → silent fallback). Strip
-// trailing slashes and one trailing /v1 segment first. A bare mock base
-// (http://127.0.0.1:8787) is unaffected.
-function openaiChatCompletionsUrl(base: string): string {
-  return `${base.replace(/\/+$/, "").replace(/\/v1$/, "")}/v1/chat/completions`;
-}
 
 function hashBytes(s: string): string {
   let h = 0;
@@ -257,59 +253,68 @@ export async function GET(req: Request) {
     };
 
     let llm: { why: string; bullets: string[] } | undefined;
+    let llmStep: ChainOk["step"] | undefined;
     if (hasKey) {
       try {
         const prompt = `You are VeriBrowse scam analyst. Score trust for URL=${meta.url} title="${meta.title ?? ""}" desc="${meta.ogDescription ?? ""}" hasHttps=${meta.hasHttps}. Return JSON {"why": string concise 20 words, "bullets": string[2]} explaining risk. No hallucinated citations.`;
-        const baseUrl = process.env.OPENAI_BASE_URL ?? OPENAI_BASE_URL_FALLBACK;
-        const res = await fetchWithRetry(openaiChatCompletionsUrl(baseUrl), {
-          method: "POST",
+        // Nerd-view LLM step-timeout control: client value clamped into
+        // config range, default 10s when untouched. M11 chain tries
+        // Responses(primary)->Chat(primary)->Responses(alt)->Chat(alt) on
+        // ANY failure (non-ok incl. quota 403s, timeout, error, malformed
+        // payload); first success wins, then existing shaping below.
+        const stepTimeoutMs = resolveStepTimeout(
+          parseTimeoutParam(searchParams.get("llmTimeoutMs")),
+        );
+        const chain = await runLlmChain({
+          prompt,
+          model: process.env.OPENAI_MODEL ?? OPENAI_MODEL_FALLBACK,
+          temperature: 0.2,
           signal,
-          headers: {
-            "content-type": "application/json",
-            authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-          },
-          body: JSON.stringify({
-            model: process.env.OPENAI_MODEL ?? OPENAI_MODEL_FALLBACK,
-            temperature: 0.2,
-            response_format: { type: "json_object" },
-            messages: [{ role: "user", content: prompt }],
-          }),
+          timeoutMs: stepTimeoutMs,
         });
         if (signal.aborted) {
           return abort();
         }
-        if (res.ok) {
-          const j = (await res.json()) as {
-            choices?: { message?: { content?: string } }[];
-          };
-          const content = j.choices?.[0]?.message?.content ?? "{}";
-          const parsedLlm = JSON.parse(content) as {
+        if (chain.ok) {
+          const parsedLlm = chain.payload as {
             why?: string;
             bullets?: string[];
           };
-          if (parsedLlm.why)
+          if (parsedLlm.why) {
             llm = {
               why: parsedLlm.why.slice(0, 200),
               bullets: (parsedLlm.bullets ?? [parsedLlm.why]).slice(0, 3),
             };
+            llmStep = chain.step;
+          } else {
+            inc("openai_fallback_total");
+            log.warn(
+              {
+                requestId,
+                step: chain.step,
+                hasKey,
+                durationMs: Math.max(1, Date.now() - start),
+                openai_fallback_total: 1,
+              },
+              "openai enrichment empty payload — fallback to heuristic",
+            );
+          }
           log.info(
             {
               requestId,
               url,
               llmWhy: llm?.why,
+              llmStep,
               hasKey,
               durationMs: Math.max(1, Date.now() - start),
             },
             "openai enrichment ok",
           );
         } else {
-          const body = await res.text().catch(() => "");
           inc("openai_fallback_total");
           log.warn(
             {
               requestId,
-              status: res.status,
-              body,
               hasKey,
               durationMs: Math.max(1, Date.now() - start),
               openai_fallback_total: 1,
@@ -349,7 +354,14 @@ export async function GET(req: Request) {
       return abort();
     }
 
-    const result = buildTrustScore(meta, llm);
+    // First-success-wins provenance: note which chain step succeeded.
+    const scored = buildTrustScore(meta, llm);
+    const result = llmStep
+      ? {
+          ...scored,
+          provenance: { ...scored.provenance, llmStep },
+        }
+      : scored;
     inc("score_requests_total");
     log.info(
       {
@@ -361,6 +373,7 @@ export async function GET(req: Request) {
         hasKey,
         durationMs: Math.max(1, Date.now() - start),
         llmWhy: llm?.why,
+        llmStep,
       },
       "score computed",
     );
