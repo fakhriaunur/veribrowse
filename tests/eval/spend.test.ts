@@ -58,6 +58,16 @@ describe("estimateKeyedRun", () => {
     expect(estimate.usd).toBeLessThan(0.5);
   });
 
+  it("prices the pinned gpt-5.6-luna pilot at $0.0096 for 20 rows", () => {
+    const estimate = estimateKeyedRun({ rowCount: 20, model: "gpt-5.6-luna" });
+    expect(estimate.llmCalls).toBe(20);
+    const expected =
+      ((20 * 1500) / 1_000_000) * 0.2 + ((20 * 150) / 1_000_000) * 1.2;
+    expect(estimate.usd).toBeCloseTo(expected);
+    expect(estimate.usd).toBeCloseTo(0.0096);
+    expect(estimate.usd).toBeLessThan(0.1);
+  });
+
   it("rejects unknown models instead of pricing silently", () => {
     expect(() => estimateKeyedRun({ rowCount: 1, model: "nope" })).toThrow(
       /Unknown model/,
