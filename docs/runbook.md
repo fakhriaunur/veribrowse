@@ -115,6 +115,21 @@ OPENAI_API_KEY=dummy OPENAI_BASE_URL=http://127.0.0.1:8787 curl -s http://127.0.
 curl -s http://127.0.0.1:8787/ | grep "mock listening"
 ```
 
+### Mock chain paths + error injection (M11 failover verification)
+The mock serves BOTH chain steps: `POST /v1/responses` (Responses envelope with the `output_text` walk shape, `store:false` recorded) and `POST /v1/chat/completions`. Provenance `llmStep` on score/check responses names the succeeding step (`responses-primary`, `chat-primary`, `responses-alt`, `chat-alt`).
+```bash
+# Attempt order: Responses first, Chat only on Responses failure
+curl -s http://127.0.0.1:8787/__mock/requests | jq '.requests | map(.path)'
+# Inject a Responses failure -> Chat serves, provenance notes chat-primary
+curl -s -X POST http://127.0.0.1:8787/__mock/inject -H 'content-type: application/json' -d '{"responses":{"status":500}}'
+OPENAI_API_KEY=dummy OPENAI_BASE_URL=http://127.0.0.1:8787 curl -s "http://127.0.0.1:3000/api/score?url=https://example.com" | jq '{why, llmStep: .provenance.llmStep}'
+# Alt-endpoint failover: inject 403 on both primary steps with OPENAI_BASE_URL_ALT set -> alt attempted before fallback
+curl -s -X POST http://127.0.0.1:8787/__mock/inject -H 'content-type: application/json' -d '{"responses":{"status":403},"chat":{"status":403}}'
+# Reset overrides + attempt log when done
+curl -s -X POST http://127.0.0.1:8787/__mock/reset -H 'content-type: application/json' -d '{}'
+```
+Per-path overrides accept `{status, rawBody, body, delayMs, refusal}` for `responses` and `chat` alike (error-injection parity); `delayMs` simulates a hung step against the 10s per-step budget. Full matrix is pinned in `tests/integration/mock-chain.test.ts` (live mock processes on private ports, never the shared `:8787`).
+
 ### Fallback behavior
 - `lib/fetchWithRetry.ts` wraps all fetches with `AbortSignal.timeout(3000)`, 2 retries exponential backoff, in-memory breaker 30s open per host. On failure: score returns heuristic `preWhy` with `provenance.contentHash` + `retrievedAt`; check returns `verdict: unverified, confidence:0.3, evidence:[]` (fail-closed, never hallucinated).
 - Metric `openai_fallback_total` increments on OpenAI non-200 or parse failure; observe via `curl -s http://127.0.0.1:3000/api/metrics | grep openai_fallback_total` or pino `openai_fallback_total:1`.

@@ -44,7 +44,10 @@ const PAGE_HTML =
 function gatewayTimeoutStub() {
   return vi.fn(async (url: string | URL | Request) => {
     const u = String(url);
-    if (u.includes("/v1/chat/completions")) throw timeoutError();
+    // M11 chain: stall on BOTH LLM steps (Responses + Chat) so the chain
+    // exhausts and the routes take the contracted fail-closed 200 path.
+    if (u.includes("/v1/responses") || u.includes("/v1/chat/completions"))
+      throw timeoutError();
     return okPage(PAGE_HTML);
   });
 }
