@@ -6,6 +6,8 @@ import {
   type EvidenceBadge,
 } from "@/lib/claim";
 import { scoreWebsitePure, type FetchMeta } from "@/lib/score";
+import type { ScoringRubric } from "@/lib/score";
+import { getActiveRubric, type Rubric } from "@/lib/rubric";
 import { withRequestId } from "@/lib/logger";
 import { isTimeoutError } from "@/lib/fetchWithRetry";
 import {
@@ -49,12 +51,15 @@ function pageMeta(html: string): { title?: string; ogDescription?: string } {
 
 // VAL-CROSS-024 link-back: score one evidence URL in-request through the
 // existing pure function. Display-layer only — verdict/confidence untouched.
+// The active rubric is passed through so badges stay consistent with a direct
+// GET /api/score for the same URL under the same SCORING_PRESET.
 function evidenceBadge(
   url: string,
   html: string,
   res: { status: number; url?: string },
   contentHash: string,
   retrievedAt: string,
+  rubric?: ScoringRubric | undefined,
 ): EvidenceBadge {
   const { title, ogDescription } = pageMeta(html);
   const meta: FetchMeta = {
@@ -68,7 +73,7 @@ function evidenceBadge(
     domainAgeDays: null,
     hasHttps: url.startsWith("https://"),
   };
-  const { trust, level } = scoreWebsitePure(meta);
+  const { trust, level } = scoreWebsitePure(meta, rubric);
   return { trust, level };
 }
 
@@ -124,6 +129,29 @@ export async function GET(req: Request) {
     const claim = searchParams.get("claim");
     const contextUrl = searchParams.get("contextUrl") ?? undefined;
     const fixture = searchParams.get("fixture");
+    // Rubric wiring (M11): resolve the active preset once per request for
+    // the in-request evidence badge (display-only; verdict/confidence
+    // untouched). Default balanced == frozen weights, so default badges are
+    // unchanged. Invalid config fails loudly (500). Fixture badge is pinned.
+    let rubric: Rubric;
+    try {
+      rubric = getActiveRubric().rubric;
+    } catch (e) {
+      log.error(
+        {
+          requestId,
+          traceparent,
+          err: String(e),
+          hasKey,
+          durationMs: Math.max(1, Date.now() - start),
+        },
+        "check rubric invalid — refusing with unknown weights",
+      );
+      return NextResponse.json(
+        { error: "Invalid scoring rubric configuration", details: String(e) },
+        { status: 500, headers },
+      );
+    }
     // Nerd-view LLM step-timeout control: client value clamped into config
     // range, default 10s when untouched.
     const stepTimeoutMs = resolveStepTimeout(
@@ -304,6 +332,7 @@ export async function GET(req: Request) {
                 },
                 contentHash,
                 retrievedAt,
+                rubric,
               ),
             },
           ];
