@@ -8,6 +8,7 @@ import {
 import { scoreWebsitePure, type FetchMeta } from "@/lib/score";
 import { withRequestId } from "@/lib/logger";
 import { fetchWithRetry } from "@/lib/fetchWithRetry";
+import { createFetchMemo } from "@/lib/fetchMemo";
 import { inc } from "@/lib/metrics";
 
 export const runtime = "nodejs";
@@ -95,6 +96,12 @@ export async function GET(req: Request) {
   };
   // tracing stub: traceparent passthrough — accepted without error, logged if present
   const log = withRequestId(requestId);
+
+  // Per-request fetch memo (VAL-CROSS-025): duplicate evidence-URL fetches
+  // in this request collapse to one. Created fresh here, evaporates with
+  // the request — no cross-request cache, `cache-control: no-store` holds.
+  // The evidenceBadge() below reuses the memo-fetched HTML (no refetch).
+  const fetchMemo = createFetchMemo();
 
   // 499 abort shape (VAL-API-029): {error:"aborted"} + warn log with durationMs/requestId
   // NOTE: helper body must construct the response directly (never call abort()).
@@ -234,7 +241,7 @@ export async function GET(req: Request) {
 
     if (parsed.data.contextUrl) {
       try {
-        const res = await fetchWithRetry(parsed.data.contextUrl, {
+        const res = await fetchMemo(parsed.data.contextUrl, {
           signal,
           headers: { "user-agent": "VeriBrowse/0.1" },
         });
