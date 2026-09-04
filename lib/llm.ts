@@ -36,15 +36,38 @@ import llmConfigJson from "@/config/llm.json";
 export type LlmStep =
   "responses-primary" | "chat-primary" | "responses-alt" | "chat-alt";
 
+/**
+ * Per-attempt timing (M12 VAL-WEB-021): one entry per chain step attempted,
+ * in chain order. Recorded on BOTH success and all-fail results; chain
+ * semantics (order, clamp, backoff, abort/499) are byte-identical — timing
+ * capture is strictly additive. Routes forward these as
+ * `provenance.llmTimings` only when a chain ran.
+ */
+export type LlmAttemptTiming = {
+  step: LlmStep;
+  /** Wall-clock ms for this single attempt (fetch + parse). */
+  ms: number;
+  /** Whether this attempt succeeded (first success wins the chain). */
+  ok: boolean;
+};
+
 export type ChainOk = {
   ok: true;
   /** Parsed `Record` payload — routes apply their existing slice/clamp shaping. */
   payload: Record<string, unknown>;
   /** Provenance note: which step succeeded (first-success-wins). */
   step: LlmStep;
+  /** Per-attempt timings, in chain order; winning entry has `ok: true`. */
+  timings: LlmAttemptTiming[];
 };
 
-export type ChainOut = ChainOk | { ok: false };
+export type ChainFail = {
+  ok: false;
+  /** Per-attempt timings, in chain order; every entry has `ok: false`. */
+  timings: LlmAttemptTiming[];
+};
+
+export type ChainOut = ChainOk | ChainFail;
 
 type TimeoutRange = { min: number; max: number; default: number };
 
@@ -279,6 +302,10 @@ export async function runLlmChain(opts: RunChainOptions): Promise<ChainOut> {
   } = opts;
   const stepTimeout = resolveStepTimeout(timeoutMs);
   const steps = buildSteps();
+  // M12 nerd timer: per-attempt wall-clock timings, recorded additively.
+  // Chain control flow below is untouched (first-success-wins, backoff,
+  // abort/499); timing entries only observe each attempt.
+  const timings: LlmAttemptTiming[] = [];
 
   for (let i = 0; i < steps.length; i++) {
     const def = steps[i];
@@ -291,6 +318,14 @@ export async function runLlmChain(opts: RunChainOptions): Promise<ChainOut> {
       }
       if (signal?.aborted) throw abortError();
     }
+    const attemptStart = Date.now();
+    const recordAttempt = (ok: boolean) => {
+      timings.push({
+        step: def.step,
+        ms: Math.max(0, Date.now() - attemptStart),
+        ok,
+      });
+    };
     try {
       const combined = combineSignals(signal, AbortSignal.timeout(stepTimeout));
       const res = await fetchImpl(def.url, {
@@ -307,6 +342,7 @@ export async function runLlmChain(opts: RunChainOptions): Promise<ChainOut> {
       if (!res.ok) {
         // Drain to free the socket; status (incl. quota 403s) fails the step.
         await res.text().catch(() => "");
+        recordAttempt(false);
         continue;
       }
       const text = await res.text();
@@ -314,15 +350,20 @@ export async function runLlmChain(opts: RunChainOptions): Promise<ChainOut> {
         def.kind === "responses"
           ? parseResponsesPayload(JSON.parse(text) as unknown)
           : parseChatPayload(JSON.parse(text) as unknown);
-      if (payload) return { ok: true, payload, step: def.step };
+      if (payload) {
+        recordAttempt(true);
+        return { ok: true, payload, step: def.step, timings };
+      }
       // Malformed/empty payload fails the step — next step is attempted.
+      recordAttempt(false);
     } catch (e) {
       // Caller abort propagates immediately (499 path); every other error
       // (step timeout, network, parse) fails the step — next step attempted.
       // Note: the step-timeout abort is never rethrown even when no caller
       // signal exists; it is a step failure, not a client abort.
       if (signal?.aborted) throw abortError();
+      recordAttempt(false);
     }
   }
-  return { ok: false };
+  return { ok: false, timings };
 }

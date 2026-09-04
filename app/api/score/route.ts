@@ -8,6 +8,7 @@ import {
   parseTimeoutParam,
   resolveStepTimeout,
   type ChainOk,
+  type LlmAttemptTiming,
 } from "@/lib/llm";
 import { createFetchMemo } from "@/lib/fetchMemo";
 import { getActiveRubric, type Rubric } from "@/lib/rubric";
@@ -282,6 +283,10 @@ export async function GET(req: Request) {
 
     let llm: { why: string; bullets: string[] } | undefined;
     let llmStep: ChainOk["step"] | undefined;
+    // M12 nerd timer: per-attempt timings forwarded additively ONLY when a
+    // chain step succeeded (with llmStep). Omitted on no-key, fixture, and
+    // all-fail fallback paths — the nerd table renders from this key.
+    let llmTimings: LlmAttemptTiming[] | undefined;
     if (hasKey) {
       try {
         const prompt = `You are VeriBrowse scam analyst. Score trust for URL=${meta.url} title="${meta.title ?? ""}" desc="${meta.ogDescription ?? ""}" hasHttps=${meta.hasHttps}. Return JSON {"why": string concise 20 words, "bullets": string[2]} explaining risk. No hallucinated citations.`;
@@ -314,6 +319,7 @@ export async function GET(req: Request) {
               bullets: (parsedLlm.bullets ?? [parsedLlm.why]).slice(0, 3),
             };
             llmStep = chain.step;
+            llmTimings = chain.timings;
           } else {
             inc("openai_fallback_total");
             log.warn(
@@ -382,12 +388,13 @@ export async function GET(req: Request) {
       return abort();
     }
 
-    // First-success-wins provenance: note which chain step succeeded.
+    // First-success-wins provenance: note which chain step succeeded plus
+    // its per-attempt timings (additive/optional, nerd timer only).
     const scored = buildTrustScore(meta, llm, rubric);
     const result = llmStep
       ? {
           ...scored,
-          provenance: { ...scored.provenance, llmStep },
+          provenance: { ...scored.provenance, llmStep, llmTimings },
         }
       : scored;
     inc("score_requests_total");

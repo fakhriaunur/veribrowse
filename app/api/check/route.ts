@@ -15,6 +15,7 @@ import {
   parseTimeoutParam,
   resolveStepTimeout,
   type ChainOk,
+  type LlmAttemptTiming,
 } from "@/lib/llm";
 import { createFetchMemo } from "@/lib/fetchMemo";
 import { inc } from "@/lib/metrics";
@@ -389,6 +390,10 @@ export async function GET(req: Request) {
         }
       | undefined;
     let llmStep: ChainOk["step"] | undefined;
+    // M12 nerd timer: per-attempt timings forwarded additively ONLY when a
+    // chain step succeeded (with llmStep). Omitted on no-key, fixture,
+    // empty-evidence, and all-fail fallback paths.
+    let llmTimings: LlmAttemptTiming[] | undefined;
     if (hasKey && evidence && evidence.length > 0) {
       try {
         spanInFlight = "gateway-call";
@@ -432,6 +437,7 @@ export async function GET(req: Request) {
             reasoning: (p.reasoning ?? "").slice(0, 300),
           };
           llmStep = chain.step;
+          llmTimings = chain.timings;
           log.info(
             {
               requestId,
@@ -494,7 +500,8 @@ export async function GET(req: Request) {
 
     if (signal.aborted) return abort();
 
-    // First-success-wins provenance: note which chain step succeeded.
+    // First-success-wins provenance: note which chain step succeeded plus
+    // its per-attempt timings (additive/optional, nerd timer only).
     const verified = verifyClaimPure(
       { claim: parsed.data.claim, contextUrl: parsed.data.contextUrl },
       evidence,
@@ -503,7 +510,7 @@ export async function GET(req: Request) {
     const result = llmStep
       ? {
           ...verified,
-          provenance: { ...verified.provenance, llmStep },
+          provenance: { ...verified.provenance, llmStep, llmTimings },
         }
       : verified;
     inc("check_requests_total");
