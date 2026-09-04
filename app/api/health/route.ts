@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { logger, withRequestId } from "@/lib/logger";
+import { getActiveRubric } from "@/lib/rubric";
 
 export const runtime = "nodejs";
 
@@ -20,11 +21,29 @@ export async function GET(req?: Request) {
   const hasKey = !!process.env.OPENAI_API_KEY;
   const log = withRequestId(requestId);
   const durationMs = () => Math.max(1, Date.now() - start);
+  // Rubric preset (VAL-CFG-058): resolved load-once; an invalid
+  // SCORING_PRESET/SCORING_RUBRIC_PATH throws here so a misconfigured
+  // server fails loudly instead of scoring with unknown weights.
+  // Verbose health echoes the active preset name + source.
+  let rubricPreset = "balanced";
+  let rubricSource = "config/rubrics/balanced.json";
+  try {
+    const active = getActiveRubric();
+    rubricPreset = active.name;
+    rubricSource = active.source;
+  } catch (e) {
+    log.error(
+      { requestId, traceparent, err: String(e), durationMs: durationMs() },
+      "health rubric invalid — refusing with unknown weights",
+    );
+    throw e;
+  }
   if (verbose) {
     const body = {
       ...base,
       uptime: process.uptime(),
       timestamp: new Date().toISOString(),
+      rubric: { preset: rubricPreset, source: rubricSource },
     };
     log.info(
       {

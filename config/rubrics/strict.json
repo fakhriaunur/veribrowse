@@ -1,0 +1,22 @@
+{
+  "$schema": "./schema.json",
+  "name": "strict",
+  "version": 1,
+  "description": "Elder-protection opt-in. Harsher missing-HTTPS (-30) and new-domain (-30, suspicion window widened from 30 to 90 days) penalties, lower base (45), higher bars (safe >= 80, caution >= 50). Deliberate behavior change vs balanced — choose explicitly via SCORING_PRESET=strict.",
+  "weights": {
+    "base": 45,
+    "httpsBonus": 10,
+    "noHttpsPenalty": -30,
+    "oldDomainBonus": 10,
+    "oldDomainDays": 365,
+    "newDomainPenalty": -30,
+    "newDomainDays": 90,
+    "titleBonus": 5,
+    "titleMinLength": 5,
+    "ogBonus": 5
+  },
+  "thresholds": {
+    "safe": 80,
+    "caution": 50
+  }
+}

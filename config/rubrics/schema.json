@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://veribrowse/config/rubrics/schema.json",
+  "title": "VeriBrowse scoring rubric",
+  "description": "Schema for config/rubrics/*.json presets and SCORING_RUBRIC_PATH overrides. Enforced at load by lib/rubric.ts — unknown presets and invalid overrides fail loudly, never silently fall back to different weights.",
+  "type": "object",
+  "required": ["name", "version", "weights", "thresholds"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Editor hint pointing at this schema file."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "description": {
+      "type": "string"
+    },
+    "weights": {
+      "type": "object",
+      "required": [
+        "base",
+        "httpsBonus",
+        "noHttpsPenalty",
+        "oldDomainBonus",
+        "oldDomainDays",
+        "newDomainPenalty",
+        "newDomainDays",
+        "titleBonus",
+        "titleMinLength",
+        "ogBonus"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "base": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "httpsBonus": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "noHttpsPenalty": { "type": "integer", "minimum": -100, "maximum": 0 },
+        "oldDomainBonus": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "oldDomainDays": { "type": "integer", "minimum": 1 },
+        "newDomainPenalty": {
+          "type": "integer",
+          "minimum": -100,
+          "maximum": 0
+        },
+        "newDomainDays": { "type": "integer", "minimum": 1 },
+        "titleBonus": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "titleMinLength": { "type": "integer", "minimum": 1 },
+        "ogBonus": { "type": "integer", "minimum": 0, "maximum": 100 }
+      }
+    },
+    "thresholds": {
+      "type": "object",
+      "required": ["safe", "caution"],
+      "additionalProperties": false,
+      "properties": {
+        "safe": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "caution": { "type": "integer", "minimum": 0, "maximum": 100 }
+      }
+    }
+  }
+}
