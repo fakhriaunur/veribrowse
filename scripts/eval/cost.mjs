@@ -8,6 +8,11 @@ export const MODEL_PRICING = {
     outputPerMillionUsd: 0.6,
     note: "Public list-price estimate at time of writing; re-check before any keyed run.",
   },
+  "gpt-5.6-luna": {
+    inputPerMillionUsd: 0.2,
+    outputPerMillionUsd: 1.2,
+    note: "OpenAI GPT-5.6 Luna list pricing $0.20 input / $1.20 output per 1M tokens, corroborated 2026-09-04 by the Requesty model catalog (page updated 2026-09-04) and the TechJackSolutions GPT-5.6 pricing breakdown (re-verified against OpenAI pricing docs 2026-08-03, post 2026-07-30 rate cut). Regional gateways may add markup; re-check before any keyed run.",
+  },
 };
 
 // Per-score-request token assumption for the /api/score enrichment prompt.
