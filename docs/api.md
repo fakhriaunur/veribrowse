@@ -1338,6 +1338,13 @@ thin route shell (`app/api/score/route.ts`, `app/api/check/route.ts`) plus
   run only when `OPENAI_BASE_URL_ALT` is set). Absent on heuristic,
   fail-closed, and fixture responses. See `lib/llm.ts` (`LlmStep`,
   `runLlmChain`) and `docs/runbook.md` for the curl shape.
+- `provenance.llmTimings` (M12, additive/optional) — per-attempt
+  `[{step, ms, ok}]` timings in chain order, present ONLY alongside
+  `provenance.llmStep` (i.e. only when a chain step succeeded). Omitted on
+  no-key, `?fixture=1`, empty-evidence, and all-fail fallback paths, and
+  ignored by replay/golden diffs like `retrievedAt`/`checkedAt`. The
+  nerd view renders a live elapsed ticker while loading plus a post-hoc
+  per-step table from this key; the main view never shows either.
 
 ---
 

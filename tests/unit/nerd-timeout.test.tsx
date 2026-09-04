@@ -178,3 +178,226 @@ describe("Nerd-view LLM timeout control", () => {
     expect(lastFetchUrl()).toContain(`llmTimeoutMs=${belowMin}`);
   });
 });
+
+// VAL-WEB-021: nerd-view-only LLM progress timer (live elapsed ticker while
+// loading) + post-hoc per-step table from provenance.llmTimings. Main
+// (elderly) view never shows timer/table nodes in any state.
+describe("Nerd-view LLM progress timer", () => {
+  const scoreWithTimings = {
+    ...scoreFixture,
+    provenance: {
+      ...scoreFixture.provenance,
+      llmStep: "chat-primary",
+      llmTimings: [
+        { step: "responses-primary", ms: 120, ok: false },
+        { step: "chat-primary", ms: 340, ok: true },
+      ],
+    },
+  } as TrustScore;
+
+  const checkWithTimings = {
+    ...checkFixture,
+    evidence: [],
+    provenance: {
+      ...checkFixture.provenance,
+      llmStep: "responses-primary",
+      llmTimings: [{ step: "responses-primary", ms: 210, ok: true }],
+    },
+  } as ClaimResult;
+
+  function timerNode(): HTMLElement | null {
+    return container.querySelector('[role="timer"]');
+  }
+
+  function timingsTable(): HTMLTableElement | null {
+    return container.querySelector('table[aria-label="LLM per-step timings"]');
+  }
+
+  function tableRows(): string[][] {
+    const table = timingsTable();
+    if (!table) throw new Error("timings table missing");
+    return Array.from(table.querySelectorAll("tbody tr")).map((tr) =>
+      Array.from(tr.querySelectorAll("td")).map((td) =>
+        (td.textContent ?? "").trim(),
+      ),
+    );
+  }
+
+  it("main view shows no timer or table nodes while loading, on success, or on error", async () => {
+    renderHome();
+    // Loading (pending fetch, verbose OFF): skeleton only, no timer.
+    let resolveFetch!: (r: Response) => void;
+    fetchMock.mockReturnValueOnce(
+      new Promise<Response>((resolve) => {
+        resolveFetch = resolve;
+      }),
+    );
+    let pending!: Promise<void>;
+    act(() => {
+      pending = (async () => {
+        await clickButton("Score").click();
+      })();
+    });
+    expect(
+      container.querySelector('[aria-label="Scoring website, please wait"]'),
+    ).not.toBeNull();
+    expect(timerNode()).toBeNull();
+    await act(async () => {
+      resolveFetch(jsonResponse(scoreWithTimings));
+      await pending;
+    });
+    // Success in main view: result renders, still no timer and no table.
+    expect(container.textContent).toContain("85/100");
+    expect(timerNode()).toBeNull();
+    expect(timingsTable()).toBeNull();
+
+    // Error in main view: alert renders, still no timer and no table.
+    fetchMock.mockRejectedValueOnce(new Error("network down"));
+    await act(async () => {
+      await clickButton("Verify").click();
+    });
+    expect(container.querySelector('[role="alert"]')).not.toBeNull();
+    expect(timerNode()).toBeNull();
+    expect(timingsTable()).toBeNull();
+  });
+
+  it("timer appears only when verbose && loading, with budget + chain-order expectation", async () => {
+    renderHome();
+    // Verbose OFF + loading: no timer.
+    let resolveFetch!: (r: Response) => void;
+    fetchMock.mockReturnValueOnce(
+      new Promise<Response>((resolve) => {
+        resolveFetch = resolve;
+      }),
+    );
+    let pending!: Promise<void>;
+    act(() => {
+      pending = (async () => {
+        await clickButton("Score").click();
+      })();
+    });
+    expect(timerNode()).toBeNull();
+    await act(async () => {
+      resolveFetch(jsonResponse(scoreFixture));
+      await pending;
+    });
+
+    // Verbose ON + loading: timer with elapsed/budget text + expectation.
+    let resolveVerify!: (r: Response) => void;
+    fetchMock.mockReturnValueOnce(
+      new Promise<Response>((resolve) => {
+        resolveVerify = resolve;
+      }),
+    );
+    enableVerbose();
+    let pendingVerify!: Promise<void>;
+    act(() => {
+      pendingVerify = (async () => {
+        await clickButton("Verify").click();
+      })();
+    });
+    const timer = timerNode();
+    expect(timer).not.toBeNull();
+    expect(timer?.getAttribute("aria-live")).toBe("off");
+    expect(timer?.textContent).toMatch(
+      /LLM elapsed \d+(\.\d+)?s \/ step budget \d+s/,
+    );
+    expect(timer?.textContent).toContain("up to 4 steps");
+    expect(timer?.textContent).toContain("responses-primary");
+    expect(timer?.textContent).toContain("chat-primary");
+    await act(async () => {
+      resolveVerify(jsonResponse(checkFixture));
+      await pendingVerify;
+    });
+    // Timer unmounts on success.
+    expect(timerNode()).toBeNull();
+  });
+
+  it("timer ticks at least twice while loading (fake timers)", async () => {
+    vi.useFakeTimers();
+    try {
+      renderHome();
+      enableVerbose();
+      let resolveFetch!: (r: Response) => void;
+      fetchMock.mockReturnValueOnce(
+        new Promise<Response>((resolve) => {
+          resolveFetch = resolve;
+        }),
+      );
+      let pending!: Promise<void>;
+      act(() => {
+        pending = (async () => {
+          await clickButton("Score").click();
+        })();
+      });
+      const sample = () => timerNode()?.textContent ?? "";
+      const first = sample();
+      expect(first).toMatch(/LLM elapsed/);
+      act(() => {
+        vi.advanceTimersByTime(300);
+      });
+      const second = sample();
+      act(() => {
+        vi.advanceTimersByTime(300);
+      });
+      const third = sample();
+      // At least two distinct elapsed samples observed across three reads.
+      expect(new Set([first, second, third]).size).toBeGreaterThanOrEqual(2);
+      await act(async () => {
+        resolveFetch(jsonResponse(scoreFixture));
+        await pending;
+      });
+      expect(timerNode()).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("timer stops on error and no table renders", async () => {
+    renderHome();
+    enableVerbose();
+    fetchMock.mockRejectedValueOnce(new Error("network down"));
+    await act(async () => {
+      await clickButton("Score").click();
+    });
+    expect(container.querySelector('[role="alert"]')).not.toBeNull();
+    expect(timerNode()).toBeNull();
+    expect(timingsTable()).toBeNull();
+  });
+
+  it("post-hoc score table rows deep-equal provenance.llmTimings with the winning row marked", async () => {
+    renderHome();
+    enableVerbose();
+    fetchMock.mockResolvedValueOnce(jsonResponse(scoreWithTimings));
+    await act(async () => {
+      await clickButton("Score").click();
+    });
+    expect(timerNode()).toBeNull();
+    const rows = tableRows();
+    expect(rows).toEqual([
+      ["responses-primary", "120 ms", "failed"],
+      ["chat-primary ✓", "340 ms", "ok"],
+    ]);
+    // Winning row equals provenance.llmStep.
+    const body = container.querySelector("details pre")?.textContent ?? "";
+    expect(body).toContain('"llmStep": "chat-primary"');
+  });
+
+  it("post-hoc check table renders from provenance.llmTimings; absent on fallback paths", async () => {
+    renderHome();
+    enableVerbose();
+    fetchMock.mockResolvedValueOnce(jsonResponse(checkWithTimings));
+    await act(async () => {
+      await clickButton("Verify").click();
+    });
+    expect(timerNode()).toBeNull();
+    expect(tableRows()).toEqual([["responses-primary ✓", "210 ms", "ok"]]);
+
+    // Fallback/no-key path (no llmTimings key): result renders, no table.
+    fetchMock.mockResolvedValueOnce(jsonResponse(checkFixture));
+    await act(async () => {
+      await clickButton("Verify").click();
+    });
+    expect(timingsTable()).toBeNull();
+  });
+});

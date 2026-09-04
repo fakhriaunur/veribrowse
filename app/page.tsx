@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { TrustBadge } from "@/components/TrustBadge";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { RecentsCompare } from "@/components/RecentsCompare";
@@ -24,6 +24,106 @@ import llmTimeoutConfig from "@/config/llm.json";
 const LLM_TIMEOUT_MIN_MS = llmTimeoutConfig.timeoutMs.min;
 const LLM_TIMEOUT_MAX_MS = llmTimeoutConfig.timeoutMs.max;
 const LLM_TIMEOUT_DEFAULT_MS = llmTimeoutConfig.timeoutMs.default;
+
+// Nerd-view-only LLM progress timer (VAL-WEB-021): per-step timing row
+// forwarded additively as `provenance.llmTimings` — present only when an LLM
+// chain step succeeded, absent on no-key/fixture/empty-evidence/fallback.
+type LlmTimingRow = { step: string; ms: number; ok: boolean };
+
+function llmTimingsOf(provenance: unknown): {
+  timings?: LlmTimingRow[];
+  step?: string;
+} {
+  const p = provenance as
+    { llmTimings?: LlmTimingRow[]; llmStep?: string } | null | undefined;
+  return { timings: p?.llmTimings, step: p?.llmStep };
+}
+
+// Chain order named by the expectation line (lib/llm.ts buildSteps).
+const LLM_CHAIN_ORDER =
+  "responses-primary → chat-primary → responses-alt → chat-alt";
+
+// Live elapsed ticker for the nerd view. Rendered ONLY when
+// `verbose && loading` (one instance per flow); the interval that feeds
+// `elapsedMs` is owned by the caller effect and cleared when the run
+// settles or unmounts. `aria-live="off"` keeps it a silent diagnostic.
+function NerdLlmTimer({
+  elapsedMs,
+  budgetSecs,
+}: {
+  elapsedMs: number;
+  budgetSecs: string;
+}) {
+  return (
+    <div
+      role="timer"
+      aria-live="off"
+      aria-label="LLM elapsed time"
+      className="mt-2 rounded-lg bg-zinc-50 p-3 text-sm dark:bg-abyss"
+    >
+      <p>
+        LLM elapsed {(elapsedMs / 1000).toFixed(1)}s / step budget {budgetSecs}s
+      </p>
+      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+        Expectation: up to 4 steps ({LLM_CHAIN_ORDER}) × {budgetSecs}s each
+      </p>
+    </div>
+  );
+}
+
+// Post-hoc per-step table for the nerd <details> audit. Renders ONLY when
+// `timings` is present (chain succeeded); the winning row (provenance
+// llmStep) is marked. Never rendered mid-flight as fact, never in main view.
+function LlmTimingsTable({
+  timings,
+  winner,
+}: {
+  timings: LlmTimingRow[];
+  winner?: string;
+}) {
+  return (
+    <table
+      aria-label="LLM per-step timings"
+      className="mt-2 w-full border-collapse text-xs"
+    >
+      <caption className="pb-1 text-left font-semibold">
+        LLM per-step timings
+      </caption>
+      <thead>
+        <tr className="text-left text-zinc-500 dark:text-zinc-400">
+          <th scope="col" className="py-1 pr-2 font-medium">
+            Step
+          </th>
+          <th scope="col" className="py-1 pr-2 font-medium">
+            ms
+          </th>
+          <th scope="col" className="py-1 font-medium">
+            Result
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {timings.map((t) => (
+          <tr
+            key={t.step}
+            className={
+              t.step === winner
+                ? "font-semibold"
+                : "text-zinc-700 dark:text-zinc-300"
+            }
+          >
+            <td className="py-1 pr-2">
+              {t.step}
+              {t.step === winner ? " ✓" : ""}
+            </td>
+            <td className="py-1 pr-2">{t.ms} ms</td>
+            <td className="py-1">{t.ok ? "ok" : "failed"}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
 
 // Extend global for WebMCP
 declare global {
@@ -58,6 +158,47 @@ export default function Home() {
   // omit the param so the server applies its configured default. A raw
   // out-of-range value is submitted as-is; the server clamps into [min,max].
   const [llmTimeoutMs, setLlmTimeoutMs] = useState("");
+  // Nerd-view-only elapsed ticker (VAL-WEB-021): ms since the current run
+  // started, ticked by interval while verbose && loading. Cleared when the
+  // run settles (finally → loading false) and on unmount via effect cleanup.
+  const [scoreElapsedMs, setScoreElapsedMs] = useState(0);
+  const [checkElapsedMs, setCheckElapsedMs] = useState(0);
+  const scoreStartRef = useRef(0);
+  const checkStartRef = useRef(0);
+
+  // Display budget mirroring the server clamp (resolveStepTimeout): touched
+  // numeric input clamped into [min,max], otherwise the configured default.
+  const stepBudgetMs = (() => {
+    const t = llmTimeoutMs.trim();
+    if (!t) return LLM_TIMEOUT_DEFAULT_MS;
+    const n = Number(t);
+    if (!Number.isFinite(n)) return LLM_TIMEOUT_DEFAULT_MS;
+    return Math.min(LLM_TIMEOUT_MAX_MS, Math.max(LLM_TIMEOUT_MIN_MS, n));
+  })();
+  const stepBudgetSecs = (() => {
+    const s = stepBudgetMs / 1000;
+    return Number.isInteger(s) ? String(s) : s.toFixed(1);
+  })();
+
+  useEffect(() => {
+    if (!verbose || !scoreLoading) return;
+    scoreStartRef.current = Date.now();
+    setScoreElapsedMs(0);
+    const id = setInterval(() => {
+      setScoreElapsedMs(Date.now() - scoreStartRef.current);
+    }, 250);
+    return () => clearInterval(id);
+  }, [verbose, scoreLoading]);
+
+  useEffect(() => {
+    if (!verbose || !checkLoading) return;
+    checkStartRef.current = Date.now();
+    setCheckElapsedMs(0);
+    const id = setInterval(() => {
+      setCheckElapsedMs(Date.now() - checkStartRef.current);
+    }, 250);
+    return () => clearInterval(id);
+  }, [verbose, checkLoading]);
 
   // Append the nerd timeout param only when the input was touched, so
   // untouched requests stay byte-identical (server default applies).
@@ -383,6 +524,12 @@ export default function Home() {
             <div className="mt-2 h-4 w-1/2 rounded bg-zinc-200 dark:bg-seam" />
           </div>
         )}
+        {verbose && scoreLoading && (
+          <NerdLlmTimer
+            elapsedMs={scoreElapsedMs}
+            budgetSecs={stepBudgetSecs}
+          />
+        )}
         {scoreError && (
           <div
             role="alert"
@@ -410,6 +557,12 @@ export default function Home() {
                 <pre className="mt-2 overflow-auto rounded border border-zinc-200 bg-white p-3 text-xs dark:border-seam dark:bg-ink dark:text-zinc-200">
                   {JSON.stringify(score, null, 2)}
                 </pre>
+                {(() => {
+                  const { timings, step } = llmTimingsOf(score.provenance);
+                  return timings ? (
+                    <LlmTimingsTable timings={timings} winner={step} />
+                  ) : null;
+                })()}
               </details>
             )}
           </div>
@@ -474,6 +627,12 @@ export default function Home() {
             <div className="mt-3 h-5 w-2/3 rounded bg-zinc-200 dark:bg-seam" />
           </div>
         )}
+        {verbose && checkLoading && (
+          <NerdLlmTimer
+            elapsedMs={checkElapsedMs}
+            budgetSecs={stepBudgetSecs}
+          />
+        )}
         {checkError && (
           <div
             role="alert"
@@ -533,6 +692,14 @@ export default function Home() {
                 <pre className="mt-2 overflow-auto rounded border border-zinc-200 bg-white p-3 text-xs dark:border-seam dark:bg-ink dark:text-zinc-200">
                   {JSON.stringify(claimResult, null, 2)}
                 </pre>
+                {(() => {
+                  const { timings, step } = llmTimingsOf(
+                    claimResult.provenance,
+                  );
+                  return timings ? (
+                    <LlmTimingsTable timings={timings} winner={step} />
+                  ) : null;
+                })()}
               </details>
             )}
           </div>

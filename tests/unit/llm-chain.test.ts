@@ -265,7 +265,15 @@ describe("llm chain alt-endpoint failover (VAL-CROSS-030)", () => {
       temperature: 0.1,
       fetchImpl: failImpl as unknown as typeof fetch,
     });
-    expect(failed).toEqual({ ok: false });
+    expect(failed).toEqual({
+      ok: false,
+      timings: [
+        { step: "responses-primary", ms: expect.any(Number), ok: false },
+        { step: "chat-primary", ms: expect.any(Number), ok: false },
+        { step: "responses-alt", ms: expect.any(Number), ok: false },
+        { step: "chat-alt", ms: expect.any(Number), ok: false },
+      ],
+    });
     expect(failCalls).toHaveLength(4);
   });
 
@@ -279,7 +287,13 @@ describe("llm chain alt-endpoint failover (VAL-CROSS-030)", () => {
       temperature: 0.2,
       fetchImpl: fetchImpl as unknown as typeof fetch,
     });
-    expect(out).toEqual({ ok: false });
+    expect(out).toEqual({
+      ok: false,
+      timings: [
+        { step: "responses-primary", ms: expect.any(Number), ok: false },
+        { step: "chat-primary", ms: expect.any(Number), ok: false },
+      ],
+    });
     expect(calls.map((c) => c.url)).toEqual([
       responsesUrl(PRIMARY),
       chatUrl(PRIMARY),
@@ -364,7 +378,15 @@ describe("llm chain timeout + backoff + clamp (VAL-CROSS-031)", () => {
       timeoutMs: 5000,
       fetchImpl: failImpl as unknown as typeof fetch,
     });
-    expect(out).toEqual({ ok: false });
+    expect(out).toEqual({
+      ok: false,
+      timings: [
+        { step: "responses-primary", ms: expect.any(Number), ok: false },
+        { step: "chat-primary", ms: expect.any(Number), ok: false },
+        { step: "responses-alt", ms: expect.any(Number), ok: false },
+        { step: "chat-alt", ms: expect.any(Number), ok: false },
+      ],
+    });
     expect(LLM_CHAIN_BACKOFF_MS).toBeGreaterThan(0);
     expect(Date.now() - started).toBeGreaterThanOrEqual(
       3 * LLM_CHAIN_BACKOFF_MS - 50,
@@ -389,6 +411,105 @@ describe("llm chain timeout + backoff + clamp (VAL-CROSS-031)", () => {
   });
 
   it("caller abort throws AbortError so routes keep the 499 mapping", async () => {
+    const ctrl = new AbortController();
+    ctrl.abort();
+    await expect(
+      runLlmChain({
+        prompt: "p",
+        model: "gpt-4o-mini",
+        temperature: 0.2,
+        signal: ctrl.signal,
+      }),
+    ).rejects.toMatchObject({ name: "AbortError" });
+  });
+});
+
+describe("llm chain per-step timings (VAL-WEB-021)", () => {
+  const env = process.env;
+  beforeEach(() => {
+    process.env = { ...env, OPENAI_BASE_URL: PRIMARY };
+    delete process.env.OPENAI_BASE_URL_ALT;
+  });
+  afterEach(() => {
+    process.env = env;
+    vi.restoreAllMocks();
+  });
+
+  it("records per-step ms on success — one ok entry in chain order", async () => {
+    const calls: Call[] = [];
+    const fetchImpl = recordingStub(calls, async () => {
+      await new Promise((r) => setTimeout(r, 50));
+      return okJson(responsesEnvelope({ why: "w", bullets: ["b"] }));
+    });
+    const out = await runLlmChain({
+      prompt: "p",
+      model: "gpt-4o-mini",
+      temperature: 0.2,
+      fetchImpl: fetchImpl as unknown as typeof fetch,
+    });
+    expect(out.ok).toBe(true);
+    if (!out.ok) throw new Error("expected chain success");
+    // Pins the ~50ms stub delay: attempt ms is a real wall-clock sample.
+    expect(out.timings).toHaveLength(1);
+    expect(out.timings[0].step).toBe("responses-primary");
+    expect(out.timings[0].ok).toBe(true);
+    expect(out.timings[0].ms).toBeGreaterThanOrEqual(40);
+    expect(out.timings[0].ms).toBeLessThan(8000);
+  });
+
+  it("records per-step ms on fallback success — failed prefix then winning ok", async () => {
+    const calls: Call[] = [];
+    const fetchImpl = recordingStub(calls, (url) =>
+      url.endsWith("/v1/responses")
+        ? errStatus(500)
+        : okJson(chatEnvelope({ why: "chat fallback why", bullets: [] })),
+    );
+    const out = await runLlmChain({
+      prompt: "p",
+      model: "gpt-4o-mini",
+      temperature: 0.2,
+      fetchImpl: fetchImpl as unknown as typeof fetch,
+    });
+    expect(out.ok).toBe(true);
+    if (!out.ok) throw new Error("expected chain success");
+    expect(out.step).toBe("chat-primary");
+    expect(out.timings.map((t) => `${t.step}:${t.ok}`)).toEqual([
+      "responses-primary:false",
+      "chat-primary:true",
+    ]);
+    for (const t of out.timings) {
+      expect(typeof t.ms).toBe("number");
+      expect(t.ms).toBeGreaterThanOrEqual(0);
+    }
+  });
+
+  it("records per-step ms on all-fail — every attempted step ok:false", async () => {
+    process.env.OPENAI_BASE_URL_ALT = ALT;
+    const failImpl = recordingStub([], () => errStatus(500));
+    const out = await runLlmChain({
+      prompt: "p",
+      model: "gpt-4o-mini",
+      temperature: 0.2,
+      timeoutMs: 5000,
+      fetchImpl: failImpl as unknown as typeof fetch,
+    });
+    expect(out.ok).toBe(false);
+    if (out.ok) throw new Error("expected chain failure");
+    expect(out.timings.map((t) => t.step)).toEqual([
+      "responses-primary",
+      "chat-primary",
+      "responses-alt",
+      "chat-alt",
+    ]);
+    for (const t of out.timings) {
+      expect(t.ok).toBe(false);
+      expect(typeof t.ms).toBe("number");
+      expect(t.ms).toBeGreaterThanOrEqual(0);
+      expect(t.ms).toBeLessThan(8000);
+    }
+  });
+
+  it("caller abort carries no timings — abort throws before recording", async () => {
     const ctrl = new AbortController();
     ctrl.abort();
     await expect(
