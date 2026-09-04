@@ -38,7 +38,7 @@ Use this priority:
 Before commit, run the narrowest relevant `mise` tasks, then the full gate before handoff:
 
 ```bash
-mise run lint    # eslint + prettier --check (includes complexity 12)
+mise run lint    # eslint + prettier --check (includes complexity 12; naming: camelCase vars/fns/params, UPPER_CASE consts, PascalCase types/components)
 mise run type    # tsc --noEmit strict
 mise run test    # vitest --coverage --threshold 35 (keep 35 floor)
 mise run replay  # deterministic fixture replay (ignore retrievedAt)
