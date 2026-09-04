@@ -52,6 +52,8 @@ tmp/
 .mise/
 next-env.d.ts
 tsconfig.tsbuildinfo
+# M14 eval run artifacts (records.jsonl + report.md are per-run outputs)
+scripts/eval/out/
 test-results/
 playwright-report/
 blob-report/
