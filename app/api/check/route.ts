@@ -7,7 +7,7 @@ import {
 } from "@/lib/claim";
 import { scoreWebsitePure, type FetchMeta } from "@/lib/score";
 import { withRequestId } from "@/lib/logger";
-import { fetchWithRetry } from "@/lib/fetchWithRetry";
+import { fetchWithRetry, isTimeoutError } from "@/lib/fetchWithRetry";
 import { createFetchMemo } from "@/lib/fetchMemo";
 import { inc } from "@/lib/metrics";
 
@@ -77,6 +77,10 @@ function evidenceBadge(
 }
 
 function isAbortError(e: unknown): boolean {
+  // Timeout-originated errors (TimeoutError from AbortSignal.timeout) are
+  // NEVER client aborts: exempt them so gateway stalls fall through to the
+  // fail-closed 200 unverified fallback instead of the 499 abort path below.
+  if (isTimeoutError(e)) return false;
   const name = (e as Error)?.name ?? "";
   const msg = (e as Error)?.message ?? "";
   return name === "AbortError" || /abort/i.test(name) || /abort/i.test(msg);
