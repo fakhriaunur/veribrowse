@@ -179,6 +179,106 @@ describe("Nerd-view LLM timeout control", () => {
   });
 });
 
+// VAL-WEB-022: nerd-view timeout presets (Quick/Standard/Thorough set
+// #llm-timeout from config/llm.json min/default/max, never hardcoded);
+// presets + input render only in the nerd view; untouched sends no param;
+// custom raw values submit as-is (server clamps).
+describe("Nerd-view timeout presets", () => {
+  function presetButton(name: "Quick" | "Standard" | "Thorough") {
+    return clickButton(name);
+  }
+
+  function timeoutInput(): HTMLInputElement {
+    const input = container.querySelector("#llm-timeout");
+    if (!(input instanceof HTMLInputElement))
+      throw new Error("llm-timeout missing");
+    return input;
+  }
+
+  it("main view has no preset buttons in any state", async () => {
+    renderHome();
+    for (const name of ["Quick", "Standard", "Thorough"] as const) {
+      const found = Array.from(container.querySelectorAll("button")).some(
+        (b) => b.textContent === name,
+      );
+      expect(found).toBe(false);
+    }
+    // Still absent after results render in the main view.
+    fetchMock.mockResolvedValueOnce(jsonResponse(scoreFixture));
+    await act(async () => {
+      await clickButton("Score").click();
+    });
+    expect(container.textContent).toContain("85/100");
+    for (const name of ["Quick", "Standard", "Thorough"] as const) {
+      const found = Array.from(container.querySelectorAll("button")).some(
+        (b) => b.textContent === name,
+      );
+      expect(found).toBe(false);
+    }
+    expect(container.querySelector("#llm-timeout")).toBeNull();
+  });
+
+  it.each([
+    ["Quick", "min"],
+    ["Standard", "default"],
+    ["Thorough", "max"],
+  ] as const)(
+    "%s preset sets input.value to String(config timeoutMs.%s)",
+    (preset, key) => {
+      renderHome();
+      enableVerbose();
+      act(() => {
+        presetButton(preset).click();
+      });
+      expect(timeoutInput().value).toBe(String(llmConfig.timeoutMs[key]));
+    },
+  );
+
+  it.each([
+    ["Quick", "min"],
+    ["Standard", "default"],
+    ["Thorough", "max"],
+  ] as const)(
+    "%s preset drives llmTimeoutMs on Score and Verify requests",
+    async (preset, key) => {
+      renderHome();
+      enableVerbose();
+      act(() => {
+        presetButton(preset).click();
+      });
+      const expected = String(llmConfig.timeoutMs[key]);
+
+      fetchMock.mockResolvedValueOnce(jsonResponse(scoreFixture));
+      await act(async () => {
+        await clickButton("Score").click();
+      });
+      expect(lastFetchUrl()).toContain(`llmTimeoutMs=${expected}`);
+
+      fetchMock.mockResolvedValueOnce(jsonResponse(checkFixture));
+      await act(async () => {
+        await clickButton("Verify").click();
+      });
+      expect(lastFetchUrl()).toContain(`llmTimeoutMs=${expected}`);
+    },
+  );
+
+  it("untouched input sends no llmTimeoutMs param on either flow", async () => {
+    renderHome();
+    enableVerbose();
+    fetchMock.mockResolvedValueOnce(jsonResponse(scoreFixture));
+    await act(async () => {
+      await clickButton("Score").click();
+    });
+    expect(lastFetchUrl()).not.toContain("llmTimeoutMs");
+
+    fetchMock.mockResolvedValueOnce(jsonResponse(checkFixture));
+    await act(async () => {
+      await clickButton("Verify").click();
+    });
+    expect(lastFetchUrl()).not.toContain("llmTimeoutMs");
+  });
+});
+
 // VAL-WEB-021: nerd-view-only LLM progress timer (live elapsed ticker while
 // loading) + post-hoc per-step table from provenance.llmTimings. Main
 // (elderly) view never shows timer/table nodes in any state.

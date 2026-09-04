@@ -450,6 +450,36 @@ export default function Home() {
         </div>
         {verbose && (
           <div className="mt-3 flex max-w-xs flex-col gap-1 text-sm">
+            <span id="llm-presets-label" className="text-xs font-medium">
+              Timeout preset
+            </span>
+            <div
+              role="group"
+              aria-labelledby="llm-presets-label"
+              className="flex gap-2"
+            >
+              <button
+                type="button"
+                onClick={() => setLlmTimeoutMs(String(LLM_TIMEOUT_MIN_MS))}
+                className="rounded border border-zinc-300 bg-white px-3 py-1 text-xs hover:bg-zinc-100 dark:border-seam dark:bg-abyss dark:text-zinc-100 dark:hover:bg-seam"
+              >
+                Quick
+              </button>
+              <button
+                type="button"
+                onClick={() => setLlmTimeoutMs(String(LLM_TIMEOUT_DEFAULT_MS))}
+                className="rounded border border-zinc-300 bg-white px-3 py-1 text-xs hover:bg-zinc-100 dark:border-seam dark:bg-abyss dark:text-zinc-100 dark:hover:bg-seam"
+              >
+                Standard
+              </button>
+              <button
+                type="button"
+                onClick={() => setLlmTimeoutMs(String(LLM_TIMEOUT_MAX_MS))}
+                className="rounded border border-zinc-300 bg-white px-3 py-1 text-xs hover:bg-zinc-100 dark:border-seam dark:bg-abyss dark:text-zinc-100 dark:hover:bg-seam"
+              >
+                Thorough
+              </button>
+            </div>
             <label htmlFor="llm-timeout" className="text-xs font-medium">
               LLM step timeout (ms)
             </label>
