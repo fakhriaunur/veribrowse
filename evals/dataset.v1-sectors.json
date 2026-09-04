@@ -1,0 +1,469 @@
+{
+  "frozen": false,
+  "name": "m14-url-trust-v1-sectors",
+  "rows": [
+    {
+      "auditor_source": "OJK licensed bank (register-checkable)",
+      "citation": "https://www.ojk.go.id/",
+      "expected_tier": "safe",
+      "notes": "[banking] Probed HEAD 200 2026-09-04. OJK-licensed commercial bank; verify via OJK register / Kontak 157.",
+      "url": "https://www.bca.co.id/"
+    },
+    {
+      "auditor_source": "OJK licensed bank (register-checkable)",
+      "citation": "https://www.ojk.go.id/",
+      "expected_tier": "safe",
+      "notes": "[banking] Probed HEAD 301 apex-to-www 2026-09-04; frozen to www form. OJK-licensed state-owned bank.",
+      "url": "https://www.bankmandiri.co.id/"
+    },
+    {
+      "auditor_source": "OJK licensed bank (register-checkable)",
+      "citation": "https://www.ojk.go.id/",
+      "expected_tier": "safe",
+      "notes": "[banking] Probed HEAD 302 chain exceeded 12s budget from probe host 2026-09-04; official homepage, keep with fetch-degraded flag (fetcher GET 3s x3 may time out; failure policy applies).",
+      "url": "https://bri.co.id/"
+    },
+    {
+      "auditor_source": "FDIC BankFind (insured depository)",
+      "citation": "https://banks.data.fdic.gov/bankfind-suite/bankfind",
+      "expected_tier": "safe",
+      "notes": "[banking] Probed HEAD 200 2026-09-04. FDIC-insured national bank; verify via BankFind Suite.",
+      "url": "https://www.chase.com/"
+    },
+    {
+      "auditor_source": "FDIC BankFind (insured depository)",
+      "citation": "https://banks.data.fdic.gov/bankfind-suite/bankfind",
+      "expected_tier": "safe",
+      "notes": "[banking] Unprobed homepage; security-center deep page probed 200. FDIC-insured; verify via BankFind Suite.",
+      "url": "https://www.bankofamerica.com/"
+    },
+    {
+      "auditor_source": "FCA Register (authorised bank)",
+      "citation": "https://register.fca.org.uk/",
+      "expected_tier": "safe",
+      "notes": "[banking] Unprobed; stable authorized-bank homepage. Verify FRN via FCA Financial Services Register.",
+      "url": "https://www.hsbc.co.uk/"
+    },
+    {
+      "auditor_source": "FCA-authorised e-money institution",
+      "citation": "https://register.fca.org.uk/",
+      "expected_tier": "safe",
+      "notes": "[banking] Unprobed; stable fintech homepage. FCA-authorised EMI; verify via FCA Register.",
+      "url": "https://www.wise.com/"
+    },
+    {
+      "auditor_source": "FCA-authorised e-money institution",
+      "citation": "https://register.fca.org.uk/",
+      "expected_tier": "safe",
+      "notes": "[banking] Unprobed; stable fintech homepage. Authorised EMI (UK/EU); verify via FCA Register.",
+      "url": "https://www.revolut.com/"
+    },
+    {
+      "auditor_source": "Licensed money transmitter (US state licences)",
+      "citation": "https://www.paypal.com/",
+      "expected_tier": "safe",
+      "notes": "[banking] Unprobed homepage; Security Center deep page probed 200. Licensed money transmitter in US states + EU bank licence.",
+      "url": "https://www.paypal.com/"
+    },
+    {
+      "auditor_source": "Official bank security center (self)",
+      "citation": "https://www.chase.com/digital/resources/privacy-security",
+      "expected_tier": "safe",
+      "notes": "[banking][deep] Probed HEAD 200 2026-09-04. Entity-specific security-education page.",
+      "url": "https://www.chase.com/digital/resources/privacy-security"
+    },
+    {
+      "auditor_source": "Official fintech security center (self)",
+      "citation": "https://www.paypal.com/us/security",
+      "expected_tier": "safe",
+      "notes": "[banking][deep] Probed HEAD 200 2026-09-04. Entity-specific anti-fraud page.",
+      "url": "https://www.paypal.com/us/security"
+    },
+    {
+      "auditor_source": "Official bank security centre (self)",
+      "citation": "https://www.hsbc.co.uk/help/security-centre/",
+      "expected_tier": "safe",
+      "notes": "[banking][deep] Search-confirmed official URL 2026-09-04; unprobed (probe budget exhausted). Entity-specific fraud-advice page.",
+      "url": "https://www.hsbc.co.uk/help/security-centre/"
+    },
+    {
+      "auditor_source": "Official bank security center (self)",
+      "citation": "https://www.bankofamerica.com/security/",
+      "expected_tier": "safe",
+      "notes": "[banking][deep] Search-indicated official path 2026-09-04 (/security-center/ probed HEAD 404, dropped); unprobed (budget exhausted). Confirm live at approval.",
+      "url": "https://www.bankofamerica.com/security/"
+    },
+    {
+      "auditor_source": "HK SFC Alert List index (self, regulator)",
+      "citation": "https://www.sfc.hk/en/alert-list/suspicious",
+      "expected_tier": "safe",
+      "notes": "[banking][deep] Fetched HTTP 200 2026-09-04. Regulator early-warning index page; must score safe (trap: listed entities are risky, the list itself is safe).",
+      "url": "https://www.sfc.hk/en/alert-list/suspicious"
+    },
+    {
+      "auditor_source": "SEC PAUSE program index (self, regulator)",
+      "citation": "https://www.sec.gov/enforce/public-alerts",
+      "expected_tier": "safe",
+      "notes": "[banking][deep] Probed HEAD 403 bot-check 2026-09-04 (cf. v1 infowars precedent); fetcher GET likely 403 too -- tests failure policy. Regulator program page; must score safe.",
+      "url": "https://www.sec.gov/enforce/public-alerts"
+    },
+    {
+      "auditor_source": "FDIC BankFind Suite (self, regulator)",
+      "citation": "https://banks.data.fdic.gov/bankfind-suite/bankfind",
+      "expected_tier": "safe",
+      "notes": "[banking][deep] Probed HEAD 200 2026-09-04. Entity-lookup tool page.",
+      "url": "https://banks.data.fdic.gov/bankfind-suite/bankfind"
+    },
+    {
+      "auditor_source": "OJK official press release SP 03/STPASTI/IV/2026",
+      "citation": "https://ojk.go.id/id/berita-dan-kegiatan/info-terkini/Pages/Satgas-PASTI-Hentikan-953-Entitas-Pinjol-Ilegal-dan-Penawaran-Investasi-Ilegal.aspx",
+      "expected_tier": "safe",
+      "notes": "[banking][deep] Fetched HTTP 200 2026-09-04. Entity-specific enforcement article (953 illegal pinjol/investment entities halted); must score safe.",
+      "url": "https://ojk.go.id/id/berita-dan-kegiatan/info-terkini/Pages/Satgas-PASTI-Hentikan-953-Entitas-Pinjol-Ilegal-dan-Penawaran-Investasi-Ilegal.aspx"
+    },
+    {
+      "auditor_source": "FCA Warning List index (self, regulator)",
+      "citation": "https://www.fca.org.uk/consumers/warning-list-unauthorised-firms",
+      "expected_tier": "safe",
+      "notes": "[banking][deep] Search-confirmed official URL 2026-09-04; unprobed (budget exhausted). Regulator warning index; must score safe.",
+      "url": "https://www.fca.org.uk/consumers/warning-list-unauthorised-firms"
+    },
+    {
+      "auditor_source": "UGC forum (anecdotal advice, unverified)",
+      "citation": "https://www.reddit.com/r/personalfinance/",
+      "expected_tier": "caution",
+      "notes": "[banking] Unprobed; stable UGC community. Advice is anecdotal and unverified; scorer should hesitate (caution).",
+      "url": "https://www.reddit.com/r/personalfinance/"
+    },
+    {
+      "auditor_source": "Contributor-driven investment analysis (position disclosure)",
+      "citation": "https://www.seekingalpha.com/",
+      "expected_tier": "caution",
+      "notes": "[banking] Unprobed; stable. Crowdsourced analysis; contributors may hold positions they write about.",
+      "url": "https://www.seekingalpha.com/"
+    },
+    {
+      "auditor_source": "Opinion/stock-picking editorial (commercial)",
+      "citation": "https://www.fool.com/",
+      "expected_tier": "caution",
+      "notes": "[banking] Unprobed; stable. Opinion-led stock recommendations with affiliate/commercial interests.",
+      "url": "https://www.fool.com/"
+    },
+    {
+      "auditor_source": "Commercial comparison site (sponsored placements)",
+      "citation": "https://www.finder.com/",
+      "expected_tier": "caution",
+      "notes": "[banking] Unprobed; stable. Comparison rankings coexist with paid placements per on-site advertising disclosure.",
+      "url": "https://www.finder.com/"
+    },
+    {
+      "auditor_source": "Loan lead-gen marketplace (commercial)",
+      "citation": "https://www.lendingtree.com/",
+      "expected_tier": "caution",
+      "notes": "[banking] Unprobed; stable. Lead-generation marketplace; offers vary by paid lender network.",
+      "url": "https://www.lendingtree.com/"
+    },
+    {
+      "auditor_source": "Volunteer investor forum (unverified)",
+      "citation": "https://www.bogleheads.org/",
+      "expected_tier": "caution",
+      "notes": "[banking] Unprobed; stable. Volunteer-run forum; advice is peer opinion, not licensed advice.",
+      "url": "https://www.bogleheads.org/"
+    },
+    {
+      "auditor_source": "HK SFC Alert List -- suspicious website",
+      "citation": "https://www.sfc.hk/en/alert-list/3501",
+      "expected_tier": "risky",
+      "notes": "[banking] UNPROBED (suspected-malicious; never probed beyond status per policy). SFC-listed 20 Aug 2026 as suspicious website; unlicensed, targeting HK investors. May be dead/cloaked at run -- fetch-failure exclusion applies.",
+      "url": "https://www.onetradepro.com/en/"
+    },
+    {
+      "auditor_source": "HK SFC Alert List -- suspicious website",
+      "citation": "https://www.sfc.hk/en/alert-list/3497",
+      "expected_tier": "risky",
+      "notes": "[banking] UNPROBED. SFC-listed 13 Aug 2026 as suspicious website. May be dead/cloaked at run -- fetch-failure exclusion applies.",
+      "url": "https://www.borsaway.com/"
+    },
+    {
+      "auditor_source": "HK SFC Alert List -- suspicious website",
+      "citation": "https://www.sfc.hk/en/alert-list/3491",
+      "expected_tier": "risky",
+      "notes": "[banking] UNPROBED. SFC-listed 29 Jul 2026 as suspicious website. May be dead/cloaked at run -- fetch-failure exclusion applies.",
+      "url": "https://www.forsatrading.com/"
+    },
+    {
+      "auditor_source": "HK SFC Alert List -- suspicious website",
+      "citation": "https://www.sfc.hk/en/alert-list/3478",
+      "expected_tier": "risky",
+      "notes": "[banking] UNPROBED. SFC-listed 30 Jun 2026 as suspicious website. May be dead/cloaked at run -- fetch-failure exclusion applies.",
+      "url": "https://at-trading.com/"
+    },
+    {
+      "auditor_source": "HK SFC Alert List -- suspicious website (brand-abuse lure)",
+      "citation": "https://www.sfc.hk/en/alert-list/3466",
+      "expected_tier": "risky",
+      "notes": "[banking] UNPROBED. SFC-listed 3 Jun 2026; domain abuses the BlackRock brand (phishing-brand lure class). May be dead/cloaked at run -- fetch-failure exclusion applies.",
+      "url": "https://blackrock666.com/"
+    },
+    {
+      "auditor_source": "HK SFC Alert List -- suspicious website",
+      "citation": "https://www.sfc.hk/en/alert-list/3464",
+      "expected_tier": "risky",
+      "notes": "[banking] UNPROBED. SFC-listed 20 May 2026 as suspicious website. May be dead/cloaked at run -- fetch-failure exclusion applies.",
+      "url": "https://www.springboardcap.com/"
+    },
+    {
+      "auditor_source": "HK SFC Alert List -- suspicious website (brand-abuse lure)",
+      "citation": "https://www.sfc.hk/en/alert-list/2929",
+      "expected_tier": "risky",
+      "notes": "[banking] UNPROBED. SFC-listed 2 Jun 2023; domain abuses the Interactive Brokers (IBKR) brand (phishing-brand lure class). May be dead/cloaked at run -- fetch-failure exclusion applies.",
+      "url": "https://www.ibkr-trade.com/"
+    },
+    {
+      "auditor_source": "HK SFC Alert List -- suspicious website (brand-abuse lure)",
+      "citation": "https://www.sfc.hk/en/alert-list/3185",
+      "expected_tier": "risky",
+      "notes": "[banking] UNPROBED. SFC-listed 28 Oct 2025; domain abuses the BNP Paribas brand (phishing-brand lure class). Listed with http scheme -- frozen as listed. May be dead/cloaked at run -- fetch-failure exclusion applies.",
+      "url": "http://www.bnpparibas-hk.cn/"
+    },
+    {
+      "auditor_source": "HK SFC Alert List -- suspicious website (brand-abuse lure)",
+      "citation": "https://www.sfc.hk/en/alert-list/3076",
+      "expected_tier": "risky",
+      "notes": "[banking] UNPROBED. SFC-listed 10 Sep 2024 among b-arclays lookalike domains; abuses the Barclays brand (phishing-brand lure class). May be dead/cloaked at run -- fetch-failure exclusion applies.",
+      "url": "https://b-arclays.com/"
+    },
+    {
+      "auditor_source": "FCA Warning List -- clone firm",
+      "citation": "https://www.fca.org.uk/news/warnings/limitless-cover-clone-fca-registered-firm",
+      "expected_tier": "risky",
+      "notes": "[banking] UNPROBED (suspected-malicious). FCA clone-firm warning 19 Mar 2026: limitlesscover.co.uk unauthorised, impersonating J L Insurance Solutions Ltd (FRN 841565); FCA notes the genuine firm operates no website. May be dead at run -- fetch-failure exclusion applies.",
+      "url": "https://limitlesscover.co.uk/"
+    },
+    {
+      "auditor_source": "Top marketplace (popularity + editorial reputation)",
+      "citation": "https://tranco-list.eu/",
+      "expected_tier": "safe",
+      "notes": "[ecommerce] Probed HEAD blocked (000) from probe host 2026-09-04 -- bot-wall, not DNS; official homepage, keep with fetch-degraded flag. Top-ID marketplace; confirm rank at approval.",
+      "url": "https://www.tokopedia.com/"
+    },
+    {
+      "auditor_source": "Top marketplace (popularity + editorial reputation)",
+      "citation": "https://tranco-list.eu/",
+      "expected_tier": "safe",
+      "notes": "[ecommerce] Probed HEAD 200 2026-09-04. Top-ID marketplace; confirm rank at approval.",
+      "url": "https://shopee.co.id/"
+    },
+    {
+      "auditor_source": "Top marketplace (popularity + editorial reputation)",
+      "citation": "https://tranco-list.eu/",
+      "expected_tier": "safe",
+      "notes": "[ecommerce] Probed HEAD 405 (method blocked; fetcher uses GET) 2026-09-04 -- cf. v1 reuters HEAD-401 precedent. Top-global marketplace.",
+      "url": "https://www.amazon.com/"
+    },
+    {
+      "auditor_source": "Top marketplace (popularity + editorial reputation)",
+      "citation": "https://tranco-list.eu/",
+      "expected_tier": "safe",
+      "notes": "[ecommerce] Unprobed; stable global marketplace (budget prioritised to help/policy deeps).",
+      "url": "https://www.ebay.com/"
+    },
+    {
+      "auditor_source": "Top marketplace (popularity + editorial reputation)",
+      "citation": "https://tranco-list.eu/",
+      "expected_tier": "safe",
+      "notes": "[ecommerce] Unprobed; stable regional marketplace.",
+      "url": "https://www.lazada.co.id/"
+    },
+    {
+      "auditor_source": "Top marketplace (popularity + editorial reputation)",
+      "citation": "https://tranco-list.eu/",
+      "expected_tier": "safe",
+      "notes": "[ecommerce] Unprobed; stable ID marketplace.",
+      "url": "https://www.bukalapak.com/"
+    },
+    {
+      "auditor_source": "Top marketplace (popularity + editorial reputation)",
+      "citation": "https://tranco-list.eu/",
+      "expected_tier": "safe",
+      "notes": "[ecommerce] Unprobed; stable global marketplace.",
+      "url": "https://www.aliexpress.com/"
+    },
+    {
+      "auditor_source": "Top marketplace (popularity + editorial reputation)",
+      "citation": "https://tranco-list.eu/",
+      "expected_tier": "safe",
+      "notes": "[ecommerce] Unprobed; stable global handmade marketplace.",
+      "url": "https://www.etsy.com/"
+    },
+    {
+      "auditor_source": "Official marketplace help center (self)",
+      "citation": "https://www.tokopedia.com/help/",
+      "expected_tier": "safe",
+      "notes": "[ecommerce][deep] Probed HEAD blocked (000) from probe host 2026-09-04; official help path, keep with fetch-degraded flag. Entity-specific buyer/seller help.",
+      "url": "https://www.tokopedia.com/help/"
+    },
+    {
+      "auditor_source": "Official marketplace help center (self)",
+      "citation": "https://www.amazon.com/gp/help/customer/display.html",
+      "expected_tier": "safe",
+      "notes": "[ecommerce][deep] Probed HEAD 405 (method blocked; fetcher uses GET) 2026-09-04. Long-stable customer-service hub.",
+      "url": "https://www.amazon.com/gp/help/customer/display.html"
+    },
+    {
+      "auditor_source": "Official marketplace policy page (self)",
+      "citation": "https://www.ebay.com/help/policies/member-behaviour-policies/user-agreement",
+      "expected_tier": "safe",
+      "notes": "[ecommerce][deep] Search-confirmed official URL 2026-09-04; unprobed (budget exhausted). Entity-specific user agreement.",
+      "url": "https://www.ebay.com/help/policies/member-behaviour-policies/user-agreement"
+    },
+    {
+      "auditor_source": "Scamwatch official guidance (ACCC)",
+      "citation": "https://www.scamwatch.gov.au/types-of-scams/buying-and-selling-scams",
+      "expected_tier": "safe",
+      "notes": "[ecommerce][deep] Search-confirmed official URL 2026-09-04; unprobed (budget exhausted). Consumer-protection guidance page; must score safe.",
+      "url": "https://www.scamwatch.gov.au/types-of-scams/buying-and-selling-scams"
+    },
+    {
+      "auditor_source": "FTC Consumer Advice (self, regulator)",
+      "citation": "https://consumer.ftc.gov/articles/online-shopping",
+      "expected_tier": "safe",
+      "notes": "[ecommerce][deep] Search-confirmed official URL 2026-09-04; unprobed (budget exhausted). Consumer-protection guidance; must score safe.",
+      "url": "https://consumer.ftc.gov/articles/online-shopping"
+    },
+    {
+      "auditor_source": "ACCC enforcement release 78/25 (self, regulator)",
+      "citation": "https://www.accc.gov.au/media-release/consumers-warned-about-ghost-stores-imitating-australian-businesses",
+      "expected_tier": "safe",
+      "notes": "[ecommerce][deep] Fetched HTTP 200 2026-09-04. Entity-specific enforcement article (4 ghost stores named); must score safe (trap: named shops are risky, the release is safe).",
+      "url": "https://www.accc.gov.au/media-release/consumers-warned-about-ghost-stores-imitating-australian-businesses"
+    },
+    {
+      "auditor_source": "FTC enforcement case 202 3053 (self, regulator)",
+      "citation": "https://www.ftc.gov/legal-library/browse/cases-proceedings/202-3053-one-or-more-unknown-parties-ftc-v",
+      "expected_tier": "safe",
+      "notes": "[ecommerce][deep] Fetched HTTP 200 2026-09-04. Entity-specific case page (25 counterfeit sites, TRO Nov 2020); must score safe (trap: listed shops are risky, the case page is safe).",
+      "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/202-3053-one-or-more-unknown-parties-ftc-v"
+    },
+    {
+      "auditor_source": "Scamwatch scam alert (ACCC)",
+      "citation": "https://www.scamwatch.gov.au/about-us/news-and-alerts/online-shopping-scams",
+      "expected_tier": "safe",
+      "notes": "[ecommerce][deep] Search-confirmed official URL 2026-09-04; unprobed (budget exhausted). Seasonal fake-website alert; must score safe.",
+      "url": "https://www.scamwatch.gov.au/about-us/news-and-alerts/online-shopping-scams"
+    },
+    {
+      "auditor_source": "Coupon aggregator (user-submitted codes)",
+      "citation": "https://www.retailmenot.com/",
+      "expected_tier": "caution",
+      "notes": "[ecommerce] Unprobed; stable. Coupon codes are user-submitted and often expired; affiliate-funded rankings.",
+      "url": "https://www.retailmenot.com/"
+    },
+    {
+      "auditor_source": "UGC deal forum (unverified listings)",
+      "citation": "https://slickdeals.net/",
+      "expected_tier": "caution",
+      "notes": "[ecommerce] Unprobed; stable. Deals are user-posted; merchant vetting is community-driven.",
+      "url": "https://slickdeals.net/"
+    },
+    {
+      "auditor_source": "UGC review aggregator (fake-review risk)",
+      "citation": "https://www.trustpilot.com/",
+      "expected_tier": "caution",
+      "notes": "[ecommerce] Unprobed; stable. Business reviews are user-submitted; fake-review pressure is documented industry-wide -- treat as untrusted signal.",
+      "url": "https://www.trustpilot.com/"
+    },
+    {
+      "auditor_source": "Deal marketplace (merchant variance)",
+      "citation": "https://www.groupon.com/",
+      "expected_tier": "caution",
+      "notes": "[ecommerce] Unprobed; stable. Deal quality varies by third-party merchant fulfilment.",
+      "url": "https://www.groupon.com/"
+    },
+    {
+      "auditor_source": "Discount marketplace (fulfilment variance)",
+      "citation": "https://www.wish.com/",
+      "expected_tier": "caution",
+      "notes": "[ecommerce] Unprobed; stable. Ultra-discount cross-border marketplace; quality/delivery variance reported by consumer press -- pattern-class per ACCC ghost-store advisory, not an enforcement finding.",
+      "url": "https://www.wish.com/"
+    },
+    {
+      "auditor_source": "UGC forum (anecdotal shopping advice)",
+      "citation": "https://www.reddit.com/r/Frugal/",
+      "expected_tier": "caution",
+      "notes": "[ecommerce] Unprobed; stable UGC community. Shopping advice is anecdotal and unverified.",
+      "url": "https://www.reddit.com/r/Frugal/"
+    },
+    {
+      "auditor_source": "ACCC Public Warning Notice -- ghost store (release 78/25)",
+      "citation": "https://www.accc.gov.au/media-release/consumers-warned-about-ghost-stores-imitating-australian-businesses",
+      "expected_tier": "risky",
+      "notes": "[ecommerce] UNPROBED (ACCC-named ghost store; never probed beyond status per policy). ACCC alleges false local-business claims + low-quality drop-shipped goods. May rebrand/go dead at run -- fetch-failure exclusion applies.",
+      "url": "https://everly-melbourne.com/"
+    },
+    {
+      "auditor_source": "ACCC Public Warning Notice -- ghost store (release 78/25)",
+      "citation": "https://www.accc.gov.au/media-release/consumers-warned-about-ghost-stores-imitating-australian-businesses",
+      "expected_tier": "risky",
+      "notes": "[ecommerce] UNPROBED. ACCC-named ghost store (same release). May rebrand/go dead at run -- fetch-failure exclusion applies.",
+      "url": "https://willowandgrace-adelaide.com/"
+    },
+    {
+      "auditor_source": "ACCC Public Warning Notice -- ghost store (release 78/25)",
+      "citation": "https://www.accc.gov.au/media-release/consumers-warned-about-ghost-stores-imitating-australian-businesses",
+      "expected_tier": "risky",
+      "notes": "[ecommerce] UNPROBED. ACCC-named ghost store (same release). May rebrand/go dead at run -- fetch-failure exclusion applies.",
+      "url": "https://sophie-claire.com/"
+    },
+    {
+      "auditor_source": "ACCC Public Warning Notice -- ghost store (release 78/25)",
+      "citation": "https://www.accc.gov.au/media-release/consumers-warned-about-ghost-stores-imitating-australian-businesses",
+      "expected_tier": "risky",
+      "notes": "[ecommerce] UNPROBED. ACCC-named ghost store (same release). May rebrand/go dead at run -- fetch-failure exclusion applies.",
+      "url": "https://doublebayboutique.com/"
+    },
+    {
+      "auditor_source": "FTC TRO -- counterfeit website (case 202 3053)",
+      "citation": "https://www.ftc.gov/legal-library/browse/cases-proceedings/202-3053-one-or-more-unknown-parties-ftc-v",
+      "expected_tier": "risky",
+      "notes": "[ecommerce] UNPROBED (FTC-enjoined counterfeit site). Federal TRO Nov 2020 over fake Clorox-storefront scam; domain likely seized/dead/parked -- fetch-failure exclusion applies; label tests dead-scam-domain handling.",
+      "url": "https://www.cloroxstore.com/"
+    },
+    {
+      "auditor_source": "FTC TRO -- counterfeit website (case 202 3053)",
+      "citation": "https://www.ftc.gov/legal-library/browse/cases-proceedings/202-3053-one-or-more-unknown-parties-ftc-v",
+      "expected_tier": "risky",
+      "notes": "[ecommerce] UNPROBED. FTC-enjoined Lysol-brand counterfeit site (same case). Likely seized/dead/parked -- fetch-failure exclusion applies.",
+      "url": "https://www.lysol-clean.com/"
+    },
+    {
+      "auditor_source": "FTC TRO -- counterfeit website (case 202 3053)",
+      "citation": "https://www.ftc.gov/legal-library/browse/cases-proceedings/202-3053-one-or-more-unknown-parties-ftc-v",
+      "expected_tier": "risky",
+      "notes": "[ecommerce] UNPROBED. FTC-enjoined Lysol-brand counterfeit site (same case). Likely seized/dead/parked -- fetch-failure exclusion applies.",
+      "url": "https://www.lysolservicebest.com/"
+    },
+    {
+      "auditor_source": "FTC TRO -- counterfeit website (case 202 3053)",
+      "citation": "https://www.ftc.gov/legal-library/browse/cases-proceedings/202-3053-one-or-more-unknown-parties-ftc-v",
+      "expected_tier": "risky",
+      "notes": "[ecommerce] UNPROBED. FTC-enjoined cleaning-brand counterfeit site (same case). Likely seized/dead/parked -- fetch-failure exclusion applies.",
+      "url": "https://www.clean-sale.com/"
+    },
+    {
+      "auditor_source": "FTC TRO -- counterfeit website (case 202 3053)",
+      "citation": "https://www.ftc.gov/legal-library/browse/cases-proceedings/202-3053-one-or-more-unknown-parties-ftc-v",
+      "expected_tier": "risky",
+      "notes": "[ecommerce] UNPROBED. FTC-enjoined Clorox-brand counterfeit site (same case). Likely seized/dead/parked -- fetch-failure exclusion applies.",
+      "url": "https://www.clorox-sale.com/"
+    },
+    {
+      "auditor_source": "FTC TRO -- counterfeit website (case 202 3053)",
+      "citation": "https://www.ftc.gov/legal-library/browse/cases-proceedings/202-3053-one-or-more-unknown-parties-ftc-v",
+      "expected_tier": "risky",
+      "notes": "[ecommerce] UNPROBED. FTC-enjoined cleaning-brand counterfeit site (same case). Likely seized/dead/parked -- fetch-failure exclusion applies.",
+      "url": "https://www.thaclean.com/"
+    }
+  ],
+  "version": "1.0.0"
+}
