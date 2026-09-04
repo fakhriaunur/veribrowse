@@ -2,6 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { TrustBadge } from "@/components/TrustBadge";
+import { RecentsCompare } from "@/components/RecentsCompare";
+import {
+  addRecent,
+  clearRecents as clearRecentsStore,
+  fromClaimResult,
+  fromTrustScore,
+  loadRecents,
+  persistRecents,
+  type RecentEntry,
+} from "@/lib/recents";
 import type { TrustScore } from "@/lib/score";
 import type { ClaimResult } from "@/lib/claim";
 
@@ -29,12 +39,37 @@ export default function Home() {
   const [contextUrl, setContextUrl] = useState("");
   const [verbose, setVerbose] = useState(false);
   const [log, setLog] = useState<string[]>([]);
+  const [recents, setRecents] = useState<RecentEntry[]>([]);
 
   const appendLog = (msg: string) =>
     setLog((l) => [
       ...l.slice(-8),
       `${new Date().toLocaleTimeString()} ${msg}`,
     ]);
+
+  // Client-only recents: localStorage is the source of truth so WebMCP
+  // execute closures never go stale; summaries only, bounded, clearable.
+  const recordEntry = (entry: RecentEntry | null) => {
+    if (!entry) return;
+    const next = addRecent(loadRecents(), entry);
+    persistRecents(next);
+    setRecents(next);
+  };
+
+  const handleClearRecents = () => {
+    clearRecentsStore();
+    setRecents([]);
+  };
+
+  const handleRemoveRecent = (id: string) => {
+    const next = loadRecents().filter((e) => e.id !== id);
+    persistRecents(next);
+    setRecents(next);
+  };
+
+  useEffect(() => {
+    setRecents(loadRecents());
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -108,6 +143,7 @@ export default function Home() {
             });
             const data = await res.json();
             setScore(data as TrustScore);
+            recordEntry(fromTrustScore(data as TrustScore));
             appendLog(`scoreWebsite(${u}) -> ${data.level} ${data.trust}`);
             return data;
           },
@@ -147,6 +183,7 @@ export default function Home() {
             });
             const data = await res.json();
             setClaimResult(data as ClaimResult);
+            recordEntry(fromClaimResult(data as ClaimResult));
             appendLog(
               `checkClaim("${c.claim.slice(0, 30)}...") -> ${data.verdict}`,
             );
@@ -174,6 +211,7 @@ export default function Home() {
     const res = await fetch(`/api/score?url=${encodeURIComponent(url)}`);
     const data = (await res.json()) as TrustScore;
     setScore(data);
+    recordEntry(fromTrustScore(data));
     appendLog(`Manual score ${url} -> ${data.level}`);
   };
 
@@ -183,6 +221,7 @@ export default function Home() {
     const res = await fetch(`/api/check?${qs.toString()}`);
     const data = (await res.json()) as ClaimResult;
     setClaimResult(data);
+    recordEntry(fromClaimResult(data));
     appendLog(`Manual check -> ${data.verdict}`);
   };
 
@@ -335,6 +374,12 @@ export default function Home() {
           </div>
         )}
       </section>
+
+      <RecentsCompare
+        recents={recents}
+        onClear={handleClearRecents}
+        onRemove={handleRemoveRecent}
+      />
 
       <section className="mt-6 rounded-xl border bg-zinc-50 p-4">
         <h3 className="text-sm font-semibold">WebMCP tools (for agent & QA)</h3>
