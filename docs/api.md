@@ -39,6 +39,7 @@ Version: `0.1.0` — typedoc via `typedoc.json` → `lib/` → `docs/api.md`.
 - [ClaimInput](type-aliases/ClaimInput.md)
 - [ClaimResult](type-aliases/ClaimResult.md)
 - [Evidence](type-aliases/Evidence.md)
+- [EvidenceBadge](type-aliases/EvidenceBadge.md)
 - [Verdict](type-aliases/Verdict.md)
 
 ## Functions
@@ -59,7 +60,7 @@ Version: `0.1.0` — typedoc via `typedoc.json` → `lib/` → `docs/api.md`.
 
 > **verifyClaimPure**(`input`, `evidence`, `llm?`): [`ClaimResult`](../type-aliases/ClaimResult.md)
 
-Defined in: [claim.ts:23](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/claim.ts#L23)
+Defined in: [claim.ts:33](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/claim.ts#L33)
 
 ## Parameters
 
@@ -103,7 +104,7 @@ Defined in: [claim.ts:23](https://github.com/fakhriaunur/veribrowse/blob/65cc25c
 
 > **ClaimInput** = `object`
 
-Defined in: [claim.ts:5](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/claim.ts#L5)
+Defined in: [claim.ts:7](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/claim.ts#L7)
 
 ## Properties
 
@@ -111,7 +112,7 @@ Defined in: [claim.ts:5](https://github.com/fakhriaunur/veribrowse/blob/65cc25c3
 
 > **claim**: `string`
 
-Defined in: [claim.ts:5](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/claim.ts#L5)
+Defined in: [claim.ts:7](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/claim.ts#L7)
 
 ***
 
@@ -119,7 +120,7 @@ Defined in: [claim.ts:5](https://github.com/fakhriaunur/veribrowse/blob/65cc25c3
 
 > `optional` **contextUrl?**: `string`
 
-Defined in: [claim.ts:5](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/claim.ts#L5)
+Defined in: [claim.ts:7](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/claim.ts#L7)
 
 
 ---
@@ -135,7 +136,7 @@ Defined in: [claim.ts:5](https://github.com/fakhriaunur/veribrowse/blob/65cc25c3
 
 > **ClaimResult** = `object`
 
-Defined in: [claim.ts:13](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/claim.ts#L13)
+Defined in: [claim.ts:23](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/claim.ts#L23)
 
 ## Properties
 
@@ -143,7 +144,7 @@ Defined in: [claim.ts:13](https://github.com/fakhriaunur/veribrowse/blob/65cc25c
 
 > **confidence**: `number`
 
-Defined in: [claim.ts:15](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/claim.ts#L15)
+Defined in: [claim.ts:25](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/claim.ts#L25)
 
 ***
 
@@ -151,7 +152,7 @@ Defined in: [claim.ts:15](https://github.com/fakhriaunur/veribrowse/blob/65cc25c
 
 > **elderlySummary**: `string`
 
-Defined in: [claim.ts:16](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/claim.ts#L16)
+Defined in: [claim.ts:26](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/claim.ts#L26)
 
 ***
 
@@ -159,7 +160,7 @@ Defined in: [claim.ts:16](https://github.com/fakhriaunur/veribrowse/blob/65cc25c
 
 > **evidence**: [`Evidence`](Evidence.md)[]
 
-Defined in: [claim.ts:18](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/claim.ts#L18)
+Defined in: [claim.ts:28](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/claim.ts#L28)
 
 ***
 
@@ -167,7 +168,7 @@ Defined in: [claim.ts:18](https://github.com/fakhriaunur/veribrowse/blob/65cc25c
 
 > **provenance**: `object`
 
-Defined in: [claim.ts:19](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/claim.ts#L19)
+Defined in: [claim.ts:29](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/claim.ts#L29)
 
 #### checkedAt
 
@@ -187,7 +188,7 @@ Defined in: [claim.ts:19](https://github.com/fakhriaunur/veribrowse/blob/65cc25c
 
 > **reasoning**: `string`
 
-Defined in: [claim.ts:17](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/claim.ts#L17)
+Defined in: [claim.ts:27](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/claim.ts#L27)
 
 ***
 
@@ -195,7 +196,7 @@ Defined in: [claim.ts:17](https://github.com/fakhriaunur/veribrowse/blob/65cc25c
 
 > **verdict**: [`Verdict`](Verdict.md)
 
-Defined in: [claim.ts:14](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/claim.ts#L14)
+Defined in: [claim.ts:24](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/claim.ts#L24)
 
 
 ---
@@ -211,15 +212,23 @@ Defined in: [claim.ts:14](https://github.com/fakhriaunur/veribrowse/blob/65cc25c
 
 > **Evidence** = `object`
 
-Defined in: [claim.ts:6](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/claim.ts#L6)
+Defined in: [claim.ts:15](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/claim.ts#L15)
 
 ## Properties
+
+### badge?
+
+> `optional` **badge?**: [`EvidenceBadge`](EvidenceBadge.md)
+
+Defined in: [claim.ts:20](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/claim.ts#L20)
+
+***
 
 ### contentHash
 
 > **contentHash**: `string`
 
-Defined in: [claim.ts:9](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/claim.ts#L9)
+Defined in: [claim.ts:18](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/claim.ts#L18)
 
 ***
 
@@ -227,7 +236,7 @@ Defined in: [claim.ts:9](https://github.com/fakhriaunur/veribrowse/blob/65cc25c3
 
 > **quote**: `string`
 
-Defined in: [claim.ts:8](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/claim.ts#L8)
+Defined in: [claim.ts:17](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/claim.ts#L17)
 
 ***
 
@@ -235,7 +244,7 @@ Defined in: [claim.ts:8](https://github.com/fakhriaunur/veribrowse/blob/65cc25c3
 
 > **retrievedAt**: `string`
 
-Defined in: [claim.ts:10](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/claim.ts#L10)
+Defined in: [claim.ts:19](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/claim.ts#L19)
 
 ***
 
@@ -243,7 +252,39 @@ Defined in: [claim.ts:10](https://github.com/fakhriaunur/veribrowse/blob/65cc25c
 
 > **url**: `string`
 
-Defined in: [claim.ts:7](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/claim.ts#L7)
+Defined in: [claim.ts:16](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/claim.ts#L16)
+
+
+---
+
+<!-- claim/type-aliases/EvidenceBadge.md -->
+[**veribrowse**](../../README.md)
+
+***
+
+[veribrowse](../../README.md) / [claim](../README.md) / EvidenceBadge
+
+# Type Alias: EvidenceBadge
+
+> **EvidenceBadge** = `object`
+
+Defined in: [claim.ts:13](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/claim.ts#L13)
+
+## Properties
+
+### level
+
+> **level**: [`TrustLevel`](../../score/type-aliases/TrustLevel.md)
+
+Defined in: [claim.ts:13](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/claim.ts#L13)
+
+***
+
+### trust
+
+> **trust**: `number`
+
+Defined in: [claim.ts:13](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/claim.ts#L13)
 
 
 ---
@@ -259,7 +300,7 @@ Defined in: [claim.ts:7](https://github.com/fakhriaunur/veribrowse/blob/65cc25c3
 
 > **Verdict** = `"supported"` \| `"contradicted"` \| `"unverified"`
 
-Defined in: [claim.ts:3](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/claim.ts#L3)
+Defined in: [claim.ts:5](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/claim.ts#L5)
 
 
 ---
@@ -286,6 +327,7 @@ Defined in: [claim.ts:3](https://github.com/fakhriaunur/veribrowse/blob/65cc25c3
 - [\_resetBreakerForTest](functions/resetBreakerForTest.md)
 - [backoffMs](functions/backoffMs.md)
 - [fetchWithRetry](functions/fetchWithRetry.md)
+- [isTimeoutError](functions/isTimeoutError.md)
 
 
 ---
@@ -301,7 +343,7 @@ Defined in: [claim.ts:3](https://github.com/fakhriaunur/veribrowse/blob/65cc25c3
 
 > **backoffMs**(`attempt`): `number`
 
-Defined in: [fetchWithRetry.ts:38](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/fetchWithRetry.ts#L38)
+Defined in: [fetchWithRetry.ts:62](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/fetchWithRetry.ts#L62)
 
 Exponential backoff 200/400ms plus jitter, capped under 1s.
 
@@ -329,7 +371,7 @@ Exponential backoff 200/400ms plus jitter, capped under 1s.
 
 > **fetchWithRetry**(`url`, `init?`): `Promise`\<`Response`\>
 
-Defined in: [fetchWithRetry.ts:94](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/fetchWithRetry.ts#L94)
+Defined in: [fetchWithRetry.ts:118](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/fetchWithRetry.ts#L118)
 
 ## Parameters
 
@@ -359,11 +401,48 @@ Defined in: [fetchWithRetry.ts:94](https://github.com/fakhriaunur/veribrowse/blo
 
 > **\_getBreaker**(): `Map`\<`string`, `number`\>
 
-Defined in: [fetchWithRetry.ts:218](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/fetchWithRetry.ts#L218)
+Defined in: [fetchWithRetry.ts:242](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/fetchWithRetry.ts#L242)
 
 ## Returns
 
 `Map`\<`string`, `number`\>
+
+
+---
+
+<!-- fetchWithRetry/functions/isTimeoutError.md -->
+[**veribrowse**](../../README.md)
+
+***
+
+[veribrowse](../../README.md) / [fetchWithRetry](../README.md) / isTimeoutError
+
+# Function: isTimeoutError()
+
+> **isTimeoutError**(`e`): `boolean`
+
+Defined in: [fetchWithRetry.ts:49](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/fetchWithRetry.ts#L49)
+
+Timeout-originated error classifier (m10 timeout-classification fix).
+
+`AbortSignal.timeout()` (the 3s per-attempt timeout above) aborts with a
+`TimeoutError` DOMException ("The operation was aborted due to timeout"),
+NOT an `AbortError`. The message contains "aborted", so naive `/abort/i`
+matching in the route handlers misroutes gateway stalls to the
+client-abort (499) path instead of the contracted fail-closed 200
+fallback. Route handlers must check `isTimeoutError` FIRST and take the
+heuristic/fail-closed fallback; genuine client aborts keep the name
+`AbortError` and still map to 499. No timeout/retry/breaker values change.
+
+## Parameters
+
+### e
+
+`unknown`
+
+## Returns
+
+`boolean`
 
 
 ---
@@ -379,7 +458,7 @@ Defined in: [fetchWithRetry.ts:218](https://github.com/fakhriaunur/veribrowse/bl
 
 > **\_resetBreakerForTest**(): `void`
 
-Defined in: [fetchWithRetry.ts:214](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/fetchWithRetry.ts#L214)
+Defined in: [fetchWithRetry.ts:238](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/fetchWithRetry.ts#L238)
 
 ## Returns
 
@@ -399,7 +478,7 @@ Defined in: [fetchWithRetry.ts:214](https://github.com/fakhriaunur/veribrowse/bl
 
 > `const` **BACKOFF\_BASE\_MS**: `200` = `200`
 
-Defined in: [fetchWithRetry.ts:21](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/fetchWithRetry.ts#L21)
+Defined in: [fetchWithRetry.ts:21](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/fetchWithRetry.ts#L21)
 
 
 ---
@@ -415,7 +494,7 @@ Defined in: [fetchWithRetry.ts:21](https://github.com/fakhriaunur/veribrowse/blo
 
 > `const` **BREAKER\_MS**: `30000` = `30_000`
 
-Defined in: [fetchWithRetry.ts:20](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/fetchWithRetry.ts#L20)
+Defined in: [fetchWithRetry.ts:20](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/fetchWithRetry.ts#L20)
 
 
 ---
@@ -431,7 +510,7 @@ Defined in: [fetchWithRetry.ts:20](https://github.com/fakhriaunur/veribrowse/blo
 
 > `const` **MAX\_RETRIES**: `2` = `2`
 
-Defined in: [fetchWithRetry.ts:19](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/fetchWithRetry.ts#L19)
+Defined in: [fetchWithRetry.ts:19](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/fetchWithRetry.ts#L19)
 
 
 ---
@@ -447,7 +526,7 @@ Defined in: [fetchWithRetry.ts:19](https://github.com/fakhriaunur/veribrowse/blo
 
 > `const` **TIMEOUT\_MS**: `3000` = `3000`
 
-Defined in: [fetchWithRetry.ts:18](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/fetchWithRetry.ts#L18)
+Defined in: [fetchWithRetry.ts:18](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/fetchWithRetry.ts#L18)
 
 
 ---
@@ -484,7 +563,7 @@ Defined in: [fetchWithRetry.ts:18](https://github.com/fakhriaunur/veribrowse/blo
 
 > **withRequestId**(`requestId`): `Logger`\<`never`, `boolean`\>
 
-Defined in: [logger.ts:35](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/logger.ts#L35)
+Defined in: [logger.ts:35](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/logger.ts#L35)
 
 ## Parameters
 
@@ -510,7 +589,7 @@ Defined in: [logger.ts:35](https://github.com/fakhriaunur/veribrowse/blob/65cc25
 
 > `const` **logger**: `Logger`\<`never`, `boolean`\>
 
-Defined in: [logger.ts:22](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/logger.ts#L22)
+Defined in: [logger.ts:22](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/logger.ts#L22)
 
 
 ---
@@ -526,7 +605,7 @@ Defined in: [logger.ts:22](https://github.com/fakhriaunur/veribrowse/blob/65cc25
 
 > `const` **redactPaths**: `string`[]
 
-Defined in: [logger.ts:12](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/logger.ts#L12)
+Defined in: [logger.ts:12](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/logger.ts#L12)
 
 Pino redact paths — secrets are censored as "[Redacted]", never logged raw.
 Covers the OpenAI key env var and bearer tokens at any nesting level.
@@ -564,7 +643,7 @@ Covers the OpenAI key env var and bearer tokens at any nesting level.
 
 > **getCounters**(): `Readonly`\<`Counters`\>
 
-Defined in: [metrics.ts:37](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/metrics.ts#L37)
+Defined in: [metrics.ts:37](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/metrics.ts#L37)
 
 ## Returns
 
@@ -584,7 +663,7 @@ Defined in: [metrics.ts:37](https://github.com/fakhriaunur/veribrowse/blob/65cc2
 
 > **inc**(`name`, `value?`): `void`
 
-Defined in: [metrics.ts:33](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/metrics.ts#L33)
+Defined in: [metrics.ts:33](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/metrics.ts#L33)
 
 ## Parameters
 
@@ -614,7 +693,7 @@ keyof `Counters`
 
 > **resetForTest**(): `void`
 
-Defined in: [metrics.ts:41](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/metrics.ts#L41)
+Defined in: [metrics.ts:41](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/metrics.ts#L41)
 
 ## Returns
 
@@ -634,7 +713,7 @@ Defined in: [metrics.ts:41](https://github.com/fakhriaunur/veribrowse/blob/65cc2
 
 > **toPrometheus**(): `string`
 
-Defined in: [metrics.ts:49](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/metrics.ts#L49)
+Defined in: [metrics.ts:49](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/metrics.ts#L49)
 
 ## Returns
 
@@ -682,7 +761,7 @@ Defined in: [metrics.ts:49](https://github.com/fakhriaunur/veribrowse/blob/65cc2
 
 > **zodToJsonSchema**(`shape`): `Record`\<`string`, `unknown`\>
 
-Defined in: [schemas.ts:21](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/schemas.ts#L21)
+Defined in: [schemas.ts:21](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/schemas.ts#L21)
 
 ## Parameters
 
@@ -708,7 +787,7 @@ Defined in: [schemas.ts:21](https://github.com/fakhriaunur/veribrowse/blob/65cc2
 
 > **CheckClaimInput** = `z.infer`\<*typeof* [`checkClaimSchema`](../variables/checkClaimSchema.md)\>
 
-Defined in: [schemas.ts:18](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/schemas.ts#L18)
+Defined in: [schemas.ts:18](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/schemas.ts#L18)
 
 
 ---
@@ -724,7 +803,7 @@ Defined in: [schemas.ts:18](https://github.com/fakhriaunur/veribrowse/blob/65cc2
 
 > **ScoreWebsiteInput** = `z.infer`\<*typeof* [`scoreWebsiteSchema`](../variables/scoreWebsiteSchema.md)\>
 
-Defined in: [schemas.ts:17](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/schemas.ts#L17)
+Defined in: [schemas.ts:17](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/schemas.ts#L17)
 
 
 ---
@@ -740,7 +819,7 @@ Defined in: [schemas.ts:17](https://github.com/fakhriaunur/veribrowse/blob/65cc2
 
 > `const` **checkClaimJsonSchema**: `object`
 
-Defined in: [schemas.ts:40](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/schemas.ts#L40)
+Defined in: [schemas.ts:40](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/schemas.ts#L40)
 
 ## Type Declaration
 
@@ -810,7 +889,7 @@ Defined in: [schemas.ts:40](https://github.com/fakhriaunur/veribrowse/blob/65cc2
 
 > `const` **checkClaimSchema**: `ZodObject`\<\{ `claim`: `ZodString`; `contextUrl`: `ZodOptional`\<`ZodString`\>; \}, `$strip`\>
 
-Defined in: [schemas.ts:8](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/schemas.ts#L8)
+Defined in: [schemas.ts:8](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/schemas.ts#L8)
 
 
 ---
@@ -826,7 +905,7 @@ Defined in: [schemas.ts:8](https://github.com/fakhriaunur/veribrowse/blob/65cc25
 
 > `const` **scoreWebsiteJsonSchema**: `object`
 
-Defined in: [schemas.ts:27](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/schemas.ts#L27)
+Defined in: [schemas.ts:27](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/schemas.ts#L27)
 
 ## Type Declaration
 
@@ -876,7 +955,7 @@ Defined in: [schemas.ts:27](https://github.com/fakhriaunur/veribrowse/blob/65cc2
 
 > `const` **scoreWebsiteSchema**: `ZodObject`\<\{ `url`: `ZodString`; \}, `$strip`\>
 
-Defined in: [schemas.ts:4](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/schemas.ts#L4)
+Defined in: [schemas.ts:4](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/schemas.ts#L4)
 
 
 ---
@@ -893,6 +972,7 @@ Defined in: [schemas.ts:4](https://github.com/fakhriaunur/veribrowse/blob/65cc25
 ## Type Aliases
 
 - [FetchMeta](type-aliases/FetchMeta.md)
+- [ScoringRubric](type-aliases/ScoringRubric.md)
 - [TrustLevel](type-aliases/TrustLevel.md)
 - [TrustScore](type-aliases/TrustScore.md)
 
@@ -914,9 +994,9 @@ Defined in: [schemas.ts:4](https://github.com/fakhriaunur/veribrowse/blob/65cc25
 
 # Function: buildTrustScore()
 
-> **buildTrustScore**(`meta`, `llm?`): [`TrustScore`](../type-aliases/TrustScore.md)
+> **buildTrustScore**(`meta`, `llm?`, `rubric?`): [`TrustScore`](../type-aliases/TrustScore.md)
 
-Defined in: [score.ts:99](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/score.ts#L99)
+Defined in: [score.ts:135](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/score.ts#L135)
 
 ## Parameters
 
@@ -933,6 +1013,10 @@ Defined in: [score.ts:99](https://github.com/fakhriaunur/veribrowse/blob/65cc25c
 #### why
 
 `string`
+
+### rubric?
+
+[`ScoringRubric`](../type-aliases/ScoringRubric.md)
 
 ## Returns
 
@@ -952,7 +1036,7 @@ Defined in: [score.ts:99](https://github.com/fakhriaunur/veribrowse/blob/65cc25c
 
 > **elderlySummarize**(`trust`, `level`, `why`): `string`
 
-Defined in: [score.ts:82](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/score.ts#L82)
+Defined in: [score.ts:117](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/score.ts#L117)
 
 ## Parameters
 
@@ -984,15 +1068,19 @@ Defined in: [score.ts:82](https://github.com/fakhriaunur/veribrowse/blob/65cc25c
 
 # Function: scoreWebsitePure()
 
-> **scoreWebsitePure**(`meta`): `Omit`\<[`TrustScore`](../type-aliases/TrustScore.md), `"elderlySummary"` \| `"why"` \| `"bullets"`\> & `object`
+> **scoreWebsitePure**(`meta`, `rubric?`): `Omit`\<[`TrustScore`](../type-aliases/TrustScore.md), `"elderlySummary"` \| `"why"` \| `"bullets"`\> & `object`
 
-Defined in: [score.ts:36](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/score.ts#L36)
+Defined in: [score.ts:68](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/score.ts#L68)
 
 ## Parameters
 
 ### meta
 
 [`FetchMeta`](../type-aliases/FetchMeta.md)
+
+### rubric?
+
+[`ScoringRubric`](../type-aliases/ScoringRubric.md)
 
 ## Returns
 
@@ -1012,7 +1100,7 @@ Defined in: [score.ts:36](https://github.com/fakhriaunur/veribrowse/blob/65cc25c
 
 > **FetchMeta** = `object`
 
-Defined in: [score.ts:6](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/score.ts#L6)
+Defined in: [score.ts:33](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/score.ts#L33)
 
 ## Properties
 
@@ -1020,7 +1108,7 @@ Defined in: [score.ts:6](https://github.com/fakhriaunur/veribrowse/blob/65cc25c3
 
 > **contentHash**: `string`
 
-Defined in: [score.ts:12](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/score.ts#L12)
+Defined in: [score.ts:39](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/score.ts#L39)
 
 ***
 
@@ -1028,7 +1116,7 @@ Defined in: [score.ts:12](https://github.com/fakhriaunur/veribrowse/blob/65cc25c
 
 > `optional` **domainAgeDays?**: `number` \| `null`
 
-Defined in: [score.ts:14](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/score.ts#L14)
+Defined in: [score.ts:41](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/score.ts#L41)
 
 ***
 
@@ -1036,7 +1124,7 @@ Defined in: [score.ts:14](https://github.com/fakhriaunur/veribrowse/blob/65cc25c
 
 > `optional` **finalUrl?**: `string`
 
-Defined in: [score.ts:10](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/score.ts#L10)
+Defined in: [score.ts:37](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/score.ts#L37)
 
 ***
 
@@ -1044,7 +1132,7 @@ Defined in: [score.ts:10](https://github.com/fakhriaunur/veribrowse/blob/65cc25c
 
 > **hasHttps**: `boolean`
 
-Defined in: [score.ts:15](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/score.ts#L15)
+Defined in: [score.ts:42](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/score.ts#L42)
 
 ***
 
@@ -1052,7 +1140,7 @@ Defined in: [score.ts:15](https://github.com/fakhriaunur/veribrowse/blob/65cc25c
 
 > `optional` **ogDescription?**: `string`
 
-Defined in: [score.ts:9](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/score.ts#L9)
+Defined in: [score.ts:36](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/score.ts#L36)
 
 ***
 
@@ -1060,7 +1148,7 @@ Defined in: [score.ts:9](https://github.com/fakhriaunur/veribrowse/blob/65cc25c3
 
 > **retrievedAt**: `string`
 
-Defined in: [score.ts:13](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/score.ts#L13)
+Defined in: [score.ts:40](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/score.ts#L40)
 
 ***
 
@@ -1068,7 +1156,7 @@ Defined in: [score.ts:13](https://github.com/fakhriaunur/veribrowse/blob/65cc25c
 
 > `optional` **status?**: `number`
 
-Defined in: [score.ts:11](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/score.ts#L11)
+Defined in: [score.ts:38](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/score.ts#L38)
 
 ***
 
@@ -1076,7 +1164,7 @@ Defined in: [score.ts:11](https://github.com/fakhriaunur/veribrowse/blob/65cc25c
 
 > `optional` **title?**: `string`
 
-Defined in: [score.ts:8](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/score.ts#L8)
+Defined in: [score.ts:35](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/score.ts#L35)
 
 ***
 
@@ -1084,7 +1172,27 @@ Defined in: [score.ts:8](https://github.com/fakhriaunur/veribrowse/blob/65cc25c3
 
 > **url**: `string`
 
-Defined in: [score.ts:7](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/score.ts#L7)
+Defined in: [score.ts:34](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/score.ts#L34)
+
+
+---
+
+<!-- score/type-aliases/ScoringRubric.md -->
+[**veribrowse**](../../README.md)
+
+***
+
+[veribrowse](../../README.md) / [score](../README.md) / ScoringRubric
+
+# Type Alias: ScoringRubric
+
+> **ScoringRubric** = `Pick`\<`Rubric`, `"weights"` \| `"thresholds"`\>
+
+Defined in: [score.ts:13](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/score.ts#L13)
+
+Subset of a scoring rubric that affects the heuristic numbers.
+Passed as an OPTIONAL param (default = balanced = frozen constants below,
+so the default path stays byte-identical to the sealed heuristic).
 
 
 ---
@@ -1100,7 +1208,7 @@ Defined in: [score.ts:7](https://github.com/fakhriaunur/veribrowse/blob/65cc25c3
 
 > **TrustLevel** = `"safe"` \| `"caution"` \| `"risky"`
 
-Defined in: [score.ts:4](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/score.ts#L4)
+Defined in: [score.ts:6](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/score.ts#L6)
 
 
 ---
@@ -1116,7 +1224,7 @@ Defined in: [score.ts:4](https://github.com/fakhriaunur/veribrowse/blob/65cc25c3
 
 > **TrustScore** = `object`
 
-Defined in: [score.ts:18](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/score.ts#L18)
+Defined in: [score.ts:45](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/score.ts#L45)
 
 ## Properties
 
@@ -1124,7 +1232,7 @@ Defined in: [score.ts:18](https://github.com/fakhriaunur/veribrowse/blob/65cc25c
 
 > **bullets**: `string`[]
 
-Defined in: [score.ts:22](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/score.ts#L22)
+Defined in: [score.ts:49](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/score.ts#L49)
 
 ***
 
@@ -1132,7 +1240,7 @@ Defined in: [score.ts:22](https://github.com/fakhriaunur/veribrowse/blob/65cc25c
 
 > **citations**: `object`[]
 
-Defined in: [score.ts:25](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/score.ts#L25)
+Defined in: [score.ts:52](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/score.ts#L52)
 
 #### snippet
 
@@ -1148,7 +1256,7 @@ Defined in: [score.ts:25](https://github.com/fakhriaunur/veribrowse/blob/65cc25c
 
 > **elderlySummary**: `string`
 
-Defined in: [score.ts:21](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/score.ts#L21)
+Defined in: [score.ts:48](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/score.ts#L48)
 
 ***
 
@@ -1156,7 +1264,7 @@ Defined in: [score.ts:21](https://github.com/fakhriaunur/veribrowse/blob/65cc25c
 
 > **level**: [`TrustLevel`](TrustLevel.md)
 
-Defined in: [score.ts:20](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/score.ts#L20)
+Defined in: [score.ts:47](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/score.ts#L47)
 
 ***
 
@@ -1164,7 +1272,7 @@ Defined in: [score.ts:20](https://github.com/fakhriaunur/veribrowse/blob/65cc25c
 
 > **provenance**: `object`
 
-Defined in: [score.ts:24](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/score.ts#L24)
+Defined in: [score.ts:51](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/score.ts#L51)
 
 #### contentHash
 
@@ -1184,7 +1292,7 @@ Defined in: [score.ts:24](https://github.com/fakhriaunur/veribrowse/blob/65cc25c
 
 > **raw**: [`FetchMeta`](FetchMeta.md)
 
-Defined in: [score.ts:26](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/score.ts#L26)
+Defined in: [score.ts:53](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/score.ts#L53)
 
 ***
 
@@ -1192,7 +1300,7 @@ Defined in: [score.ts:26](https://github.com/fakhriaunur/veribrowse/blob/65cc25c
 
 > **trust**: `number`
 
-Defined in: [score.ts:19](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/score.ts#L19)
+Defined in: [score.ts:46](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/score.ts#L46)
 
 ***
 
@@ -1200,8 +1308,36 @@ Defined in: [score.ts:19](https://github.com/fakhriaunur/veribrowse/blob/65cc25c
 
 > **why**: `string`
 
-Defined in: [score.ts:23](https://github.com/fakhriaunur/veribrowse/blob/65cc25c30d645a4c74aeb34e861367e2642e5922/lib/score.ts#L23)
+Defined in: [score.ts:50](https://github.com/fakhriaunur/veribrowse/blob/ca1fd8a5e976eee219299ceccf1805112f586ac0/lib/score.ts#L50)
 
+
+---
+
+
+### HTTP route surface (query params + provenance)
+
+Typedoc above covers `lib/` pure core only. The following are owned by the
+thin route shell (`app/api/score/route.ts`, `app/api/check/route.ts`) plus
+`lib/llm.ts` and `config/llm.json`:
+
+- `?llmTimeoutMs=` (both `GET /api/score` and `GET /api/check`) —
+  optional per-LLM-step timeout in milliseconds for the M11 failover chain
+  (`runLlmChain`). Parsed by `parseTimeoutParam` (absent, empty, or
+  non-numeric → configured default), clamped by `resolveStepTimeout` into
+  the `config/llm.json` range `[min, max]` = `[1000, 30000]`, default
+  `10000`. The client control is nerd-view-only (`app/page.tsx` number
+  input, omitted from the query when empty); the server clamp always
+  applies. LLM steps only — page/evidence fetches keep the separate 3s
+  `fetchWithRetry` policy, and backoff applies between chain steps only.
+  `?fixture=1` bypasses the LLM chain, so the param has no effect on
+  fixture responses.
+- `provenance.llmStep` — present on score/check 200 responses only when an
+  LLM chain step succeeded; values `responses-primary` | `chat-primary`
+  | `responses-alt` | `chat-alt` (chain order Responses(primary) →
+  Chat(primary) → Responses(alt) → Chat(alt); first success wins; alt steps
+  run only when `OPENAI_BASE_URL_ALT` is set). Absent on heuristic,
+  fail-closed, and fixture responses. See `lib/llm.ts` (`LlmStep`,
+  `runLlmChain`) and `docs/runbook.md` for the curl shape.
 
 ---
 

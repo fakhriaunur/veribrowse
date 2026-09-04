@@ -124,11 +124,11 @@ balanced; select explicitly via `SCORING_PRESET=lenient`.
   <https://www.cisa.gov/secure-our-world/recognize-and-report-phishing>
 - **[CISA-JOINT2023]** CISA, NSA, FBI, MS-ISAC, 2023-10-18, "Phishing
   Guidance: Stopping the Attack Cycle at Phase One".
-  <https://media.defense.gov/2023/Oct/18/2003322402/-1/-1/0/CSI-PHISHING-GUIDANC...>
+  <https://www.cisa.gov/resources-tools/resources/phishing-guidance-stopping-attack-cycle-phase-one>
 - **[FTC2024]** U.S. Federal Trade Commission, 2024, "Protecting Older
   Consumers 2023–2024" (Annual Report to Congress, Oct 18, 2024; estimates up
   to ~$61.5B in older-adult losses, 2023).
-  <https://www.ftc.gov/system/files/ftc_gov/pdf/federal-trade-commission-protect...>
+  <https://www.ftc.gov/system/files/ftc_gov/pdf/federal-trade-commission-protecting-older-adults-report_102024.pdf>
 - **[PHISHML2024]** Comparative-evaluation study of ML phishing classifiers,
   2024, "Comparative evaluation of machine learning algorithms for phishing
   detection" (representative of the threshold-tradeoff literature; ensembles
