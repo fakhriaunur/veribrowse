@@ -46,5 +46,5 @@ Generated 2026-09-03 UTC+07:00 — Factory 15-criteria ladder (AGENTS.md).
 **Next step before submission**
 
 - Deploy `main` to Netlify (`infra/netlify.toml`, build `pnpm build`, env `OPENAI_API_KEY` optional) → obtain `https://veribrowse.netlify.app` live URL testable in both browsers until 2026-09-21 judging end. Keep fallback mock mode so judges can test without key.
-- Record `<3 min` YouTube demo: problem (1-in-18 + 16.4% + 98.3% stats) → solution → 40% live agent demo (both surfaces) → WebMCP snippet → close. Backup video linked.
+- Record `<3 min` YouTube demo: problem (1-in-18 + 16.4% stats) → solution → 40% live agent demo (both surfaces) → WebMCP snippet → close. Backup video linked.
 - Fill Devpost: live URL, public repo URL (MIT license at top), description with architecture diagram + GIF, Testing Instructions if auth ever added (currently none).
