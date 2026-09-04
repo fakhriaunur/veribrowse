@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { TrustBadge } from "@/components/TrustBadge";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { RecentsCompare } from "@/components/RecentsCompare";
 import {
   addRecent,
@@ -40,6 +41,10 @@ export default function Home() {
   const [verbose, setVerbose] = useState(false);
   const [log, setLog] = useState<string[]>([]);
   const [recents, setRecents] = useState<RecentEntry[]>([]);
+  const [scoreLoading, setScoreLoading] = useState(false);
+  const [scoreError, setScoreError] = useState<string | null>(null);
+  const [checkLoading, setCheckLoading] = useState(false);
+  const [checkError, setCheckError] = useState<string | null>(null);
 
   const appendLog = (msg: string) =>
     setLog((l) => [
@@ -208,33 +213,62 @@ export default function Home() {
   }, []);
 
   const onScore = async () => {
-    const res = await fetch(`/api/score?url=${encodeURIComponent(url)}`);
-    const data = (await res.json()) as TrustScore;
-    setScore(data);
-    recordEntry(fromTrustScore(data));
-    appendLog(`Manual score ${url} -> ${data.level}`);
+    setScoreLoading(true);
+    setScoreError(null);
+    try {
+      const res = await fetch(`/api/score?url=${encodeURIComponent(url)}`);
+      const data = (await res.json()) as TrustScore & { error?: string };
+      if (!res.ok)
+        throw new Error(data.error ?? `Score failed (${res.status})`);
+      setScore(data);
+      recordEntry(fromTrustScore(data));
+      appendLog(`Manual score ${url} -> ${data.level}`);
+    } catch (e) {
+      setScore(null);
+      setScoreError(e instanceof Error ? e.message : "Score failed");
+      appendLog(`Manual score ${url} -> error`);
+    } finally {
+      setScoreLoading(false);
+    }
   };
 
   const onCheck = async () => {
-    const qs = new URLSearchParams({ claim });
-    if (contextUrl) qs.set("contextUrl", contextUrl);
-    const res = await fetch(`/api/check?${qs.toString()}`);
-    const data = (await res.json()) as ClaimResult;
-    setClaimResult(data);
-    recordEntry(fromClaimResult(data));
-    appendLog(`Manual check -> ${data.verdict}`);
+    setCheckLoading(true);
+    setCheckError(null);
+    try {
+      const qs = new URLSearchParams({ claim });
+      if (contextUrl) qs.set("contextUrl", contextUrl);
+      const res = await fetch(`/api/check?${qs.toString()}`);
+      const data = (await res.json()) as ClaimResult & { error?: string };
+      if (!res.ok)
+        throw new Error(data.error ?? `Verify failed (${res.status})`);
+      setClaimResult(data);
+      recordEntry(fromClaimResult(data));
+      appendLog(`Manual check -> ${data.verdict}`);
+    } catch (e) {
+      setClaimResult(null);
+      setCheckError(e instanceof Error ? e.message : "Verify failed");
+      appendLog(`Manual check -> error`);
+    } finally {
+      setCheckLoading(false);
+    }
   };
 
   return (
     <main className="mx-auto max-w-3xl p-6">
       <header className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight">VeriBrowse</h1>
-        <p className="mt-2 text-zinc-600">
-          Score any website and verify claims — friendly for elders, audit-ready
-          for nerds. Works with your AI via WebMCP.
-        </p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">VeriBrowse</h1>
+            <p className="mt-2 text-zinc-600 dark:text-zinc-400">
+              Score any website and verify claims — friendly for elders,
+              audit-ready for nerds. Works with your AI via WebMCP.
+            </p>
+          </div>
+          <ThemeToggle />
+        </div>
         <div className="mt-3 flex items-center gap-3 text-sm">
-          <span className="rounded bg-zinc-100 px-2 py-1">
+          <span className="rounded bg-zinc-100 px-2 py-1 dark:bg-seam dark:text-zinc-200">
             WebMCP:{" "}
             {tools.length
               ? `${tools.length} tools`
@@ -251,33 +285,68 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="rounded-xl border p-4">
+      <section
+        aria-label="Score a website"
+        aria-busy={scoreLoading}
+        className="rounded-xl border border-zinc-200 p-4 dark:border-seam"
+      >
         <h2 className="text-lg font-semibold">🛡️ Score a website</h2>
-        <p className="text-sm text-zinc-600">
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">
           Agent will call <code>scoreWebsite(url)</code> automatically. Try it
           manually:
         </p>
         <div className="mt-3 flex gap-2">
-          <input
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://example.com"
-            className="flex-1 rounded border px-3 py-2 text-sm"
-          />
+          <div className="flex flex-1 flex-col gap-1">
+            <label htmlFor="score-url" className="text-xs font-medium">
+              Website URL
+            </label>
+            <input
+              id="score-url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://example.com"
+              className="flex-1 rounded border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-seam dark:bg-abyss dark:text-zinc-100 dark:placeholder:text-zinc-500"
+            />
+          </div>
           <button
             onClick={onScore}
-            className="rounded bg-zinc-900 px-4 py-2 text-sm text-white hover:bg-zinc-800"
+            disabled={scoreLoading}
+            className="self-end rounded bg-zinc-900 px-4 py-2 text-sm text-white hover:bg-zinc-800 disabled:opacity-60 dark:bg-menta dark:text-ink dark:hover:bg-menta-deep"
           >
             Score
           </button>
         </div>
-        {score && (
-          <div className="mt-4 rounded-lg bg-zinc-50 p-4">
+        {!score && !scoreLoading && !scoreError && (
+          <p className="mt-4 rounded-lg bg-zinc-50 p-4 text-sm text-zinc-600 dark:bg-abyss dark:text-zinc-400">
+            No score yet — enter a website URL above and press Score.
+          </p>
+        )}
+        {scoreLoading && (
+          <div
+            role="status"
+            aria-label="Scoring website, please wait"
+            className="mt-4 animate-pulse rounded-lg bg-zinc-50 p-4 dark:bg-abyss"
+          >
+            <div className="h-8 w-40 rounded-full bg-zinc-200 dark:bg-seam" />
+            <div className="mt-3 h-5 w-3/4 rounded bg-zinc-200 dark:bg-seam" />
+            <div className="mt-2 h-4 w-1/2 rounded bg-zinc-200 dark:bg-seam" />
+          </div>
+        )}
+        {scoreError && (
+          <div
+            role="alert"
+            className="mt-4 rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-800 dark:border-red-800 dark:bg-ink dark:text-red-300"
+          >
+            Score failed: {scoreError}. Check the URL and try again.
+          </div>
+        )}
+        {score && !scoreLoading && (
+          <div className="mt-4 rounded-lg bg-zinc-50 p-4 dark:bg-abyss">
             <TrustBadge trust={score.trust} level={score.level} />
             <p className="mt-3 text-lg font-medium leading-snug">
               {score.elderlySummary}
             </p>
-            <ul className="mt-2 list-disc pl-5 text-sm text-zinc-700">
+            <ul className="mt-2 list-disc pl-5 text-sm text-zinc-700 dark:text-zinc-300">
               {score.bullets.map((b, i) => (
                 <li key={i}>{b}</li>
               ))}
@@ -287,7 +356,7 @@ export default function Home() {
                 <summary className="cursor-pointer text-sm font-semibold">
                   Nerd audit
                 </summary>
-                <pre className="mt-2 overflow-auto rounded bg-white p-3 text-xs">
+                <pre className="mt-2 overflow-auto rounded border border-zinc-200 bg-white p-3 text-xs dark:border-seam dark:bg-ink dark:text-zinc-200">
                   {JSON.stringify(score, null, 2)}
                 </pre>
               </details>
@@ -296,44 +365,88 @@ export default function Home() {
         )}
       </section>
 
-      <section className="mt-6 rounded-xl border p-4">
+      <section
+        aria-label="Check a claim"
+        aria-busy={checkLoading}
+        className="mt-6 rounded-xl border border-zinc-200 p-4 dark:border-seam"
+      >
         <h2 className="text-lg font-semibold">🔍 Check a claim</h2>
-        <p className="text-sm text-zinc-600">
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">
           Agent will call <code>checkClaim(claim, contextUrl)</code>.
           Fail-closed when no evidence.
         </p>
         <div className="mt-3 grid gap-2">
-          <input
-            value={claim}
-            onChange={(e) => setClaim(e.target.value)}
-            placeholder="Claim text"
-            className="rounded border px-3 py-2 text-sm"
-          />
-          <input
-            value={contextUrl}
-            onChange={(e) => setContextUrl(e.target.value)}
-            placeholder="Evidence URL (optional)"
-            className="rounded border px-3 py-2 text-sm"
-          />
+          <div className="grid gap-1">
+            <label htmlFor="claim-text" className="text-xs font-medium">
+              Claim text
+            </label>
+            <input
+              id="claim-text"
+              value={claim}
+              onChange={(e) => setClaim(e.target.value)}
+              placeholder="Claim text"
+              className="rounded border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-seam dark:bg-abyss dark:text-zinc-100 dark:placeholder:text-zinc-500"
+            />
+          </div>
+          <div className="grid gap-1">
+            <label htmlFor="evidence-url" className="text-xs font-medium">
+              Evidence URL (optional)
+            </label>
+            <input
+              id="evidence-url"
+              value={contextUrl}
+              onChange={(e) => setContextUrl(e.target.value)}
+              placeholder="Evidence URL (optional)"
+              className="rounded border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-seam dark:bg-abyss dark:text-zinc-100 dark:placeholder:text-zinc-500"
+            />
+          </div>
           <button
             onClick={onCheck}
-            className="rounded bg-zinc-900 px-4 py-2 text-sm text-white hover:bg-zinc-800"
+            disabled={checkLoading}
+            className="rounded bg-zinc-900 px-4 py-2 text-sm text-white hover:bg-zinc-800 disabled:opacity-60 dark:bg-menta dark:text-ink dark:hover:bg-menta-deep"
           >
             Verify
           </button>
         </div>
-        {claimResult && (
-          <div className="mt-4 rounded-lg bg-zinc-50 p-4">
+        {!claimResult && !checkLoading && !checkError && (
+          <p className="mt-4 rounded-lg bg-zinc-50 p-4 text-sm text-zinc-600 dark:bg-abyss dark:text-zinc-400">
+            No verification yet — enter a claim above and press Verify.
+          </p>
+        )}
+        {checkLoading && (
+          <div
+            role="status"
+            aria-label="Verifying claim, please wait"
+            className="mt-4 animate-pulse rounded-lg bg-zinc-50 p-4 dark:bg-abyss"
+          >
+            <div className="h-7 w-44 rounded-full bg-zinc-200 dark:bg-seam" />
+            <div className="mt-3 h-5 w-2/3 rounded bg-zinc-200 dark:bg-seam" />
+          </div>
+        )}
+        {checkError && (
+          <div
+            role="alert"
+            className="mt-4 rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-800 dark:border-red-800 dark:bg-ink dark:text-red-300"
+          >
+            Verify failed: {checkError}. Check the claim text and try again.
+          </div>
+        )}
+        {claimResult && !checkLoading && (
+          <div className="mt-4 rounded-lg bg-zinc-50 p-4 dark:bg-abyss">
             <div
-              className={`inline-flex rounded-full px-3 py-1 text-sm font-bold text-white ${claimResult.verdict === "supported" ? "bg-green-600" : claimResult.verdict === "contradicted" ? "bg-red-600" : "bg-yellow-500"}`}
+              role="status"
+              aria-label={`Claim verdict ${claimResult.verdict}, confidence ${(claimResult.confidence * 100).toFixed(0)} percent`}
+              className={`inline-flex rounded-full px-3 py-1 text-sm font-bold ${claimResult.verdict === "supported" ? "bg-green-600 text-white" : claimResult.verdict === "contradicted" ? "bg-red-600 text-white" : "bg-yellow-500 text-zinc-950"}`}
             >
-              {claimResult.verdict.toUpperCase()}{" "}
-              {(claimResult.confidence * 100).toFixed(0)}%
+              <span aria-hidden="true">
+                {claimResult.verdict.toUpperCase()}{" "}
+                {(claimResult.confidence * 100).toFixed(0)}%
+              </span>
             </div>
             <p className="mt-2 text-lg font-medium">
               {claimResult.elderlySummary}
             </p>
-            <p className="mt-1 text-sm text-zinc-700">
+            <p className="mt-1 text-sm text-zinc-700 dark:text-zinc-300">
               {claimResult.reasoning}
             </p>
             {claimResult.evidence.length > 0 && (
@@ -366,7 +479,7 @@ export default function Home() {
                 <summary className="cursor-pointer text-sm font-semibold">
                   Nerd audit
                 </summary>
-                <pre className="mt-2 overflow-auto rounded bg-white p-3 text-xs">
+                <pre className="mt-2 overflow-auto rounded border border-zinc-200 bg-white p-3 text-xs dark:border-seam dark:bg-ink dark:text-zinc-200">
                   {JSON.stringify(claimResult, null, 2)}
                 </pre>
               </details>
@@ -381,7 +494,7 @@ export default function Home() {
         onRemove={handleRemoveRecent}
       />
 
-      <section className="mt-6 rounded-xl border bg-zinc-50 p-4">
+      <section className="mt-6 rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-seam dark:bg-abyss">
         <h3 className="text-sm font-semibold">WebMCP tools (for agent & QA)</h3>
         {tools.length ? (
           <ul className="mt-2 list-disc pl-5 text-sm">
@@ -393,7 +506,7 @@ export default function Home() {
             ))}
           </ul>
         ) : (
-          <p className="mt-2 text-sm text-zinc-600">
+          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
             No tools discovered yet. In ChatGPT in-app browser or Chrome with{" "}
             <code>chrome://flags#webmcp</code> enabled,
             <code> document.modelContext.getTools()</code> will list{" "}
@@ -401,7 +514,7 @@ export default function Home() {
             <code>checkClaim</code>.
           </p>
         )}
-        <div className="mt-3 text-xs text-zinc-500">
+        <div className="mt-3 text-xs text-zinc-500 dark:text-zinc-400">
           <div>
             Sources: Burnes 2017 (1 in 18/yr), Yu 2023 (16.4% impersonation
             engage), APJII 77% penetration / 51.7% seniors.
@@ -409,14 +522,14 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mt-6 rounded border p-3">
+      <section className="mt-6 rounded border border-zinc-200 p-3 dark:border-seam">
         <h3 className="text-sm font-semibold">Activity log (for QA)</h3>
-        <pre className="mt-2 max-h-40 overflow-auto rounded bg-white p-2 text-xs">
+        <pre className="mt-2 max-h-40 overflow-auto rounded border border-zinc-200 bg-white p-2 text-xs dark:border-seam dark:bg-ink dark:text-zinc-200">
           {log.join("\n") || "(idle)"}
         </pre>
       </section>
 
-      <footer className="mt-8 text-center text-xs text-zinc-500">
+      <footer className="mt-8 text-center text-xs text-zinc-500 dark:text-zinc-400">
         VeriBrowse v0.1.0 — WebMCP tracer. Provenance: contentHash + retrievedAt
         on every response. Fail-closed on unknown.
       </footer>

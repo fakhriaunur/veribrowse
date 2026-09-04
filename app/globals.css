@@ -1,7 +1,40 @@
 @import "tailwindcss";
 
-body {
-  font-feature-settings:
-    "rlig" 1,
-    "calt" 1;
+/* OpenAI-like palette + light defaults as Tailwind v4 @theme tokens.
+   Dark theme uses #171717 (abyss) / #212121 (coal) / #2F2F2F (seam)
+   with #10A37F (menta) accent. No palette hex outside this block. */
+@theme {
+  --color-abyss: #171717;
+  --color-coal: #212121;
+  --color-seam: #2f2f2f;
+  --color-menta: #10a37f;
+  --color-menta-deep: #0e8a6c;
+  --color-parchment: #ffffff;
+  --color-mist: #f4f4f4;
+  --color-ink: #131313;
+}
+
+/* Class-free dark strategy: `dark:` utilities follow data-theme="dark"
+   set pre-paint by the inline script in app/layout.tsx. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  html[data-theme="dark"] {
+    color-scheme: dark;
+  }
+
+  body {
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-menta);
+    outline-offset: 2px;
+  }
 }

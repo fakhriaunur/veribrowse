@@ -81,6 +81,10 @@ With `OPENAI_API_KEY` empty, routes return deterministic heuristic/fail-closed r
 
 Browser check (WebMCP surface): open the dev server in a WebMCP-enabled browser and run `await document.modelContext.getTools()` — expect `ping`, `echoEcho`, `scoreWebsite`, `checkClaim`. No-WebMCP browsers get the fallback banner plus manual Score/Verify controls.
 
+### Browser-only state (privacy)
+
+Theme choice (`veribrowse:theme:v1`, system preference on first visit) and recent result summaries (`veribrowse:recents:v1`, bounded, user-clearable) live only in this browser's `localStorage`. No tracking, no server persistence (`cache-control: no-store`), never secrets or page HTML.
+
 ## Production smoke
 
 ```bash

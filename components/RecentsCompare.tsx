@@ -10,10 +10,12 @@ function ScoreCard({
   entry: Extract<RecentEntry, { kind: "score" }>;
 }) {
   return (
-    <div className="rounded-lg border p-4">
+    <div className="rounded-lg border border-zinc-200 p-4 dark:border-seam">
       <TrustBadge trust={entry.trust} level={entry.level} />
       <p className="mt-2 break-all text-sm font-medium">{entry.url}</p>
-      <p className="mt-1 text-sm text-zinc-600">{entry.summary}</p>
+      <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+        {entry.summary}
+      </p>
     </div>
   );
 }
@@ -23,22 +25,22 @@ function CheckCard({
 }: {
   entry: Extract<RecentEntry, { kind: "check" }>;
 }) {
-  const color =
-    entry.verdict === "supported"
-      ? "bg-green-600"
-      : entry.verdict === "contradicted"
-        ? "bg-red-600"
-        : "bg-yellow-500";
   return (
-    <div className="rounded-lg border p-4">
+    <div className="rounded-lg border border-zinc-200 p-4 dark:border-seam">
       <div
-        className={`inline-flex rounded-full px-3 py-1 text-sm font-bold text-white ${color}`}
+        role="status"
+        aria-label={`Claim verdict ${entry.verdict}, confidence ${(entry.confidence * 100).toFixed(0)} percent`}
+        className={`inline-flex rounded-full px-3 py-1 text-sm font-bold ${entry.verdict === "supported" ? "bg-green-600 text-white" : entry.verdict === "contradicted" ? "bg-red-600 text-white" : "bg-yellow-500 text-zinc-950"}`}
       >
-        {entry.verdict.toUpperCase()} {(entry.confidence * 100).toFixed(0)}%
+        <span aria-hidden="true">
+          {entry.verdict.toUpperCase()} {(entry.confidence * 100).toFixed(0)}%
+        </span>
       </div>
       <p className="mt-2 text-sm font-medium">“{entry.claim}”</p>
-      <p className="mt-1 text-sm text-zinc-600">{entry.summary}</p>
-      <p className="mt-1 text-xs text-zinc-500">
+      <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+        {entry.summary}
+      </p>
+      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
         {entry.evidenceCount} evidence source
         {entry.evidenceCount === 1 ? "" : "s"}
       </p>
@@ -75,12 +77,12 @@ export function RecentsCompare({
       : `${e.verdict} “${e.claim.slice(0, 40)}”`;
 
   const selectClass =
-    "w-full rounded border px-3 py-2 text-sm bg-white text-zinc-900";
+    "w-full rounded border border-zinc-300 px-3 py-2 text-sm bg-white text-zinc-900 dark:border-seam dark:bg-abyss dark:text-zinc-100";
 
   return (
     <section
       aria-label="Recent results and compare"
-      className="mt-6 rounded-xl border p-4"
+      className="mt-6 rounded-xl border border-zinc-200 p-4 dark:border-seam"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-lg font-semibold">🕘 Recent results</h2>
@@ -89,19 +91,19 @@ export function RecentsCompare({
             type="button"
             onClick={onClear}
             aria-label="Clear recent results"
-            className="rounded border px-3 py-2 text-sm hover:bg-zinc-100"
+            className="rounded border border-zinc-300 px-3 py-2 text-sm hover:bg-zinc-100 dark:border-seam dark:hover:bg-coal"
           >
             Clear
           </button>
         )}
       </div>
-      <p className="mt-1 text-xs text-zinc-500">
+      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
         Stored only in this browser (up to {RECENTS_MAX}). Summaries only — no
         page content or keys. Clearing removes them from this device.
       </p>
 
       {recents.length === 0 ? (
-        <p className="mt-3 rounded-lg bg-zinc-50 p-4 text-sm text-zinc-600">
+        <p className="mt-3 rounded-lg bg-zinc-50 p-4 text-sm text-zinc-600 dark:bg-abyss dark:text-zinc-400">
           No recent results yet — score a website or check a claim above and it
           will appear here. Compare two results side by side once you have at
           least two.
@@ -112,7 +114,7 @@ export function RecentsCompare({
             {recents.map((e) => (
               <li
                 key={e.id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-zinc-50 px-3 py-2 text-sm"
+                className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-zinc-50 px-3 py-2 text-sm dark:bg-coal dark:text-zinc-200"
               >
                 <span className="min-w-0 flex-1 truncate">
                   {e.kind === "score"
@@ -123,7 +125,7 @@ export function RecentsCompare({
                   type="button"
                   onClick={() => onRemove(e.id)}
                   aria-label={`Remove recent ${labelOf(e)}`}
-                  className="rounded border px-2 py-1 text-xs hover:bg-white"
+                  className="rounded border border-zinc-300 px-2 py-1 text-xs hover:bg-white dark:border-seam dark:hover:bg-abyss"
                 >
                   Remove
                 </button>
