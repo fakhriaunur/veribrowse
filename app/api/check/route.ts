@@ -237,14 +237,44 @@ export async function GET(req: Request) {
     }
 
     const signal = req.signal;
+    // m10-013 diagnosis (additive observability only): track which span is in
+    // flight so the incoming-signal abort listener can note it. Every line
+    // below is log.debug — suppressed at the default LOG_LEVEL=info, so
+    // default output and all response shapes stay byte-identical.
+    let spanInFlight: "idle" | "evidence-fetch" | "gateway-call" = "idle";
+    signal.addEventListener(
+      "abort",
+      () => {
+        log.debug(
+          {
+            requestId,
+            span: spanInFlight,
+            elapsedMs: Math.max(1, Date.now() - start),
+          },
+          "check incoming-signal aborted",
+        );
+      },
+      { once: true },
+    );
     let evidence: Evidence[] | null = null;
 
     if (parsed.data.contextUrl) {
       try {
+        spanInFlight = "evidence-fetch";
+        const evidenceStart = Date.now();
         const res = await fetchMemo(parsed.data.contextUrl, {
           signal,
           headers: { "user-agent": "VeriBrowse/0.1" },
         });
+        log.debug(
+          {
+            requestId,
+            span: "evidence-fetch",
+            spanMs: Date.now() - evidenceStart,
+          },
+          "check evidence-fetch span done",
+        );
+        spanInFlight = "idle";
         if (signal.aborted) return abort();
         const html = await res.text();
         const text = html
@@ -276,7 +306,18 @@ export async function GET(req: Request) {
           evidence = [];
         }
       } catch (e) {
-        if (isAbortError(e)) return abort();
+        spanInFlight = "idle";
+        if (isAbortError(e)) {
+          log.debug(
+            {
+              requestId,
+              span: "evidence-fetch",
+              elapsedMs: Math.max(1, Date.now() - start),
+            },
+            "check evidence-fetch aborted",
+          );
+          return abort();
+        }
         log.warn(
           {
             requestId,
@@ -315,6 +356,8 @@ export async function GET(req: Request) {
       | undefined;
     if (hasKey && evidence && evidence.length > 0) {
       try {
+        spanInFlight = "gateway-call";
+        const gatewayStart = Date.now();
         const prompt = `Verify claim="${parsed.data.claim}" against evidence="${evidence[0].quote.slice(0, 400)}" url=${evidence[0].url}. Return JSON {"verdict":"supported"|"contradicted"|"unverified","confidence":0-1,"reasoning":string 30 words}. Never hallucinate citations.`;
         const baseUrl = process.env.OPENAI_BASE_URL ?? OPENAI_BASE_URL_FALLBACK;
         const res = await fetchWithRetry(openaiChatCompletionsUrl(baseUrl), {
@@ -331,6 +374,17 @@ export async function GET(req: Request) {
             messages: [{ role: "user", content: prompt }],
           }),
         });
+        log.debug(
+          {
+            requestId,
+            span: "gateway-call",
+            spanMs: Date.now() - gatewayStart,
+            ok: res.ok,
+            status: res.status,
+          },
+          "check gateway-call span done",
+        );
+        spanInFlight = "idle";
         if (signal.aborted) return abort();
         if (res.ok) {
           const j = (await res.json()) as {
@@ -377,7 +431,18 @@ export async function GET(req: Request) {
           );
         }
       } catch (e) {
-        if (isAbortError(e)) return abort();
+        spanInFlight = "idle";
+        if (isAbortError(e)) {
+          log.debug(
+            {
+              requestId,
+              span: "gateway-call",
+              elapsedMs: Math.max(1, Date.now() - start),
+            },
+            "check gateway-call aborted",
+          );
+          return abort();
+        }
         inc("openai_fallback_total");
         log.warn(
           {
