@@ -1,11 +1,44 @@
 # VeriBrowse — WebMCP Trust Scoring + Claim Verification
 
+[![check](https://img.shields.io/github/actions/workflow/status/fakhriaunur/veribrowse/ci.yml?branch=main&label=check)](https://github.com/fakhriaunur/veribrowse/actions/workflows/ci.yml)
+[![CodeQL](https://img.shields.io/github/actions/workflow/status/fakhriaunur/veribrowse/codeql.yml?branch=main&label=CodeQL)](https://github.com/fakhriaunur/veribrowse/actions/workflows/codeql.yml)
+[![live](https://img.shields.io/badge/live-veribrowse.netlify.app-10A37F?logo=netlify)](https://veribrowse.netlify.app)
+[![license](https://img.shields.io/github/license/fakhriaunur/veribrowse)](https://github.com/fakhriaunur/veribrowse/blob/main/LICENSE)
+[![node](https://img.shields.io/badge/node-22.23.2-339933?logo=node.js&logoColor=white)](https://github.com/fakhriaunur/veribrowse/blob/main/mise.toml)
+[![pnpm](https://img.shields.io/badge/pnpm-9.15.9-F69220?logo=pnpm&logoColor=white)](https://github.com/fakhriaunur/veribrowse/blob/main/pnpm-lock.yaml)
+
 **2-tool WebMCP site: `scoreWebsite(url)` + `checkClaim(claim, contextUrl)`** (plus tracer tools `ping`, `echoEcho`).
 
 Safer browsing for elderly / non-power-users (plain-language verdict card) + nerd verbose audit with citations and provenance. Every verdict carries evidence citations + provenance (`url`, `contentHash`, `retrievedAt`/`checkedAt`); unknown claims fail closed to `unverified` with empty evidence, never hallucinated citations.
 
 - **Live production:** `https://veribrowse.netlify.app` (Netlify deploy from `main`, no custom domain)
 - **Contract:** WebMCP tool names/order/schemas frozen (`ping`, `echoEcho`, `scoreWebsite`, `checkClaim`); `lib/schemas.ts` zod is the single source for `inputSchema` and route validation.
+
+## Motivation
+
+Online fraud disproportionately harms older adults, who are less likely to spot impersonation and scam signals before sharing personal data or paying. Three sourced findings frame the triage worksheet VeriBrowse implements:
+
+- Elder fraud is common and underreported: roughly **1 in 18** older adults is affected each year (Burnes et al., 2017).
+- Impersonation works: **16.4%** of people who encounter an impersonation attempt engage with it (Yu et al., 2023).
+- The at-risk population is large and growing: Indonesia's internet penetration reached **77%**, with seniors (**51.7%** of the 55+ bracket online) newly exposed (APJII survey).
+
+VeriBrowse answers with a two-step triage anyone can follow: **score** the site (safe / caution / risky, plain-language summary) then **verify** the claim against fetched evidence, failing closed to `unverified` when no evidence exists. Every verdict carries citations + provenance so a family member can re-check the work.
+
+## Scoring rationale
+
+`scoreWebsite` starts from a neutral base of **50** and adjusts it with transparent, deterministic signals from `scoreWebsitePure` in `lib/score.ts` (no LLM needed; an optional LLM `why`/`bullets` enrichment never changes the number):
+
+| Signal                         | Adjustment  | Code                                            |
+| ------------------------------ | ----------- | ----------------------------------------------- |
+| HTTPS present                  | `+10`       | `meta.hasHttps` → `trust += 10`                 |
+| No HTTPS                       | `-20`       | `trust -= 20` + reason "No HTTPS"               |
+| Domain older than 365 days     | `+15`       | `domainAgeDays > 365`                           |
+| Domain newer than 30 days      | `-20`       | `domainAgeDays < 30` + reason "Very new domain" |
+| Page has a title (>5 chars)    | `+5`        | `meta.title.length > 5`                         |
+| Open Graph description present | `+5`        | `meta.ogDescription`                            |
+| Redirected (`finalUrl ≠ url`)  | reason only | note "Redirected", no points                    |
+
+The result is clamped to `0–100` and mapped to a level: **safe ≥ 70**, **caution ≥ 40**, **risky < 40**. Heuristic reasons surface as `preWhy` (`"Standard signals"` when nothing fires); unknown claims always fail closed to `unverified` with empty evidence.
 
 ## Stack (final, verified)
 
