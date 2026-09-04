@@ -1,0 +1,70 @@
+{
+  "name": "synthetic-sample",
+  "version": "0.1.0",
+  "frozen": false,
+  "rows": [
+    {
+      "url": "https://example.com/safe-community-guide",
+      "expected_tier": "safe",
+      "auditor_source": "synthetic",
+      "citation": "synthetic — illustrative label for harness validation only, not an auditor rating",
+      "notes": "Illustrative safe row."
+    },
+    {
+      "url": "https://example.org/safe-library-docs",
+      "expected_tier": "safe",
+      "auditor_source": "synthetic",
+      "citation": "synthetic — illustrative label for harness validation only, not an auditor rating",
+      "notes": "Illustrative safe row."
+    },
+    {
+      "url": "https://example.net/safe-weather-service",
+      "expected_tier": "safe",
+      "auditor_source": "synthetic",
+      "citation": "synthetic — illustrative label for harness validation only, not an auditor rating",
+      "notes": "Illustrative safe row."
+    },
+    {
+      "url": "https://example.com/caution-mixed-blog",
+      "expected_tier": "caution",
+      "auditor_source": "synthetic",
+      "citation": "synthetic — illustrative label for harness validation only, not an auditor rating",
+      "notes": "Illustrative caution row; matches the pinned fixture level."
+    },
+    {
+      "url": "https://example.org/caution-satire-page",
+      "expected_tier": "caution",
+      "auditor_source": "synthetic",
+      "citation": "synthetic — illustrative label for harness validation only, not an auditor rating",
+      "notes": "Illustrative caution row; matches the pinned fixture level."
+    },
+    {
+      "url": "https://example.net/caution-coupon-portal",
+      "expected_tier": "caution",
+      "auditor_source": "synthetic",
+      "citation": "synthetic — illustrative label for harness validation only, not an auditor rating",
+      "notes": "Illustrative caution row; matches the pinned fixture level."
+    },
+    {
+      "url": "https://example.com/risky-prize-claim",
+      "expected_tier": "risky",
+      "auditor_source": "synthetic",
+      "citation": "synthetic — illustrative label for harness validation only, not an auditor rating",
+      "notes": "Illustrative risky row."
+    },
+    {
+      "url": "https://example.org/risky-miracle-cure",
+      "expected_tier": "risky",
+      "auditor_source": "synthetic",
+      "citation": "synthetic — illustrative label for harness validation only, not an auditor rating",
+      "notes": "Illustrative risky row."
+    },
+    {
+      "url": "https://example.net/risky-flash-sale",
+      "expected_tier": "risky",
+      "auditor_source": "synthetic",
+      "citation": "synthetic — illustrative label for harness validation only, not an auditor rating",
+      "notes": "Illustrative risky row."
+    }
+  ]
+}

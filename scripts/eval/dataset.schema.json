@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "M14 URL-trust benchmark dataset",
+  "description": "Labeled ground-truth rows for the scripts/eval harness. Labels are publisher-signal tests: auditor_source + citation are required per row. Fetch failures are excluded from agreement, never scored as misses.",
+  "type": "object",
+  "required": ["name", "version", "rows"],
+  "properties": {
+    "name": { "type": "string" },
+    "version": { "type": "string" },
+    "frozen": {
+      "type": "boolean",
+      "description": "True once the labeled list is user-approved for spend-gated runs."
+    },
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["url", "expected_tier", "auditor_source", "citation"],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Candidate URL scored via GET /api/score."
+          },
+          "expected_tier": {
+            "type": "string",
+            "enum": ["safe", "caution", "risky"]
+          },
+          "auditor_source": {
+            "type": "string",
+            "description": "Which auditor rating the label comes from (e.g. MBFC-HIGH, Tranco, PhishTank, synthetic)."
+          },
+          "citation": {
+            "type": "string",
+            "description": "Source citation for the label (URL or text reference)."
+          },
+          "notes": {
+            "type": "string",
+            "description": "Optional context (e.g. expected attrition, article-level vs outlet-level)."
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
