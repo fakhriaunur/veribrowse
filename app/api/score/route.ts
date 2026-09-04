@@ -10,6 +10,7 @@ import {
   type ChainOk,
 } from "@/lib/llm";
 import { createFetchMemo } from "@/lib/fetchMemo";
+import { getActiveRubric, type Rubric } from "@/lib/rubric";
 import { inc } from "@/lib/metrics";
 
 export const runtime = "nodejs";
@@ -73,6 +74,33 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const url = searchParams.get("url");
     const fixture = searchParams.get("fixture");
+
+    // Rubric wiring (M11): resolve the active preset once per request and
+    // pass it into the pure core. Default (balanced) weights are
+    // byte-identical to the frozen heuristic, so the default path is
+    // unchanged; SCORING_PRESET=strict/lenient (or SCORING_RUBRIC_PATH)
+    // observably changes scores. Invalid config fails loudly (500), never
+    // silently scores with unknown weights. Fixture path below is pinned
+    // and ignores the rubric.
+    let rubric: Rubric;
+    try {
+      rubric = getActiveRubric().rubric;
+    } catch (e) {
+      log.error(
+        {
+          requestId,
+          traceparent,
+          err: String(e),
+          hasKey,
+          durationMs: Math.max(1, Date.now() - start),
+        },
+        "score rubric invalid — refusing with unknown weights",
+      );
+      return NextResponse.json(
+        { error: "Invalid scoring rubric configuration", details: String(e) },
+        { status: 500, headers },
+      );
+    }
 
     if (fixture === "1") {
       if (!url) {
@@ -355,7 +383,7 @@ export async function GET(req: Request) {
     }
 
     // First-success-wins provenance: note which chain step succeeded.
-    const scored = buildTrustScore(meta, llm);
+    const scored = buildTrustScore(meta, llm, rubric);
     const result = llmStep
       ? {
           ...scored,
