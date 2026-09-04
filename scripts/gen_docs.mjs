@@ -12,6 +12,35 @@ const outFile = join(root, "docs", "api.md");
 
 // Attempt typedoc synchronously; if fails, write manual docs
 /* eslint-disable no-console */
+// Route-surface note (not in lib/): query params and provenance fields owned
+// by app/api routes. Kept here — never hand-edited into docs/api.md — so
+// every `mise run docs` regen preserves it.
+const ROUTE_SURFACE_DETAIL = `
+### HTTP route surface (query params + provenance)
+
+Typedoc above covers \`lib/\` pure core only. The following are owned by the
+thin route shell (\`app/api/score/route.ts\`, \`app/api/check/route.ts\`) plus
+\`lib/llm.ts\` and \`config/llm.json\`:
+
+- \`?llmTimeoutMs=\` (both \`GET /api/score\` and \`GET /api/check\`) —
+  optional per-LLM-step timeout in milliseconds for the M11 failover chain
+  (\`runLlmChain\`). Parsed by \`parseTimeoutParam\` (absent, empty, or
+  non-numeric → configured default), clamped by \`resolveStepTimeout\` into
+  the \`config/llm.json\` range \`[min, max]\` = \`[1000, 30000]\`, default
+  \`10000\`. The client control is nerd-view-only (\`app/page.tsx\` number
+  input, omitted from the query when empty); the server clamp always
+  applies. LLM steps only — page/evidence fetches keep the separate 3s
+  \`fetchWithRetry\` policy, and backoff applies between chain steps only.
+  \`?fixture=1\` bypasses the LLM chain, so the param has no effect on
+  fixture responses.
+- \`provenance.llmStep\` — present on score/check 200 responses only when an
+  LLM chain step succeeded; values \`responses-primary\` | \`chat-primary\`
+  | \`responses-alt\` | \`chat-alt\` (chain order Responses(primary) →
+  Chat(primary) → Responses(alt) → Chat(alt); first success wins; alt steps
+  run only when \`OPENAI_BASE_URL_ALT\` is set). Absent on heuristic,
+  fail-closed, and fixture responses. See \`lib/llm.ts\` (\`LlmStep\`,
+  \`runLlmChain\`) and \`docs/runbook.md\` for the curl shape.
+`;
 function manualGen() {
   const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
   const header = `# API — VeriBrowse lib/ (generated)\n\n> Generated from \`lib/\` pure core via \`mise run docs\` (typedoc + fallback). Do not edit by hand.\n\nSource: \`lib/score.ts\`, \`lib/claim.ts\`, \`lib/schemas.ts\`, \`lib/logger.ts\`, \`lib/metrics.ts\`, \`lib/fetchWithRetry.ts\`\n\nVersion: \`${pkg.version}\` — aligns with \`GET /api/health\` \`version: "0.1.0"\` and \`package.json\`.\n\nGenerate: \`mise run docs\` or \`npm run docs\` or \`pnpm docs\` (reads \`typedoc.json\` → \`lib/\` → \`docs/api.md\`).\n\n---\n\n`;
@@ -101,6 +130,7 @@ Evidence fetched from \`contextUrl\` (quote ≤500 chars, \`contentHash\`, \`ret
     schemasDetail +
     scoringDetail +
     claimDetail +
+    ROUTE_SURFACE_DETAIL +
     `
 ---
 Generated at ${new Date().toISOString()} — run \`mise run docs\` to refresh.
@@ -139,6 +169,7 @@ const usedTypedoc = (() => {
               readFileSync(f, "utf8") +
               "\n\n---\n\n";
           }
+          combined += ROUTE_SURFACE_DETAIL + "\n---\n\n";
           mkdirSync(join(root, "docs"), { recursive: true });
           writeFileSync(outFile, combined);
           console.log(
