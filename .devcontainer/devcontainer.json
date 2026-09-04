@@ -28,8 +28,8 @@
     "3000": { "label": "Next.js (WebMCP)", "onAutoForward": "notify" },
     "8787": { "label": "Mock OpenAI", "onAutoForward": "silent" }
   },
-  "postCreateCommand": "npm install -g pnpm@9 && pnpm install && echo 'devcontainer ready — try: mise run check; mise run qa'",
-  "postStartCommand": "echo 'VeriBrowse devcontainer — mise install handled via pnpm; run: mise run dev'",
+  "postCreateCommand": "npm install -g pnpm@9 && pnpm install && echo 'devcontainer ready — try: pnpm lint && pnpm type && pnpm test; pnpm dev'",
+  "postStartCommand": "echo 'VeriBrowse devcontainer — run: pnpm dev'",
   "remoteUser": "vscode",
   "updateRemoteUserUID": true
 }
