@@ -310,6 +310,14 @@ export default function Home() {
                       {e.url}
                     </a>{" "}
                     — “{e.quote.slice(0, 120)}”
+                    {e.badge && (
+                      <span className="mt-1 block w-fit scale-90">
+                        <TrustBadge
+                          trust={e.badge.trust}
+                          level={e.badge.level}
+                        />
+                      </span>
+                    )}
                   </li>
                 ))}
               </ul>

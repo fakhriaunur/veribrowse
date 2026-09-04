@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { checkClaimSchema } from "@/lib/schemas";
-import { verifyClaimPure, type Evidence } from "@/lib/claim";
+import {
+  verifyClaimPure,
+  type Evidence,
+  type EvidenceBadge,
+} from "@/lib/claim";
+import { scoreWebsitePure, type FetchMeta } from "@/lib/score";
 import { withRequestId } from "@/lib/logger";
 import { fetchWithRetry } from "@/lib/fetchWithRetry";
 import { inc } from "@/lib/metrics";
@@ -25,6 +30,49 @@ function hashBytes(s: string): string {
   for (let i = 0; i < s.length; i++)
     h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
   return Math.abs(h).toString(16).padStart(8, "0");
+}
+
+// VAL-CROSS-024 fixture badge: the score route pins trust 42 / level caution
+// for ANY fixture url (VAL-API-006), so the fixture evidence badge uses the
+// same pin — badge level trivially equals the direct /api/score level.
+const FIXTURE_EVIDENCE_BADGE: EvidenceBadge = { trust: 42, level: "caution" };
+
+// Display-only page-meta extractor mirroring the score route's parse (same
+// regexes and slice caps) so the in-request badge level matches a direct
+// GET /api/score for the same URL. Only trust-affecting inputs are read:
+// hasHttps, title, ogDescription (domainAgeDays null, same as score live).
+function pageMeta(html: string): { title?: string; ogDescription?: string } {
+  const pick = (re: RegExp) => html.match(re)?.[1]?.trim();
+  const title = pick(/<title[^>]*>([^<]+)<\/title>/i)?.slice(0, 120);
+  const ogDescription = pick(
+    /property=["']og:description["'][^>]*content=["']([^"']+)["']/i,
+  )?.slice(0, 200);
+  return { title, ogDescription };
+}
+
+// VAL-CROSS-024 link-back: score one evidence URL in-request through the
+// existing pure function. Display-layer only — verdict/confidence untouched.
+function evidenceBadge(
+  url: string,
+  html: string,
+  res: { status: number; url?: string },
+  contentHash: string,
+  retrievedAt: string,
+): EvidenceBadge {
+  const { title, ogDescription } = pageMeta(html);
+  const meta: FetchMeta = {
+    url,
+    title,
+    ogDescription,
+    finalUrl: res.url ?? url,
+    status: res.status,
+    contentHash,
+    retrievedAt,
+    domainAgeDays: null,
+    hasHttps: url.startsWith("https://"),
+  };
+  const { trust, level } = scoreWebsitePure(meta);
+  return { trust, level };
 }
 
 function isAbortError(e: unknown): boolean {
@@ -116,6 +164,7 @@ export async function GET(req: Request) {
             quote: "Fixture evidence quote for deterministic replay",
             contentHash: hashBytes("fixture-evidence"),
             retrievedAt: "2026-01-01T00:00:00.000Z",
+            badge: FIXTURE_EVIDENCE_BADGE,
           },
         ],
         {
@@ -196,12 +245,24 @@ export async function GET(req: Request) {
           .slice(0, 500)
           .trim();
         if (text) {
+          const contentHash = hashBytes(text);
+          const retrievedAt = new Date().toISOString();
           evidence = [
             {
               url: parsed.data.contextUrl,
               quote: text.slice(0, 500),
-              contentHash: hashBytes(text),
-              retrievedAt: new Date().toISOString(),
+              contentHash,
+              retrievedAt,
+              badge: evidenceBadge(
+                parsed.data.contextUrl,
+                html,
+                {
+                  status: res.status,
+                  url: (res as unknown as { url?: string }).url,
+                },
+                contentHash,
+                retrievedAt,
+              ),
             },
           ];
         } else {
