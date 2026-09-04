@@ -14,6 +14,7 @@
 // - POST /__mock/reset   (clear overrides + request log)
 // - GET  /__mock/requests -> ordered attempt log (proves Responses-before-
 //   Chat order; responses entries record store/include/model from the body)
+// delayMs is clamped into [0, 30000] (resource-exhaustion guard).
 // Process-level seeds: MOCK_RESPONSES_STATUS / MOCK_CHAT_STATUS,
 // MOCK_RESPONSES_DELAY_MS / MOCK_CHAT_DELAY_MS, MOCK_RESPONSES_BODY /
 // MOCK_CHAT_BODY (JSON strings).
@@ -120,6 +121,17 @@ function sendJson(res, status, obj) {
   res.end(JSON.stringify(obj));
 }
 
+// Upper bound for injected step delays (CodeQL js/resource-exhaustion):
+// delayMs arrives via /__mock/inject, so the timer duration is clamped
+// into [0, MAX_DELAY_MS] — never an unbounded user-controlled timeout.
+const MAX_DELAY_MS = 30000;
+
+function clampDelay(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n <= 0) return 0;
+  return Math.min(MAX_DELAY_MS, n);
+}
+
 function sleep(ms, req, res) {
   return new Promise((resolve) => {
     if (ms <= 0) {
@@ -215,7 +227,7 @@ async function handleLlm(kind, req, res, rawBody) {
     parsed = null;
   }
   const override = overrides[kind];
-  const aborted = await sleep(Number(override?.delayMs ?? 0), req, res);
+  const aborted = await sleep(clampDelay(override?.delayMs), req, res);
   if (aborted) return;
   // NOTE: req.destroyed is true once the request body is fully read (normal
   // in modern Node) — it must NOT gate the response. Only res.destroyed
