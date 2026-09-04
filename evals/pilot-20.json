@@ -1,0 +1,179 @@
+{
+  "name": "m14-url-trust-pilot-20",
+  "version": "1.0.0",
+  "frozen": false,
+  "subset_of": [
+    {
+      "name": "m14-url-trust-v1",
+      "version": "1.0.0",
+      "rows": 130
+    },
+    {
+      "name": "m14-url-trust-v1-sectors",
+      "version": null,
+      "rows": 66
+    }
+  ],
+  "rows": [
+    {
+      "url": "https://www.bbc.com/news",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH + Tranco top",
+      "citation": "https://mediabiasfactcheck.com/bbc/",
+      "notes": "probed 200; stable",
+      "reason": "pool=general. Probed-clean (HEAD 200) MBFC-HIGH homepage; safe-class anchor."
+    },
+    {
+      "url": "https://apnews.com/",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH (wire)",
+      "citation": "https://mediabiasfactcheck.com/associated-press/",
+      "notes": "probed 200; stable",
+      "reason": "pool=general. Probed-clean (200) wire-service homepage; safe-class anchor."
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Climate_change",
+      "expected_tier": "safe",
+      "auditor_source": "Wikipedia featured-topic article",
+      "citation": "https://en.wikipedia.org/wiki/Climate_change",
+      "notes": "probed 200; reference tier",
+      "reason": "pool=general. Probed-clean (200) article-level reference tier; covers article-level preference."
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Photosynthesis",
+      "expected_tier": "safe",
+      "auditor_source": "Wikipedia stable reference article",
+      "citation": "https://en.wikipedia.org/wiki/Photosynthesis",
+      "notes": "article-level; added at freeze to meet >=10/tier (featured status not individually verified); liveness unconfirmed (failure-excluded)",
+      "reason": "pool=general. Article-level reference (liveness unconfirmed at freeze; failure-excluded); covers article-level preference."
+    },
+    {
+      "url": "https://www.dailymail.co.uk/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED/low",
+      "citation": "https://mediabiasfactcheck.com/daily-mail/",
+      "notes": "probed 200; tabloid blend",
+      "reason": "pool=general. Probed-clean (200) tabloid-blend MIXED anchor for caution."
+    },
+    {
+      "url": "https://www.theonion.com/",
+      "expected_tier": "caution",
+      "auditor_source": "Self-declared satire",
+      "citation": "https://www.theonion.com/about",
+      "notes": "probed 200; literal-read trap",
+      "reason": "pool=general. Probed-clean (200) self-declared satire; literal-read trap for caution."
+    },
+    {
+      "url": "https://www.infowars.com/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC VERY-LOW/conspiracy",
+      "citation": "https://mediabiasfactcheck.com/infowars/",
+      "notes": "probed HEAD 403 bot-check — fetcher likely 403 → tests failure policy; borderline risky",
+      "reason": "pool=general. DEGRADED 1/2: HEAD 403 bot-wall, fetcher likely 403; exercises the failure-exclusion policy; borderline-risky calibration edge."
+    },
+    {
+      "url": "https://www.naturalnews.com/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC VERY-LOW/pseudoscience",
+      "citation": "https://mediabiasfactcheck.com/natural-news/",
+      "notes": "probed 200; health-misinfo archetype",
+      "reason": "pool=general. Probed-clean (200) health-misinfo archetype for risky."
+    },
+    {
+      "url": "https://beforeitsnews.com/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC VERY-LOW/conspiracy",
+      "citation": "https://mediabiasfactcheck.com/before-its-news/",
+      "notes": "probed 200; UGC conspiracy",
+      "reason": "pool=general. Probed-clean (200) UGC-conspiracy archetype for risky."
+    },
+    {
+      "url": "https://thepeoplesvoice.tv/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC VERY-LOW/fake",
+      "citation": "MBFC yournewswire record",
+      "notes": "unprobed; domain renamed — confirm live at approval; freeze: newspunch.com 301 to thepeoplesvoice.tv, HEAD 200 2026-09-04 (renamed ex-YourNewsWire)",
+      "reason": "pool=general. HEAD 200 renamed domain (ex-YourNewsWire); tests renamed-entity handling for risky."
+    },
+    {
+      "url": "https://www.bca.co.id/",
+      "expected_tier": "safe",
+      "auditor_source": "OJK licensed bank (register-checkable)",
+      "citation": "https://www.ojk.go.id/",
+      "notes": "[banking] Probed HEAD 200 2026-09-04. OJK-licensed commercial bank; verify via OJK register / Kontak 157.",
+      "reason": "pool=banking. Probed-clean (HEAD 200) OJK-licensed bank; safe anchor."
+    },
+    {
+      "url": "https://www.sec.gov/enforce/public-alerts",
+      "expected_tier": "safe",
+      "auditor_source": "SEC PAUSE program index (self, regulator)",
+      "citation": "https://www.sec.gov/enforce/public-alerts",
+      "notes": "[banking][deep] Probed HEAD 403 bot-check 2026-09-04 (cf. v1 infowars precedent); fetcher GET likely 403 too -- tests failure policy. Regulator program page; must score safe.",
+      "reason": "pool=banking. DEGRADED 2/2: HEAD 403 bot-check, fetcher GET likely 403; regulator index that must score safe (trap: listed entities are risky, the list is safe); exercises failure-exclusion."
+    },
+    {
+      "url": "https://www.seekingalpha.com/",
+      "expected_tier": "caution",
+      "auditor_source": "Contributor-driven investment analysis (position disclosure)",
+      "citation": "https://www.seekingalpha.com/",
+      "notes": "[banking] Unprobed; stable. Crowdsourced analysis; contributors may hold positions they write about.",
+      "reason": "pool=banking. Contributor-analysis caution class (position-disclosure); stable."
+    },
+    {
+      "url": "https://www.fool.com/",
+      "expected_tier": "caution",
+      "auditor_source": "Opinion/stock-picking editorial (commercial)",
+      "citation": "https://www.fool.com/",
+      "notes": "[banking] Unprobed; stable. Opinion-led stock recommendations with affiliate/commercial interests.",
+      "reason": "pool=banking. Opinion/commercial stock-picking caution class; stable."
+    },
+    {
+      "url": "https://www.onetradepro.com/en/",
+      "expected_tier": "risky",
+      "auditor_source": "HK SFC Alert List -- suspicious website",
+      "citation": "https://www.sfc.hk/en/alert-list/3501",
+      "notes": "[banking] UNPROBED (suspected-malicious; never probed beyond status per policy). SFC-listed 20 Aug 2026 as suspicious website; unlicensed, targeting HK investors. May be dead/cloaked at run -- fetch-failure exclusion applies.",
+      "reason": "pool=banking. SFC-listed (20 Aug 2026) suspicious site; recent risky anchor (unprobed per suspected-malicious policy; failure-excluded if dead/cloaked)."
+    },
+    {
+      "url": "https://www.amazon.com/gp/help/customer/display.html",
+      "expected_tier": "safe",
+      "auditor_source": "Official marketplace help center (self)",
+      "citation": "https://www.amazon.com/gp/help/customer/display.html",
+      "notes": "[ecommerce][deep] Probed HEAD 405 (method blocked; fetcher uses GET) 2026-09-04. Long-stable customer-service hub.",
+      "reason": "pool=ecommerce. Entity help-center deep page (HEAD 405 is method-block only; fetcher GET expected OK); deep-page coverage."
+    },
+    {
+      "url": "https://www.trustpilot.com/",
+      "expected_tier": "caution",
+      "auditor_source": "UGC review aggregator (fake-review risk)",
+      "citation": "https://www.trustpilot.com/",
+      "notes": "[ecommerce] Unprobed; stable. Business reviews are user-submitted; fake-review pressure is documented industry-wide -- treat as untrusted signal.",
+      "reason": "pool=ecommerce. UGC review-aggregator caution class (fake-review risk); stable."
+    },
+    {
+      "url": "https://slickdeals.net/",
+      "expected_tier": "caution",
+      "auditor_source": "UGC deal forum (unverified listings)",
+      "citation": "https://slickdeals.net/",
+      "notes": "[ecommerce] Unprobed; stable. Deals are user-posted; merchant vetting is community-driven.",
+      "reason": "pool=ecommerce. UGC deal-forum caution class; stable."
+    },
+    {
+      "url": "https://everly-melbourne.com/",
+      "expected_tier": "risky",
+      "auditor_source": "ACCC Public Warning Notice -- ghost store (release 78/25)",
+      "citation": "https://www.accc.gov.au/media-release/consumers-warned-about-ghost-stores-imitating-australian-businesses",
+      "notes": "[ecommerce] UNPROBED (ACCC-named ghost store; never probed beyond status per policy). ACCC alleges false local-business claims + low-quality drop-shipped goods. May rebrand/go dead at run -- fetch-failure exclusion applies.",
+      "reason": "pool=ecommerce. ACCC-named ghost store; risky anchor (unprobed per policy; failure-excluded if rebranded/dead)."
+    },
+    {
+      "url": "https://www.cloroxstore.com/",
+      "expected_tier": "risky",
+      "auditor_source": "FTC TRO -- counterfeit website (case 202 3053)",
+      "citation": "https://www.ftc.gov/legal-library/browse/cases-proceedings/202-3053-one-or-more-unknown-parties-ftc-v",
+      "notes": "[ecommerce] UNPROBED (FTC-enjoined counterfeit site). Federal TRO Nov 2020 over fake Clorox-storefront scam; domain likely seized/dead/parked -- fetch-failure exclusion applies; label tests dead-scam-domain handling.",
+      "reason": "pool=ecommerce. FTC-enjoined counterfeit site; tests dead/seized-domain handling (failure-excluded if parked)."
+    }
+  ]
+}

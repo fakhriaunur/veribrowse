@@ -1,7 +1,8 @@
 {
   "name": "m14-url-trust-v1",
   "version": "1.0.0",
-  "frozen": false,
+  "frozen": true,
+  "approved_date": "2026-09-04",
   "rows": [
     {
       "url": "https://www.bbc.com/news",

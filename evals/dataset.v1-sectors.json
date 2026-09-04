@@ -1,5 +1,6 @@
 {
-  "frozen": false,
+  "frozen": true,
+  "approved_date": "2026-09-04",
   "name": "m14-url-trust-v1-sectors",
   "rows": [
     {
