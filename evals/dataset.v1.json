@@ -1,0 +1,917 @@
+{
+  "name": "m14-url-trust-v1",
+  "version": "1.0.0",
+  "frozen": false,
+  "rows": [
+    {
+      "url": "https://www.bbc.com/news",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH + Tranco top",
+      "citation": "https://mediabiasfactcheck.com/bbc/",
+      "notes": "probed 200; stable"
+    },
+    {
+      "url": "https://apnews.com/",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH (wire)",
+      "citation": "https://mediabiasfactcheck.com/associated-press/",
+      "notes": "probed 200; stable"
+    },
+    {
+      "url": "https://www.reuters.com/",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH (wire)",
+      "citation": "https://mediabiasfactcheck.com/reuters/",
+      "notes": "probed HEAD 401 (HEAD blocked; fetcher uses GET — expect OK, flag if fail)"
+    },
+    {
+      "url": "https://www.npr.org/",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH",
+      "citation": "https://mediabiasfactcheck.com/npr/",
+      "notes": "unprobed; stable public broadcaster"
+    },
+    {
+      "url": "https://www.pbs.org/newshour/",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH",
+      "citation": "https://mediabiasfactcheck.com/pbs-news-hour/",
+      "notes": "unprobed; stable"
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Climate_change",
+      "expected_tier": "safe",
+      "auditor_source": "Wikipedia featured-topic article",
+      "citation": "https://en.wikipedia.org/wiki/Climate_change",
+      "notes": "probed 200; reference tier"
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Vaccine",
+      "expected_tier": "safe",
+      "auditor_source": "Wikipedia medical article",
+      "citation": "https://en.wikipedia.org/wiki/Vaccine",
+      "notes": "unprobed; reference tier"
+    },
+    {
+      "url": "https://www.nature.com/",
+      "expected_tier": "safe",
+      "auditor_source": "Peer-reviewed journal",
+      "citation": "https://www.nature.com/",
+      "notes": "probed 200 (slow ~2.7s, near 3s timeout — watch)"
+    },
+    {
+      "url": "https://www.science.org/",
+      "expected_tier": "safe",
+      "auditor_source": "Peer-reviewed journal (AAAS)",
+      "citation": "https://www.science.org/",
+      "notes": "unprobed; possible bot-check"
+    },
+    {
+      "url": "https://www.nasa.gov/",
+      "expected_tier": "safe",
+      "auditor_source": "US gov primary source",
+      "citation": "https://www.nasa.gov/",
+      "notes": "unprobed; .gov stable"
+    },
+    {
+      "url": "https://www.cdc.gov/",
+      "expected_tier": "safe",
+      "auditor_source": "US gov primary source",
+      "citation": "https://www.cdc.gov/",
+      "notes": "unprobed; .gov stable"
+    },
+    {
+      "url": "https://www.who.int/",
+      "expected_tier": "safe",
+      "auditor_source": "UN primary source",
+      "citation": "https://www.who.int/",
+      "notes": "unprobed; stable"
+    },
+    {
+      "url": "https://www.economist.com/",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH",
+      "citation": "https://mediabiasfactcheck.com/economist/",
+      "notes": "unprobed; soft paywall — fetch may get teaser only"
+    },
+    {
+      "url": "https://www.ft.com/",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH",
+      "citation": "https://mediabiasfactcheck.com/financial-times/",
+      "notes": "unprobed; hard paywall risk — likely fetch-degraded"
+    },
+    {
+      "url": "https://www.wsj.com/",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH-ish (news)",
+      "citation": "https://mediabiasfactcheck.com/wall-street-journal/",
+      "notes": "unprobed; hard paywall risk"
+    },
+    {
+      "url": "https://www.nytimes.com/",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH",
+      "citation": "https://mediabiasfactcheck.com/new-york-times/",
+      "notes": "unprobed; metered paywall"
+    },
+    {
+      "url": "https://www.washingtonpost.com/",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH",
+      "citation": "https://mediabiasfactcheck.com/washington-post/",
+      "notes": "unprobed; metered paywall"
+    },
+    {
+      "url": "https://www.theguardian.com/",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH",
+      "citation": "https://mediabiasfactcheck.com/the-guardian/",
+      "notes": "unprobed; stable, open access"
+    },
+    {
+      "url": "https://www.aljazeera.com/",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH-ish",
+      "citation": "https://mediabiasfactcheck.com/al-jazeera/",
+      "notes": "unprobed; stable"
+    },
+    {
+      "url": "https://www.dw.com/",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH (public)",
+      "citation": "https://mediabiasfactcheck.com/deutsche-welle/",
+      "notes": "unprobed; stable public broadcaster"
+    },
+    {
+      "url": "https://www.france24.com/en/",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH (public)",
+      "citation": "https://mediabiasfactcheck.com/france-24/",
+      "notes": "unprobed; stable"
+    },
+    {
+      "url": "https://www.cbc.ca/news",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH (public)",
+      "citation": "https://mediabiasfactcheck.com/cbc-news-canadian-broadcasting/",
+      "notes": "unprobed; stable"
+    },
+    {
+      "url": "https://www.abc.net.au/news",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH (public)",
+      "citation": "https://mediabiasfactcheck.com/abc-news-australia/",
+      "notes": "unprobed; stable"
+    },
+    {
+      "url": "https://www.snopes.com/fact-check/",
+      "expected_tier": "safe",
+      "auditor_source": "Fact-checker index (self)",
+      "citation": "https://www.snopes.com/",
+      "notes": "probed 200 (homepage); index may be JS-assisted"
+    },
+    {
+      "url": "https://www.politifact.com/truth-o-meter/",
+      "expected_tier": "safe",
+      "auditor_source": "Fact-checker index (self)",
+      "citation": "https://www.politifact.com/",
+      "notes": "probed 200 (homepage ~2.4s — near timeout)"
+    },
+    {
+      "url": "https://apnews.com/hub/ap-fact-check",
+      "expected_tier": "safe",
+      "auditor_source": "Wire fact-check hub",
+      "citation": "https://apnews.com/hub/ap-fact-check",
+      "notes": "unprobed; stable"
+    },
+    {
+      "url": "https://www.propublica.org/",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH (nonprofit)",
+      "citation": "https://mediabiasfactcheck.com/propublica/",
+      "notes": "unprobed; stable"
+    },
+    {
+      "url": "https://www.scientificamerican.com/",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH",
+      "citation": "https://mediabiasfactcheck.com/scientific-american/",
+      "notes": "unprobed; metered paywall"
+    },
+    {
+      "url": "https://www.nhs.uk/",
+      "expected_tier": "safe",
+      "auditor_source": "UK gov health primary",
+      "citation": "https://www.nhs.uk/",
+      "notes": "unprobed; .gov-equivalent stable"
+    },
+    {
+      "url": "https://www.nih.gov/",
+      "expected_tier": "safe",
+      "auditor_source": "US gov research primary",
+      "citation": "https://www.nih.gov/",
+      "notes": "unprobed; .gov stable"
+    },
+    {
+      "url": "https://www.loc.gov/",
+      "expected_tier": "safe",
+      "auditor_source": "US gov library primary",
+      "citation": "https://www.loc.gov/",
+      "notes": "unprobed; .gov stable"
+    },
+    {
+      "url": "https://www.britannica.com/",
+      "expected_tier": "safe",
+      "auditor_source": "Reference (MBFC HIGH)",
+      "citation": "https://mediabiasfactcheck.com/encyclopaedia-britannica/",
+      "notes": "unprobed; stable"
+    },
+    {
+      "url": "https://www.csmonitor.com/",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH",
+      "citation": "https://mediabiasfactcheck.com/christian-science-monitor/",
+      "notes": "unprobed; stable"
+    },
+    {
+      "url": "https://www.euronews.com/",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH-ish",
+      "citation": "https://mediabiasfactcheck.com/euronews/",
+      "notes": "unprobed; stable"
+    },
+    {
+      "url": "https://www.japantimes.co.jp/",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH-ish",
+      "citation": "https://mediabiasfactcheck.com/japan-times/",
+      "notes": "unprobed; stable"
+    },
+    {
+      "url": "https://www.straitstimes.com/",
+      "expected_tier": "safe",
+      "auditor_source": "Established broadsheet",
+      "citation": "Tranco-ranked SG outlet",
+      "notes": "unprobed; mild paywall"
+    },
+    {
+      "url": "https://www.irishtimes.com/",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH-ish",
+      "citation": "https://mediabiasfactcheck.com/irish-times/",
+      "notes": "unprobed; mild paywall"
+    },
+    {
+      "url": "https://theconversation.com/",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH (academic)",
+      "citation": "https://mediabiasfactcheck.com/the-conversation/",
+      "notes": "unprobed; stable, open"
+    },
+    {
+      "url": "https://www.c-span.org/",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH (primary video)",
+      "citation": "https://mediabiasfactcheck.com/c-span/",
+      "notes": "unprobed; JS-heavy video pages — prefer article/text pages"
+    },
+    {
+      "url": "https://www.factcheck.org/",
+      "expected_tier": "safe",
+      "auditor_source": "Fact-checker (self)",
+      "citation": "https://www.factcheck.org/",
+      "notes": "unprobed; stable"
+    },
+    {
+      "url": "https://www.dailymail.co.uk/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED/low",
+      "citation": "https://mediabiasfactcheck.com/daily-mail/",
+      "notes": "probed 200; tabloid blend"
+    },
+    {
+      "url": "https://www.breitbart.com/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED/right",
+      "citation": "https://mediabiasfactcheck.com/breitbart/",
+      "notes": "probed 200; partisan"
+    },
+    {
+      "url": "https://www.rt.com/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED/state-funded",
+      "citation": "https://mediabiasfactcheck.com/rt-news/",
+      "notes": "probed 200 slow ~4.2s — exceeds 3s fetch timeout, expect timeout-fallback"
+    },
+    {
+      "url": "https://www.huffpost.com/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED/left",
+      "citation": "https://mediabiasfactcheck.com/huffington-post/",
+      "notes": "unprobed; partisan blend"
+    },
+    {
+      "url": "https://nypost.com/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED",
+      "citation": "https://mediabiasfactcheck.com/new-york-post/",
+      "notes": "unprobed; tabloid blend"
+    },
+    {
+      "url": "https://www.dailykos.com/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED/left",
+      "citation": "https://mediabiasfactcheck.com/daily-kos/",
+      "notes": "unprobed; blog/partisan"
+    },
+    {
+      "url": "https://www.washingtontimes.com/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED/right",
+      "citation": "https://mediabiasfactcheck.com/washington-times/",
+      "notes": "unprobed; partisan"
+    },
+    {
+      "url": "https://www.theblaze.com/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED/right",
+      "citation": "https://mediabiasfactcheck.com/the-blaze/",
+      "notes": "unprobed; partisan"
+    },
+    {
+      "url": "https://www.newsmax.com/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED/low-right",
+      "citation": "https://mediabiasfactcheck.com/newsmax/",
+      "notes": "unprobed; partisan"
+    },
+    {
+      "url": "https://www.zerohedge.com/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED/conspiracy-blend",
+      "citation": "https://mediabiasfactcheck.com/zero-hedge/",
+      "notes": "unprobed; anon-authorship, sensational"
+    },
+    {
+      "url": "https://www.theepochtimes.com/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED",
+      "citation": "https://mediabiasfactcheck.com/the-epoch-times/",
+      "notes": "unprobed; partisan/falun-gong funded"
+    },
+    {
+      "url": "https://www.wnd.com/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC LOW-MIXED",
+      "citation": "https://mediabiasfactcheck.com/worldnetdaily-wnd/",
+      "notes": "unprobed; low factuality edge of caution"
+    },
+    {
+      "url": "https://www.theonion.com/",
+      "expected_tier": "caution",
+      "auditor_source": "Self-declared satire",
+      "citation": "https://www.theonion.com/about",
+      "notes": "probed 200; literal-read trap"
+    },
+    {
+      "url": "https://babylonbee.com/",
+      "expected_tier": "caution",
+      "auditor_source": "Self-declared satire",
+      "citation": "https://babylonbee.com/about",
+      "notes": "unprobed; literal-read trap"
+    },
+    {
+      "url": "https://sputnikglobe.com/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED/state-funded",
+      "citation": "https://mediabiasfactcheck.com/sputnik-news/",
+      "notes": "unprobed; domain migrated after sanctions — use live domain at approval; freeze: research-specified live domain (sputniknews.com migrated after sanctions); liveness unconfirmed at freeze (failure-excluded)"
+    },
+    {
+      "url": "https://www.presstv.ir/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED/state-funded",
+      "citation": "https://mediabiasfactcheck.com/press-tv/",
+      "notes": "unprobed; sanctioned-state media, may be slow/blocked"
+    },
+    {
+      "url": "https://www.globaltimes.cn/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED/state-funded",
+      "citation": "https://mediabiasfactcheck.com/global-times/",
+      "notes": "unprobed; state-funded"
+    },
+    {
+      "url": "https://www.foxnews.com/opinion",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED (opinion vs news)",
+      "citation": "https://mediabiasfactcheck.com/fox-news/",
+      "notes": "unprobed; opinion-section deliberately (news side scores safer)"
+    },
+    {
+      "url": "https://www.msnbc.com/opinion",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED (opinion vs news)",
+      "citation": "https://mediabiasfactcheck.com/msnbc/",
+      "notes": "unprobed; opinion-section deliberately"
+    },
+    {
+      "url": "https://www.dailywire.com/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED/right",
+      "citation": "https://mediabiasfactcheck.com/daily-wire/",
+      "notes": "unprobed; partisan, partial paywall"
+    },
+    {
+      "url": "https://www.palmerreport.com/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC LOW-MIXED/left",
+      "citation": "https://mediabiasfactcheck.com/palmer-report/",
+      "notes": "unprobed; hyperlink-blog style; freeze: cleaned malformed research cell (stray text removed); liveness unconfirmed at freeze (failure-excluded)"
+    },
+    {
+      "url": "https://www.twitchy.com/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED/right",
+      "citation": "https://mediabiasfactcheck.com/twitchy/",
+      "notes": "unprobed; aggregation/commentary"
+    },
+    {
+      "url": "https://www.mediaite.com/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED",
+      "citation": "https://mediabiasfactcheck.com/mediaite/",
+      "notes": "unprobed; media-gossip blend"
+    },
+    {
+      "url": "https://www.rawstory.com/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED/left",
+      "citation": "https://mediabiasfactcheck.com/raw-story/",
+      "notes": "unprobed; sensational-left"
+    },
+    {
+      "url": "https://www.westernjournal.com/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED/right",
+      "citation": "https://mediabiasfactcheck.com/western-journal/",
+      "notes": "unprobed; partisan"
+    },
+    {
+      "url": "https://www.washingtonexaminer.com/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED/right",
+      "citation": "https://mediabiasfactcheck.com/washington-examiner/",
+      "notes": "unprobed; partisan"
+    },
+    {
+      "url": "https://www.nationalreview.com/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC mostly-factual/right-opinion",
+      "citation": "https://mediabiasfactcheck.com/national-review/",
+      "notes": "unprobed; opinion-heavy"
+    },
+    {
+      "url": "https://www.thenation.com/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC mostly-factual/left-opinion",
+      "citation": "https://mediabiasfactcheck.com/the-nation/",
+      "notes": "unprobed; opinion-heavy"
+    },
+    {
+      "url": "https://www.jacobinmag.com/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED/left-opinion",
+      "citation": "https://mediabiasfactcheck.com/jacobin/",
+      "notes": "unprobed; socialist opinion"
+    },
+    {
+      "url": "https://mediabiasfactcheck.com/center/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC self-label CENTER baseline",
+      "citation": "https://mediabiasfactcheck.com/center/",
+      "notes": "probed 200 (homepage); self-reference control — expect safe-leaning, tests calibration"
+    },
+    {
+      "url": "https://www.infowars.com/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC VERY-LOW/conspiracy",
+      "citation": "https://mediabiasfactcheck.com/infowars/",
+      "notes": "probed HEAD 403 bot-check — fetcher likely 403 → tests failure policy; borderline risky"
+    },
+    {
+      "url": "https://www.prisonplanet.com/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC VERY-LOW (Jones network)",
+      "citation": "MBFC infowars network",
+      "notes": "unprobed; may redirect/parked — confirm at approval; borderline risky; freeze: HEAD 403 (resolves, bot-walled) 2026-09-04 — fetcher may 403 (failure-excluded)"
+    },
+    {
+      "url": "https://www.thedailybeast.com/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED",
+      "citation": "https://mediabiasfactcheck.com/daily-beast/",
+      "notes": "unprobed; sensational-center-left"
+    },
+    {
+      "url": "https://www.salon.com/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED/left",
+      "citation": "https://mediabiasfactcheck.com/salon/",
+      "notes": "unprobed; partisan"
+    },
+    {
+      "url": "https://www.naturalnews.com/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC VERY-LOW/pseudoscience",
+      "citation": "https://mediabiasfactcheck.com/natural-news/",
+      "notes": "probed 200; health-misinfo archetype"
+    },
+    {
+      "url": "https://beforeitsnews.com/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC VERY-LOW/conspiracy",
+      "citation": "https://mediabiasfactcheck.com/before-its-news/",
+      "notes": "probed 200; UGC conspiracy"
+    },
+    {
+      "url": "https://www.veteranstoday.com/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC VERY-LOW/conspiracy",
+      "citation": "https://mediabiasfactcheck.com/veterans-today/",
+      "notes": "unprobed; conspiracy"
+    },
+    {
+      "url": "https://www.globalresearch.ca/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC LOW/conspiracy",
+      "citation": "https://mediabiasfactcheck.com/global-research/",
+      "notes": "unprobed; conspiracy-academic veneer"
+    },
+    {
+      "url": "https://thepeoplesvoice.tv/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC VERY-LOW/fake",
+      "citation": "MBFC yournewswire record",
+      "notes": "unprobed; domain renamed — confirm live at approval; freeze: newspunch.com 301 to thepeoplesvoice.tv, HEAD 200 2026-09-04 (renamed ex-YourNewsWire)"
+    },
+    {
+      "url": "https://worldtruth.tv/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC VERY-LOW/conspiracy",
+      "citation": "https://mediabiasfactcheck.com/world-truth-tv/",
+      "notes": "unprobed; may be parked — confirm; freeze: www to root effective URL, HEAD 200 2026-09-04"
+    },
+    {
+      "url": "https://www.collective-evolution.com/ → https://www.collective-evolution.com/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC LOW/pseudoscience",
+      "citation": "https://mediabiasfactcheck.com/collective-evolution/",
+      "notes": "unprobed; rebranded \"Pulse\" — confirm live URL; freeze: HEAD 200 2026-09-04 (Pulse rebrand unconfirmed)"
+    },
+    {
+      "url": "https://www.davidicke.com/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC VERY-LOW/conspiracy",
+      "citation": "https://mediabiasfactcheck.com/david-icke/",
+      "notes": "unprobed; conspiracy"
+    },
+    {
+      "url": "https://www.mercola.com/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC LOW/pseudoscience (+FDA warning history)",
+      "citation": "https://mediabiasfactcheck.com/mercola/",
+      "notes": "unprobed; health-misinfo, JS-heavy"
+    },
+    {
+      "url": "https://articles.mercola.com/",
+      "expected_tier": "risky",
+      "auditor_source": "Same as above (article subtree)",
+      "citation": "as above",
+      "notes": "unprobed; article-level variant"
+    },
+    {
+      "url": "https://www.greenmedinfo.com/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC LOW/pseudoscience",
+      "citation": "https://mediabiasfactcheck.com/greenmedinfo/",
+      "notes": "unprobed; health-misinfo"
+    },
+    {
+      "url": "https://vaccineimpact.com/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC VERY-LOW (Health Impact News network)",
+      "citation": "https://mediabiasfactcheck.com/health-impact-news/",
+      "notes": "unprobed; anti-vaccine; may be parked — confirm; freeze: HEAD 200 2026-09-04"
+    },
+    {
+      "url": "https://www.geoengineeringwatch.org/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC VERY-LOW/conspiracy",
+      "citation": "https://mediabiasfactcheck.com/geoengineering-watch/",
+      "notes": "unprobed; chemtrails conspiracy"
+    },
+    {
+      "url": "https://www.ae911truth.org/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC LOW/conspiracy",
+      "citation": "https://mediabiasfactcheck.com/ae911truth/",
+      "notes": "unprobed; 9/11-truther; listed replacement URL is the live one; freeze: research-specified live replacement; HEAD 200 2026-09-04"
+    },
+    {
+      "url": "https://www.wanttoknow.info/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC LOW/conspiracy",
+      "citation": "https://mediabiasfactcheck.com/want-to-know-info/",
+      "notes": "unprobed; conspiracy"
+    },
+    {
+      "url": "https://thefreethoughtproject.com/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC LOW/conspiracy",
+      "citation": "https://mediabiasfactcheck.com/free-thought-project/",
+      "notes": "unprobed; listed replacement is live domain; freeze: research-specified live domain; HEAD 403 bot-wall at triage 2026-09-04 — fetcher may 403 (failure-excluded)"
+    },
+    {
+      "url": "https://www.activistpost.com/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC LOW/conspiracy",
+      "citation": "https://mediabiasfactcheck.com/activist-post/",
+      "notes": "unprobed; conspiracy-libertarian"
+    },
+    {
+      "url": "https://www.redflagnews.com/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC VERY-LOW/fake",
+      "citation": "MBFC record",
+      "notes": "unprobed; likely dead — confirm or drop at approval; freeze: HEAD 200 2026-09-04"
+    },
+    {
+      "url": "https://sonsoflibertyradio.com/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC VERY-LOW",
+      "citation": "MBFC record",
+      "notes": "unprobed; churn-prone; drop if dead; freeze: research-specified replacement; HEAD 200 2026-09-04"
+    },
+    {
+      "url": "https://www.nationalenquirer.com/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC VERY-LOW/tab Hin",
+      "citation": "https://mediabiasfactcheck.com/national-enquirer/",
+      "notes": "unprobed; supermarket tabloid"
+    },
+    {
+      "url": "https://weeklyworldnews.com/",
+      "expected_tier": "risky",
+      "auditor_source": "Self-declared fake/parody tabloid",
+      "citation": "publisher history",
+      "notes": "unprobed; often parked — confirm or drop; freeze: www to root effective URL, HEAD 200 2026-09-04"
+    },
+    {
+      "url": "https://www.disclose.tv/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC LOW/conspiracy",
+      "citation": "https://mediabiasfactcheck.com/disclose-tv/",
+      "notes": "unprobed; conspiracy-viral"
+    },
+    {
+      "url": "https://www.ancient-code.com/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC LOW/pseudoscience",
+      "citation": "https://mediabiasfactcheck.com/ancient-code/",
+      "notes": "unprobed; pseudo-archaeology"
+    },
+    {
+      "url": "https://www.neonnettle.com/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC VERY-LOW/fake",
+      "citation": "https://mediabiasfactcheck.com/neon-nettle/",
+      "notes": "unprobed; fake-news; may be dead — confirm; freeze: HEAD 403 (resolves, bot-walled) 2026-09-04 — fetcher may 403 (failure-excluded)"
+    },
+    {
+      "url": "https://themindunleashed.com/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC LOW/conspiracy",
+      "citation": "https://mediabiasfactcheck.com/the-mind-unleashed/",
+      "notes": "unprobed; conspiracy"
+    },
+    {
+      "url": "https://humansarefree.com/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC VERY-LOW/conspiracy",
+      "citation": "https://mediabiasfactcheck.com/humans-are-free/",
+      "notes": "unprobed; conspiracy; may be dead — confirm; freeze: www to root effective URL, HEAD 200 2026-09-04"
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Photosynthesis",
+      "expected_tier": "safe",
+      "auditor_source": "Wikipedia stable reference article",
+      "citation": "https://en.wikipedia.org/wiki/Photosynthesis",
+      "notes": "article-level; added at freeze to meet >=10/tier (featured status not individually verified); liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Moon",
+      "expected_tier": "safe",
+      "auditor_source": "Wikipedia stable reference article",
+      "citation": "https://en.wikipedia.org/wiki/Moon",
+      "notes": "article-level; added at freeze to meet >=10/tier (featured status not individually verified); liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/DNA",
+      "expected_tier": "safe",
+      "auditor_source": "Wikipedia stable reference article",
+      "citation": "https://en.wikipedia.org/wiki/DNA",
+      "notes": "article-level; added at freeze to meet >=10/tier (featured status not individually verified); liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Origin_of_DNA",
+      "expected_tier": "safe",
+      "auditor_source": "Wikipedia stable reference article",
+      "citation": "https://en.wikipedia.org/wiki/Origin_of_DNA",
+      "notes": "article-level; added at freeze to meet >=10/tier (featured status not individually verified); liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Evolution_of_photosynthesis",
+      "expected_tier": "safe",
+      "auditor_source": "Wikipedia stable reference article",
+      "citation": "https://en.wikipedia.org/wiki/Evolution_of_photosynthesis",
+      "notes": "article-level; added at freeze to meet >=10/tier (featured status not individually verified); liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://www.britannica.com/science/photosynthesis",
+      "expected_tier": "safe",
+      "auditor_source": "Reference (MBFC HIGH)",
+      "citation": "https://mediabiasfactcheck.com/encyclopaedia-britannica/",
+      "notes": "article-level; added at freeze to meet >=10/tier; liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://www.scientificamerican.com/article/timeline-of-photosynthesis-on-earth/",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH",
+      "citation": "https://mediabiasfactcheck.com/scientific-american/",
+      "notes": "article-level; added at freeze to meet >=10/tier; metered paywall possible (failure-excluded)"
+    },
+    {
+      "url": "https://www.bbc.com/news/articles/c99zwkzzrxvo",
+      "expected_tier": "safe",
+      "auditor_source": "MBFC HIGH + Tranco top",
+      "citation": "https://mediabiasfactcheck.com/bbc/",
+      "notes": "article-level (science news article); added at freeze to meet >=10/tier; liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://babylonbee.com/news/satire-this-article-is-satire-satire",
+      "expected_tier": "caution",
+      "auditor_source": "Self-declared satire",
+      "citation": "https://babylonbee.com/about",
+      "notes": "article-level (meta-satire piece); added at freeze to meet >=10/tier; literal-read trap; liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://babylonbee.com/news/new-baptist-version-of-the-bible-replaces-all-uses-of-hell-with-heck",
+      "expected_tier": "caution",
+      "auditor_source": "Self-declared satire",
+      "citation": "https://babylonbee.com/about",
+      "notes": "article-level; added at freeze to meet >=10/tier; literal-read trap; liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://theonion.com/cautious-study-finds-whatever-everyone-else-found/",
+      "expected_tier": "caution",
+      "auditor_source": "Self-declared satire",
+      "citation": "https://www.theonion.com/about",
+      "notes": "article-level; added at freeze to meet >=10/tier; literal-read trap; liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://www.rawstory.com/trump-january-6-indictment-strategy/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED/left",
+      "citation": "https://mediabiasfactcheck.com/raw-story/",
+      "notes": "article-level; added at freeze to meet >=10/tier; sensational-left outlet; liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://www.rawstory.com/trump-choice/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED/left",
+      "citation": "https://mediabiasfactcheck.com/raw-story/",
+      "notes": "article-level; added at freeze to meet >=10/tier; sensational-left outlet; liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://jacobin.com/2017/03/socialists-working-class-workers-marx-abcs-socialism",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED/left-opinion",
+      "citation": "https://mediabiasfactcheck.com/jacobin/",
+      "notes": "article-level (opinion/interview); added at freeze to meet >=10/tier; liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://jacobin.com/2023/08/post-work-socialism-is-a-tempting-illusion/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED/left-opinion",
+      "citation": "https://mediabiasfactcheck.com/jacobin/",
+      "notes": "article-level (opinion); added at freeze to meet >=10/tier; liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://www.thenation.com/article/society/abortion-bans-pronatalism/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC mostly-factual/left-opinion",
+      "citation": "https://mediabiasfactcheck.com/the-nation/",
+      "notes": "article-level (opinion); added at freeze to meet >=10/tier; liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://www.thenation.com/article/society/abortion-ballot-initiatives-debate/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC mostly-factual/left-opinion",
+      "citation": "https://mediabiasfactcheck.com/the-nation/",
+      "notes": "article-level (opinion); added at freeze to meet >=10/tier; liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://www.thenation.com/article/society/abortion-rights-constitution/",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC mostly-factual/left-opinion",
+      "citation": "https://mediabiasfactcheck.com/the-nation/",
+      "notes": "article-level (opinion); added at freeze to meet >=10/tier; liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://www.zerohedge.com/article/can-hyperinflation-really-hit-us",
+      "expected_tier": "caution",
+      "auditor_source": "MBFC MIXED/conspiracy-blend",
+      "citation": "https://mediabiasfactcheck.com/zero-hedge/",
+      "notes": "article-level; added at freeze to meet >=10/tier; anon-authorship, sensational; liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://greenmedinfo.com/guide/health-guide-turmeric",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC LOW/pseudoscience",
+      "citation": "https://mediabiasfactcheck.com/greenmedinfo/",
+      "notes": "article-level (topic guide page); added at freeze to meet >=10/tier; health-misinfo outlet; liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://greenmedinfo.com/substance/turmeric",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC LOW/pseudoscience",
+      "citation": "https://mediabiasfactcheck.com/greenmedinfo/",
+      "notes": "article-level (substance page); added at freeze to meet >=10/tier; health-misinfo outlet; liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://activistpost.com/2011/05/us-government-deliberate-intention-to.html",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC LOW/conspiracy",
+      "citation": "https://mediabiasfactcheck.com/activist-post/",
+      "notes": "article-level; added at freeze to meet >=10/tier; liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://www.activistpost.com/the-government-is-not-your-friend/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC LOW/conspiracy",
+      "citation": "https://mediabiasfactcheck.com/activist-post/",
+      "notes": "article-level; added at freeze to meet >=10/tier; liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://davidicke.com/2026/05/30/awakening-is-overriding-the-program/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC VERY-LOW/conspiracy",
+      "citation": "https://mediabiasfactcheck.com/david-icke/",
+      "notes": "article-level; added at freeze to meet >=10/tier; liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://davidicke.com/2021/07/23/message-to-the-awakening/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC VERY-LOW/conspiracy",
+      "citation": "https://mediabiasfactcheck.com/david-icke/",
+      "notes": "article-level; added at freeze to meet >=10/tier; liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://geoengineeringwatch.org/ads-resources/dane-wigington/",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC VERY-LOW/conspiracy",
+      "citation": "https://mediabiasfactcheck.com/geoengineering-watch/",
+      "notes": "page-level (advocate bio page, chemtrails conspiracy); added at freeze to meet >=10/tier; liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://www.globalresearch.ca/the-future-of-nato/5650437",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC LOW/conspiracy",
+      "citation": "https://mediabiasfactcheck.com/global-research/",
+      "notes": "article-level; added at freeze to meet >=10/tier; liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://www.globalresearch.ca/remarks-feds-4-freedom-symposium-july-1/5932485",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC LOW/conspiracy",
+      "citation": "https://mediabiasfactcheck.com/global-research/",
+      "notes": "article-level; added at freeze to meet >=10/tier; liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://www.globalresearch.ca/the-deep-state-as-fake-news/5581794",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC LOW/conspiracy",
+      "citation": "https://mediabiasfactcheck.com/global-research/",
+      "notes": "article-level; added at freeze to meet >=10/tier; liveness unconfirmed (failure-excluded)"
+    },
+    {
+      "url": "https://www.globalresearch.ca/global-research-daily-news-behind-news-6/5932518",
+      "expected_tier": "risky",
+      "auditor_source": "MBFC LOW/conspiracy",
+      "citation": "https://mediabiasfactcheck.com/global-research/",
+      "notes": "page-level (daily digest); added at freeze to meet >=10/tier; liveness unconfirmed (failure-excluded)"
+    }
+  ]
+}
