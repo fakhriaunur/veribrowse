@@ -1,13 +1,23 @@
 // Functional core for checkClaim — fail-closed, provenance-bearing.
 
+import type { TrustLevel } from "./score";
+
 export type Verdict = "supported" | "contradicted" | "unverified";
 
 export type ClaimInput = { claim: string; contextUrl?: string };
+
+// Display-only link-back badge (VAL-CROSS-024): per-evidence-URL trust
+// computed in-request by the check route via scoreWebsitePure. Carries no
+// timestamps so fixture shapes stay byte-compatible ignoring
+// retrievedAt/checkedAt. Never influences verdict/confidence.
+export type EvidenceBadge = { trust: number; level: TrustLevel };
+
 export type Evidence = {
   url: string;
   quote: string;
   contentHash: string;
   retrievedAt: string;
+  badge?: EvidenceBadge;
 };
 
 export type ClaimResult = {
