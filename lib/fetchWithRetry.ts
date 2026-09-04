@@ -34,6 +34,30 @@ function isAbortError(e: unknown): boolean {
   return (e as Error)?.name === "AbortError";
 }
 
+/**
+ * Timeout-originated error classifier (m10 timeout-classification fix).
+ *
+ * `AbortSignal.timeout()` (the 3s per-attempt timeout above) aborts with a
+ * `TimeoutError` DOMException ("The operation was aborted due to timeout"),
+ * NOT an `AbortError`. The message contains "aborted", so naive `/abort/i`
+ * matching in the route handlers misroutes gateway stalls to the
+ * client-abort (499) path instead of the contracted fail-closed 200
+ * fallback. Route handlers must check `isTimeoutError` FIRST and take the
+ * heuristic/fail-closed fallback; genuine client aborts keep the name
+ * `AbortError` and still map to 499. No timeout/retry/breaker values change.
+ */
+export function isTimeoutError(e: unknown): boolean {
+  const err = e as Error | undefined;
+  if (err?.name === "TimeoutError") return true;
+  const cause = (e as { cause?: unknown })?.cause as Error | undefined;
+  if (cause?.name === "TimeoutError") return true;
+  const msg = err?.message ?? "";
+  // The TimeoutError message pairs both words ("aborted ... timeout");
+  // requiring the pair keeps bare "aborted" (client abort) and bare
+  // "timeout" (unrelated) errors on their existing paths.
+  return /timeout/i.test(msg) && /abort/i.test(msg);
+}
+
 /** Exponential backoff 200/400ms plus jitter, capped under 1s. */
 export function backoffMs(attempt: number): number {
   const base = BACKOFF_BASE_MS * Math.pow(2, attempt);

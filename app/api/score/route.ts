@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { scoreWebsiteSchema } from "@/lib/schemas";
 import { buildTrustScore, type FetchMeta } from "@/lib/score";
 import { withRequestId } from "@/lib/logger";
-import { fetchWithRetry } from "@/lib/fetchWithRetry";
+import { fetchWithRetry, isTimeoutError } from "@/lib/fetchWithRetry";
 import { createFetchMemo } from "@/lib/fetchMemo";
 import { inc } from "@/lib/metrics";
 
@@ -28,6 +28,10 @@ function hashBytes(s: string): string {
 }
 
 function isAbortError(e: unknown): boolean {
+  // Timeout-originated errors (TimeoutError from AbortSignal.timeout) are
+  // NEVER client aborts: exempt them so gateway stalls fall through to the
+  // heuristic 200 fallback instead of the 499 abort path below.
+  if (isTimeoutError(e)) return false;
   const name = (e as Error)?.name ?? "";
   const msg = (e as Error)?.message ?? "";
   return name === "AbortError" || /abort/i.test(name) || /abort/i.test(msg);
@@ -213,7 +217,14 @@ export async function GET(req: Request) {
       );
       if (og) ogDesc = og[1].trim().slice(0, 200);
     } catch (e) {
-      if (isAbortError(e) || signal.aborted || /abort/i.test(String(e))) {
+      // Timeout-originated stall: not a client abort — fall through to the
+      // minimal-meta heuristic 200 below (isAbortError already exempts
+      // TimeoutError; the String(e) test needs the same guard because the
+      // TimeoutError message contains "aborted").
+      if (
+        !isTimeoutError(e) &&
+        (isAbortError(e) || signal.aborted || /abort/i.test(String(e)))
+      ) {
         return abort();
       }
       log.warn(
