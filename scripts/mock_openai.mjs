@@ -129,14 +129,16 @@ function sendJson(res, status, obj) {
 const MAX_DELAY_MS = 30000;
 
 function sleep(rawMs, req, res) {
-  const n = Number(rawMs);
-  const ms =
-    !Number.isFinite(n) || n <= 0 ? 0 : Math.min(MAX_DELAY_MS, Math.floor(n));
+  const delay = Number(rawMs);
+  // Explicit range guard in the documented CodeQL js/resource-exhaustion
+  // GOOD shape: out-of-range delays never reach setTimeout (the sink only
+  // ever sees a value proven within [1, MAX_DELAY_MS] by the comparisons
+  // dominating it).
+  if (!Number.isFinite(delay) || delay <= 0 || delay > MAX_DELAY_MS) {
+    return Promise.resolve(false);
+  }
+  const ms = Math.floor(delay);
   return new Promise((resolve) => {
-    if (ms <= 0) {
-      resolve(false);
-      return;
-    }
     // The request stream is already closed once its body is read (normal),
     // so a mid-delay client abort surfaces on the RESPONSE, not the request.
     // Listen on both; already-closed emitters simply never fire again.
