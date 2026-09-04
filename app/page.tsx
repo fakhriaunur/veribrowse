@@ -15,6 +15,15 @@ import {
 } from "@/lib/recents";
 import type { TrustScore } from "@/lib/score";
 import type { ClaimResult } from "@/lib/claim";
+import llmTimeoutConfig from "@/config/llm.json";
+
+// Nerd-view LLM step-timeout bounds (VAL-WEB-020): rendered as the number
+// input's min/max attributes. The server (`lib/llm.ts` resolveStepTimeout,
+// wired in both routes) clamps any submitted value into this range and
+// applies the default when the input is left untouched.
+const LLM_TIMEOUT_MIN_MS = llmTimeoutConfig.timeoutMs.min;
+const LLM_TIMEOUT_MAX_MS = llmTimeoutConfig.timeoutMs.max;
+const LLM_TIMEOUT_DEFAULT_MS = llmTimeoutConfig.timeoutMs.default;
 
 // Extend global for WebMCP
 declare global {
@@ -45,6 +54,17 @@ export default function Home() {
   const [scoreError, setScoreError] = useState<string | null>(null);
   const [checkLoading, setCheckLoading] = useState(false);
   const [checkError, setCheckError] = useState<string | null>(null);
+  // Nerd-view only LLM step timeout (ms, raw string). Empty = untouched =
+  // omit the param so the server applies its configured default. A raw
+  // out-of-range value is submitted as-is; the server clamps into [min,max].
+  const [llmTimeoutMs, setLlmTimeoutMs] = useState("");
+
+  // Append the nerd timeout param only when the input was touched, so
+  // untouched requests stay byte-identical (server default applies).
+  const timeoutQuery = () => {
+    const t = llmTimeoutMs.trim();
+    return t ? `&llmTimeoutMs=${encodeURIComponent(t)}` : "";
+  };
 
   const appendLog = (msg: string) =>
     setLog((l) => [
@@ -216,7 +236,9 @@ export default function Home() {
     setScoreLoading(true);
     setScoreError(null);
     try {
-      const res = await fetch(`/api/score?url=${encodeURIComponent(url)}`);
+      const res = await fetch(
+        `/api/score?url=${encodeURIComponent(url)}${timeoutQuery()}`,
+      );
       const data = (await res.json()) as TrustScore & { error?: string };
       if (!res.ok)
         throw new Error(data.error ?? `Score failed (${res.status})`);
@@ -238,6 +260,8 @@ export default function Home() {
     try {
       const qs = new URLSearchParams({ claim });
       if (contextUrl) qs.set("contextUrl", contextUrl);
+      const t = llmTimeoutMs.trim();
+      if (t) qs.set("llmTimeoutMs", t);
       const res = await fetch(`/api/check?${qs.toString()}`);
       const data = (await res.json()) as ClaimResult & { error?: string };
       if (!res.ok)
@@ -283,6 +307,33 @@ export default function Home() {
             Nerd verbose
           </label>
         </div>
+        {verbose && (
+          <div className="mt-3 flex max-w-xs flex-col gap-1 text-sm">
+            <label htmlFor="llm-timeout" className="text-xs font-medium">
+              LLM step timeout (ms)
+            </label>
+            <input
+              id="llm-timeout"
+              type="number"
+              inputMode="numeric"
+              min={LLM_TIMEOUT_MIN_MS}
+              max={LLM_TIMEOUT_MAX_MS}
+              placeholder={String(LLM_TIMEOUT_DEFAULT_MS)}
+              value={llmTimeoutMs}
+              onChange={(e) => setLlmTimeoutMs(e.target.value)}
+              aria-describedby="llm-timeout-help"
+              className="rounded border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-seam dark:bg-abyss dark:text-zinc-100 dark:placeholder:text-zinc-500"
+            />
+            <p
+              id="llm-timeout-help"
+              className="text-xs text-zinc-500 dark:text-zinc-400"
+            >
+              Nerds only: per-step LLM budget {LLM_TIMEOUT_MIN_MS}–
+              {LLM_TIMEOUT_MAX_MS} ms (default {LLM_TIMEOUT_DEFAULT_MS} when
+              empty). Out-of-range values are clamped server-side.
+            </p>
+          </div>
+        )}
       </header>
 
       <section
